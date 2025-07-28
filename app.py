@@ -4,7 +4,6 @@ import folium
 from streamlit_folium import st_folium
 from datetime import datetime
 from logger_gsheets import log_event  # Importa nuestra función de logging
-from streamlit_star_rating import st_star_rating
 
 # -------------------------
 # CONFIGURACIÓN INICIAL
@@ -157,15 +156,18 @@ if opcion == "Sistema inteligente de recomendación turística":
         # log_event("recomendaciones", {"lugares": predicciones_finales["nombre"].tolist()})
 
         # Feedback
-        feedback = st_star_rating(
-            label="¿Qué valoración darías a estas recomendaciones?",
-            maxValue=5,        
-            defaultValue=3,    
-            key="feedback_stars"
+        feedback = st.slider(
+            "¿Qué valoración darías a estas recomendaciones?",
+            min_value=1,
+            max_value=5,
+            value=3
         )
+        st.write("Tu valoración:", "⭐" * feedback)
+        
         if st.button("Enviar valoración"):
-            # log_event("feedback", {"satisfaccion": feedback})
+            log_event("feedback", {"satisfaccion": feedback})
             st.success(f"¡Gracias por tu valoración de {feedback} estrellas!")
+
 
 elif opcion == "Descubre Carboneras de Guadazaón":
     mostrar_informacion_local()
