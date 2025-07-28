@@ -4,4 +4,3 @@ folium
 streamlit-folium
 gspread
 google-auth
-streamlit-star-rating
