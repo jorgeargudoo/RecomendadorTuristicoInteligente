@@ -4,6 +4,7 @@ import folium
 from streamlit_folium import st_folium
 from datetime import datetime
 from logger_gsheets import log_event  # Importa nuestra función de logging
+from streamlit_star_rating import st_star_rating
 
 # -------------------------
 # CONFIGURACIÓN INICIAL
@@ -131,14 +132,14 @@ opcion = st.radio("Selecciona una opción:",
                   ["Sistema inteligente de recomendación turística", "Descubre Carboneras de Guadazaón"])
 
 # Log de selección
-log_event("navegacion", {"opcion": opcion})
+# log_event("navegacion", {"opcion": opcion})
 
 if opcion == "Sistema inteligente de recomendación turística":
     st.header("Recomendador turístico")
     datos_usuario = formulario_usuario()
 
     if st.button("Obtener recomendaciones"):
-        log_event("cuestionario", datos_usuario)
+        # log_event("cuestionario", datos_usuario)
 
         # [ESPACIO MODELO] Aquí cargarás el modelo
         # predicciones_modelo = modelo.predict(datos_usuario_transformado)
@@ -153,13 +154,18 @@ if opcion == "Sistema inteligente de recomendación turística":
         ])
         st.success("¡Recomendaciones generadas!")
         mostrar_mapa_recomendaciones(predicciones_finales)
-        log_event("recomendaciones", {"lugares": predicciones_finales["nombre"].tolist()})
+        # log_event("recomendaciones", {"lugares": predicciones_finales["nombre"].tolist()})
 
         # Feedback
-        feedback = st.radio("¿Te resultaron útiles estas recomendaciones?", ["Sí", "No"])
-        if st.button("Enviar feedback"):
-            log_event("feedback", {"satisfaccion": feedback})
-            st.success("¡Gracias por tu opinión!")
+        feedback = st_star_rating(
+            label="¿Qué valoración darías a estas recomendaciones?",
+            maxValue=5,        
+            defaultValue=3,    
+            key="feedback_stars"
+        )
+        if st.button("Enviar valoración"):
+            # log_event("feedback", {"satisfaccion": feedback})
+            st.success(f"¡Gracias por tu valoración de {feedback} estrellas!")
 
 elif opcion == "Descubre Carboneras de Guadazaón":
     mostrar_informacion_local()
