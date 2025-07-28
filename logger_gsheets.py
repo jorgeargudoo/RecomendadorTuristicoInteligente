@@ -11,7 +11,7 @@ SCOPE = [
 ]
 
 # Nombre de tu hoja de Google Sheets (cámbialo si es distinto)
-SPREADSHEET_NAME = "Logs_Turismo_Carboneras"
+SPREADSHEET_NAME = "Logs_TurismoCarboneras"
 
 def get_sheet():
     """
