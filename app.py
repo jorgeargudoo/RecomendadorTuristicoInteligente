@@ -3,7 +3,7 @@ import pandas as pd
 import folium
 from streamlit_folium import st_folium
 from datetime import datetime
-from logger import log_event  # Importa nuestra función de logging
+from logger_gsheets import log_event  # Importa nuestra función de logging
 
 # -------------------------
 # CONFIGURACIÓN INICIAL
