@@ -8,7 +8,7 @@ from logger import log_event  # Importa nuestra función de logging
 # -------------------------
 # CONFIGURACIÓN INICIAL
 # -------------------------
-st.set_page_config(page_title="Turismo Carboneras de Guadazaón", layout="wide")
+st.set_page_config(page_title="Turismo en Carboneras de Guadazaón", layout="wide")
 
 # -------------------------
 # FUNCIONES AUXILIARES
@@ -25,28 +25,76 @@ def mostrar_mapa_recomendaciones(predicciones):
 
 def formulario_usuario():
     st.write("Por favor, rellena este formulario para obtener recomendaciones personalizadas:")
-    edad = st.slider("¿Cuál es tu edad?", 10, 80, 25)
-    genero = st.selectbox("¿Cuál es tu género?", ["Hombre", "Mujer"])
-    residencia = st.selectbox("¿Vives en Carboneras?", ["Sí", "No"])
-    freq_actividad = st.selectbox("¿Con qué frecuencia realizas actividades turísticas?",
-                                  ["Solo en fiestas o vacaciones", "De vez en cuando",
-                                   "Varias veces por semana", "A diario"])
-    freq_recom = st.selectbox("¿Con qué frecuencia recomiendas actividades a otras personas?",
-                              ["Nunca", "Pocas veces", "A menudo", "Siempre"])
-    actividades = st.multiselect(
-        "¿Qué actividades recomendarías a familias?",
-        ["Senderismo", "Museos", "Restaurantes", "Parques"]
-    )
 
+    # Edad
+    edad = st.slider("¿Cuál es tu edad?", 10, 80, 25)
+
+    # Género
+    genero = st.selectbox("¿Cuál es tu género?", ["Hombre", "Mujer", "Otro"])
+    if genero == "Hombre":
+        genero_cod = 0
+    elif genero == "Mujer":
+        genero_cod = 1
+    else:
+        genero_cod = 0.5  # Valor neutro
+
+    # Residencia (one-hot)
+    residencia_opciones = ["Sí, todo el año", "Solo en verano o en vacaciones", "No, pero soy de aquí", "No"]
+    residencia = st.selectbox("¿Vives en Carboneras?", residencia_opciones)
+    residencia_dict = {op: 0 for op in residencia_opciones}
+    residencia_dict[residencia] = 1
+
+    # Frecuencia de actividades turísticas (map 0-3)
+    actividad_opciones = ["Solo en fiestas o vacaciones", "De vez en cuando", "Varias veces por semana", "A diario"]
+    freq_actividad = st.selectbox("¿Con qué frecuencia realizas actividades turísticas?", actividad_opciones)
+    actividad_map = {actividad_opciones[i]: i for i in range(len(actividad_opciones))}
+    freq_actividad_cod = actividad_map[freq_actividad]
+
+    # Frecuencia de recomendaciones (1 a 5)
+    freq_recom_opciones = ["Nunca", "Pocas veces", "A veces", "A menudo", "Siempre"]
+    freq_recom = st.selectbox("¿Con qué frecuencia recomiendas actividades a otras personas?", freq_recom_opciones)
+    freq_recom_map = {freq_recom_opciones[i]: i + 1 for i in range(len(freq_recom_opciones))}
+    freq_recom_cod = freq_recom_map[freq_recom]
+
+    # Actividades recomendadas por grupos
+    actividades_disponibles = [
+        "Naturaleza y paseos", "Rutas", "Monumentos o historia",
+        "Sitios tranquilos para descansar", "Eventos o fiestas",
+        "Bares y restaurantes"
+    ]
+
+    st.subheader("¿Qué actividades recomendarías a familias?")
+    actividades_familias = st.multiselect("", actividades_disponibles)
+
+    st.subheader("¿Qué actividades recomendarías a jóvenes?")
+    actividades_jovenes = st.multiselect("", actividades_disponibles)
+
+    st.subheader("¿Qué actividades recomendarías a mayores?")
+    actividades_mayores = st.multiselect("", actividades_disponibles)
+
+    # Codificar actividades como columnas binarias
+    def codificar_actividades(actividades_seleccionadas, grupo):
+        return {f"{grupo}_{actividad}": 1 if actividad in actividades_seleccionadas else 0
+                for actividad in actividades_disponibles}
+
+    recom_familias = codificar_actividades(actividades_familias, "recom_familias")
+    recom_jovenes = codificar_actividades(actividades_jovenes, "recom_jovenes")
+    recom_mayores = codificar_actividades(actividades_mayores, "recom_mayores")
+
+    # Crear un diccionario con todas las variables
     datos_usuario = {
         "edad": edad,
-        "genero": genero,
-        "residencia": residencia,
-        "freq_actividad": freq_actividad,
-        "freq_recom": freq_recom,
-        "actividades_familias": actividades
+        "genero": genero_cod,
+        "actividad_frecuencia": freq_actividad_cod,
+        "freq_recom": freq_recom_cod,
+        **residencia_dict,
+        **recom_familias,
+        **recom_jovenes,
+        **recom_mayores
     }
+
     return datos_usuario
+
 
 def mostrar_informacion_local():
     st.header("Descubre Carboneras de Guadazaón")
