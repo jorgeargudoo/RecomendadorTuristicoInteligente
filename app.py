@@ -56,22 +56,33 @@ def formulario_usuario():
     freq_recom_map = {freq_recom_opciones[i]: i + 1 for i in range(len(freq_recom_opciones))}
     freq_recom_cod = freq_recom_map[freq_recom]
 
-    # Actividades recomendadas por grupos
+        # Actividades recomendadas por grupos
     actividades_disponibles = [
         "Naturaleza y paseos", "Rutas", "Monumentos o historia",
         "Sitios tranquilos para descansar", "Eventos o fiestas",
         "Bares y restaurantes"
     ]
-
+    
     st.subheader("¿Qué actividades recomendarías a familias?")
-    actividades_familias = st.multiselect("", actividades_disponibles)
-
+    actividades_familias = st.multiselect(
+        "Selecciona actividades para familias",
+        actividades_disponibles,
+        key="familias"
+    )
+    
     st.subheader("¿Qué actividades recomendarías a jóvenes?")
-    actividades_jovenes = st.multiselect("", actividades_disponibles)
-
+    actividades_jovenes = st.multiselect(
+        "Selecciona actividades para jóvenes",
+        actividades_disponibles,
+        key="jovenes"
+    )
+    
     st.subheader("¿Qué actividades recomendarías a mayores?")
-    actividades_mayores = st.multiselect("", actividades_disponibles)
-
+    actividades_mayores = st.multiselect(
+        "Selecciona actividades para mayores",
+        actividades_disponibles,
+        key="mayores"
+    )
     # Codificar actividades como columnas binarias
     def codificar_actividades(actividades_seleccionadas, grupo):
         return {f"{grupo}_{actividad}": 1 if actividad in actividades_seleccionadas else 0
