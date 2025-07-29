@@ -10,12 +10,12 @@ from datetime import datetime
 # -------------------------
 st.set_page_config(page_title="Carboneras de Guadazaón", layout="wide")
 
-# Estilos personalizados
+# Estilos CSS
 st.markdown("""
     <style>
-        body {
+        /* Color de fondo */
+        .stApp {
             background-color: #eaf5ea; /* Verde pastel */
-            font-family: 'Georgia', serif; /* Fuente con toque rural */
         }
         .main-title {
             text-align: center;
@@ -23,27 +23,21 @@ st.markdown("""
             font-weight: bold;
             color: #2f4f2f;
         }
+        .title-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+        }
+        .title-container img {
+            height: 80px;
+        }
         .subtitle {
             text-align: center;
             font-size: 1.2em;
             color: #4f704f;
             margin-top: -10px;
             font-style: italic;
-        }
-        .nav-links {
-            text-align: center;
-            margin-top: 30px;
-        }
-        .nav-links a {
-            margin: 0 15px;
-            font-size: 1.1em;
-            color: #2f4f2f;
-            text-decoration: none;
-            font-weight: bold;
-        }
-        .nav-links a:hover {
-            color: #3c6e3c;
-            text-decoration: underline;
         }
     </style>
 """, unsafe_allow_html=True)
@@ -139,8 +133,16 @@ def mostrar_sobre_nosotros():
 # -------------------------
 # CUERPO PRINCIPAL
 # -------------------------
-st.markdown('<div class="main-title">Carboneras de Guadazaón</div>', unsafe_allow_html=True)
-st.markdown('<div class="subtitle">DONDE REPOSA EL SUEÑO DEL NUEVO MUNDO</div>', unsafe_allow_html=True)
+# Título con escudo
+col1, col2, col3 = st.columns([1, 3, 1])
+with col2:
+    st.markdown(f"""
+        <div class="title-container">
+            <img src="data:image/png;base64,{st.image('/imagenes/escudo.png').data}" alt="Escudo">
+            <div class="main-title">Carboneras de Guadazaón</div>
+        </div>
+    """, unsafe_allow_html=True)
+    st.markdown('<div class="subtitle">DONDE REPOSA EL SUEÑO DEL NUEVO MUNDO</div>', unsafe_allow_html=True)
 
 # Navegación principal
 pagina = st.radio(
@@ -156,24 +158,18 @@ elif pagina == "Recomendador turístico":
     st.header("Recomendador turístico")
     datos_usuario = formulario_usuario()
     if st.button("Obtener recomendaciones"):
-        # log_event("cuestionario", datos_usuario)
-
         predicciones_finales = pd.DataFrame([
             {"nombre": "Castillo de Aliaga", "lat": 39.867, "lon": -1.818, "descripcion": "Castillo medieval."},
             {"nombre": "Parque Natural", "lat": 39.865, "lon": -1.815, "descripcion": "Senderos y áreas verdes."}
         ])
         st.success("¡Recomendaciones generadas!")
         mostrar_mapa_recomendaciones(predicciones_finales)
-
         feedback = st.slider("¿Qué valoración darías a estas recomendaciones?", min_value=1, max_value=5, value=3)
         st.write("Tu valoración:", "⭐" * feedback)
-
         if st.button("Enviar valoración"):
             # log_event("feedback", {"satisfaccion": feedback})
             st.success(f"¡Gracias por tu valoración de {feedback} estrellas!")
-
 elif pagina == "Servicios":
     mostrar_servicios()
 elif pagina == "Sobre nosotros":
     mostrar_sobre_nosotros()
-
