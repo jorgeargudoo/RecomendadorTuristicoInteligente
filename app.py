@@ -138,7 +138,6 @@ col1, col2, col3 = st.columns([1, 3, 1])
 with col2:
     st.markdown(f"""
         <div class="title-container">
-            <img src="data:image/png;base64,{st.image('/imagenes/escudo.png').data}" alt="Escudo">
             <div class="main-title">Carboneras de Guadazaón</div>
         </div>
     """, unsafe_allow_html=True)
