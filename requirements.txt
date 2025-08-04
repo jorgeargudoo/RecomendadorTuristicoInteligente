@@ -8,3 +8,4 @@ joblib
 requests
 gspread
 google-auth
+networkx
