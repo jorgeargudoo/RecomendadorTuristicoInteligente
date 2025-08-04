@@ -256,8 +256,25 @@ def recomendar(clima):
     sim.input['UV'] = clima.get('UV', 5)
     sim.compute()
     return sim.output.get('recom_exterior')
-    
-LUGARES_EXTERIOR = {"castillo_aliaga", "parque_natural", "mirador_sierra"}
+
+LUGARES_EXTERIOR = {
+            "CastilloAliaga",
+            "LagunaCaolin",
+            "RiberaRioGuadazaon",
+            "CerritoArena",
+            "MiradorCruz",
+            "FuenteTresCanos",
+            "PuenteCristinasRioCabriel",
+            "TorcasPalancaresTierraMuerta",
+            "LagunasCanadaHoyo",
+            "ChorrerasRioCabriel",
+            "FachadaHarinas",
+            "Ruta1",
+            "Ruta2",
+            "SaltoBalsa",
+            "MiradorPicarcho"
+}
+
 
 def filtrar_por_clima(recomendaciones, clima):
     """
@@ -311,7 +328,26 @@ elif pagina == "Recomendador turístico":
         predicciones_binarias = modelo_recomendador.predict(df_usuario)[0]
         
         # Extraer los nombres de lugares a partir de las columnas del modelo
-        lugares = [col.replace("valoracion_", "") for col in modelo_recomendador.estimators_[0].classes_]
+        lugares = [
+            "IglesiaSantoDomingoSilos",
+            "PanteonMarquesesMoya",
+            "CastilloAliaga",
+            "LagunaCaolin",
+            "RiberaRioGuadazaon",
+            "CerritoArena",
+            "MiradorCruz",
+            "FuenteTresCanos",
+            "PuenteCristinasRioCabriel",
+            "TorcasPalancaresTierraMuerta",
+            "LagunasCanadaHoyo",
+            "ChorrerasRioCabriel",
+            "FachadaHarinas",
+            "Ruta1",
+            "Ruta2",
+            "SaltoBalsa",
+            "MiradorPicarcho"
+        ]
+
         recomendaciones_dict = {lugar: int(pred) for lugar, pred in zip(lugares, predicciones_binarias)}
         
         # Intentar obtener clima desde AEMET
@@ -346,6 +382,7 @@ elif pagina == "Servicios":
     mostrar_servicios()
 elif pagina == "Sobre nosotros":
     mostrar_sobre_nosotros()
+
 
 
 
