@@ -355,7 +355,7 @@ elif pagina == "Recomendador turístico":
         aemet = AEMET(api_key=API_KEY_AEMET)
         clima_hoy = None
         try:
-            datos_url = aemet.get_prediccion_url("16064")  # ID de Carboneras de Guadazaón
+            datos_url = aemet.get_prediccion_url("16055")  # ID de Carboneras de Guadazaón
             prediccion_dia = aemet.get_datos_prediccion(datos_url)
             clima_hoy = aemet.extraer_datos_relevantes(prediccion_dia)
             recomendaciones_filtradas = filtrar_por_clima(recomendaciones_dict, clima_hoy)
@@ -363,7 +363,7 @@ elif pagina == "Recomendador turístico":
         except Exception as e:
             recomendaciones_filtradas = recomendaciones_dict
             st.warning("No se pudo obtener el clima actual desde AEMET. Las recomendaciones no han sido filtradas por condiciones meteorológicas.")
-        
+            st.text(f"Error: {str(e)}")
         # Mostrar lugares recomendados
         lugares_recomendados = [lugar for lugar, v in recomendaciones_filtradas.items() if v == 1]
         
@@ -382,6 +382,7 @@ elif pagina == "Servicios":
     mostrar_servicios()
 elif pagina == "Sobre nosotros":
     mostrar_sobre_nosotros()
+
 
 
 
