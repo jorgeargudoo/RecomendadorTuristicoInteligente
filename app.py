@@ -106,8 +106,16 @@ def formulario_usuario():
 
     residencia_opciones = ["Sí, todo el año", "Solo en verano o en vacaciones", "No, pero soy de aquí", "No"]
     residencia = st.selectbox("¿Vives en Carboneras?", residencia_opciones)
-    residencia_dict = {op: 0 for op in residencia_opciones}
-    residencia_dict[residencia] = 1
+    residencia_dict = pd.get_dummies(pd.Series([residencia]), prefix="residencia")
+    residencia_dict = residencia_dict.reindex(columns=[
+    'residencia_Sí, todo el año',
+    'residencia_Solo en verano o en vacaciones',
+    'residencia_No, pero soy de aquí',
+    'residencia_No'
+    ], fill_value=0)
+
+    residencia_dict = residencia_dict.iloc[0].to_dict()
+
 
     actividad_opciones = ["Solo en fiestas o vacaciones", "De vez en cuando", "Varias veces por semana", "A diario"]
     freq_actividad = st.selectbox("¿Con qué frecuencia realizas actividades turísticas?", actividad_opciones)
@@ -143,16 +151,15 @@ def formulario_usuario():
     recom_mayores = codificar_actividades(actividades_mayores, "recom_mayores")
 
     datos_usuario = {
-        "edad": edad,
-        "genero": genero_cod,
-        "actividad_frecuencia": freq_actividad_cod,
-        "freq_recom": freq_recom_cod,
-        **residencia_dict,
-        **recom_familias,
-        **recom_jovenes,
-        **recom_mayores
+    "edad": edad,
+    "genero": genero_cod,
+    "actividad_frecuencia": freq_actividad_cod,
+    "freq_recom": freq_recom_cod,
+    **residencia_dict,
+    **recom_familias,
+    **recom_jovenes,
+    **recom_mayores
     }
-
     return datos_usuario
 
 def mostrar_informacion_local():
@@ -315,5 +322,6 @@ elif pagina == "Servicios":
     mostrar_servicios()
 elif pagina == "Sobre nosotros":
     mostrar_sobre_nosotros()
+
 
 
