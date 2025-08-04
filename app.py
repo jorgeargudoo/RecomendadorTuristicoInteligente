@@ -24,23 +24,50 @@ class AEMET:
         self.base_url = "https://opendata.aemet.es/opendata/api"
 
     def get_prediccion_url(self, id_municipio):
+        """Obtiene la URL de los datos crudos para un municipio."""
         resp = requests.get(
             f"{self.base_url}/prediccion/especifica/municipio/diaria/{id_municipio}",
             headers={"api_key": self.api_key}
         )
+        resp.raise_for_status()
         return resp.json().get("datos")
 
     def get_datos_prediccion(self, datos_url):
+        """Descarga el JSON de predicción desde la URL proporcionada por AEMET."""
         resp = requests.get(datos_url)
-        return resp.json()[0]  # día de hoy
+        resp.raise_for_status()
+        datos = resp.json()
+
+        # Asegurarnos de que existe la estructura esperada
+        if isinstance(datos, list) and "prediccion" in datos[0]:
+            return datos[0]["prediccion"]["dia"][0]  # Día de hoy
+        else:
+            raise ValueError("Estructura de JSON inesperada en datos de AEMET")
 
     def extraer_datos_relevantes(self, prediccion_dia):
-        return {
-            "tmax": int(prediccion_dia["temperatura"]["maxima"]),
-            "tmin": int(prediccion_dia["temperatura"]["minima"]),
-            "lluvia": int(prediccion_dia["probPrecipitacion"][0]["value"]) if prediccion_dia["probPrecipitacion"][0]["value"] else 0,
-            "UV": int(prediccion_dia.get("uvMax", 5))  # valor por defecto si no hay UV
-        }
+        """Extrae las variables relevantes para el sistema de recomendaciones."""
+        try:
+            fecha = prediccion_dia.get("fecha", None)
+
+            tmax = prediccion_dia.get("temperatura", {}).get("maxima", None)
+            tmin = prediccion_dia.get("temperatura", {}).get("minima", None)
+
+            # Precipitación: tomamos el primer valor disponible (periodo 00-24)
+            prob_lluvia = 0
+            if "probPrecipitacion" in prediccion_dia and len(prediccion_dia["probPrecipitacion"]) > 0:
+                prob_lluvia = prediccion_dia["probPrecipitacion"][0].get("value", 0) or 0
+
+            uv = prediccion_dia.get("uvMax", None)
+
+            return {
+                "fecha": fecha,
+                "tmax": int(tmax) if tmax is not None else None,
+                "tmin": int(tmin) if tmin is not None else None,
+                "lluvia": int(prob_lluvia),
+                "UV": int(uv) if uv is not None else None
+            }
+        except Exception as e:
+            raise ValueError(f"Error extrayendo datos: {e}")
 
 modelo_recomendador = joblib.load("modelo_turismo.pkl")
 
@@ -381,6 +408,7 @@ elif pagina == "Servicios":
     mostrar_servicios()
 elif pagina == "Sobre nosotros":
     mostrar_sobre_nosotros()
+
 
 
 
