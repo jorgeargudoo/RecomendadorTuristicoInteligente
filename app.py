@@ -160,6 +160,7 @@ def formulario_usuario():
     **recom_jovenes,
     **recom_mayores
     }
+    
     return datos_usuario
 
 def mostrar_informacion_local():
@@ -279,9 +280,32 @@ elif pagina == "Recomendador turístico":
     st.header("Recomendador turístico")
     datos_usuario = formulario_usuario()
     if st.button("Obtener recomendaciones"):
-        # Crear input como DataFrame de una fila
+        # Asegurarse de que las columnas de entrada coincidan con las del modelo
+        columnas_entrenamiento = [
+            'edad', 'genero', 'actividad_frecuencia', 'freq_recom',
+            'residencia_No', 'residencia_No, pero soy de aquí',
+            'residencia_Solo en verano o en vacaciones', 'residencia_Sí, todo el año',
+            'recom_familias_Naturaleza y paseos', 'recom_familias_Rutas',
+            'recom_familias_Monumentos o historia', 'recom_familias_Sitios tranquilos para descansar',
+            'recom_familias_Eventos o fiestas', 'recom_familias_Bares y restaurantes',
+            'recom_jovenes_Naturaleza y paseos', 'recom_jovenes_Rutas',
+            'recom_jovenes_Monumentos o historia', 'recom_jovenes_Sitios tranquilos para descansar',
+            'recom_jovenes_Eventos o fiestas', 'recom_jovenes_Bares y restaurantes',
+            'recom_mayores_Naturaleza y paseos', 'recom_mayores_Rutas',
+            'recom_mayores_Monumentos o historia', 'recom_mayores_Sitios tranquilos para descansar',
+            'recom_mayores_Eventos o fiestas', 'recom_mayores_Bares y restaurantes'
+        ]
+        
         df_usuario = pd.DataFrame([datos_usuario])
         
+        # Rellenar columnas faltantes con 0
+        for col in columnas_entrenamiento:
+            if col not in df_usuario.columns:
+                df_usuario[col] = 0
+        
+        # Asegurar el mismo orden de columnas
+        df_usuario = df_usuario[columnas_entrenamiento]
+
         # Predecir con el modelo cargado
         modelo_recomendador = cargar_modelo()
         predicciones_binarias = modelo_recomendador.predict(df_usuario)[0]
@@ -322,6 +346,7 @@ elif pagina == "Servicios":
     mostrar_servicios()
 elif pagina == "Sobre nosotros":
     mostrar_sobre_nosotros()
+
 
 
 
