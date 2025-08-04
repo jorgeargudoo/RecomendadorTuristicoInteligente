@@ -7,6 +7,7 @@ import joblib
 import skfuzzy as fuzz
 from skfuzzy import control as ctrl
 import requests
+import numpy as np
 import os
 
 # Ruta relativa al modelo en tu repo
@@ -314,4 +315,5 @@ elif pagina == "Servicios":
     mostrar_servicios()
 elif pagina == "Sobre nosotros":
     mostrar_sobre_nosotros()
+
 
