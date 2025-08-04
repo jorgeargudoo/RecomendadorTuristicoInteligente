@@ -36,7 +36,6 @@ class AEMET:
 
     def extraer_datos_relevantes(self, prediccion_dia):
         return {
-            "fecha": prediccion_dia["fecha"],
             "tmax": int(prediccion_dia["temperatura"]["maxima"]),
             "tmin": int(prediccion_dia["temperatura"]["minima"]),
             "lluvia": int(prediccion_dia["probPrecipitacion"][0]["value"]) if prediccion_dia["probPrecipitacion"][0]["value"] else 0,
@@ -382,6 +381,7 @@ elif pagina == "Servicios":
     mostrar_servicios()
 elif pagina == "Sobre nosotros":
     mostrar_sobre_nosotros()
+
 
 
 
