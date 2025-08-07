@@ -499,6 +499,7 @@ if pagina == "Descubre Carboneras de Guadazaón":
     mostrar_informacion_local()
 elif pagina == "Recomendador turístico":
     st.header("Recomendador turístico")
+    datos_usuario = formulario_usuario()  
     columnas_entrenamiento = [
             'edad', 'genero', 'actividad_frecuencia', 'freq_recom',
             'residencia_No', 'residencia_No, pero soy de aquí',
@@ -596,6 +597,7 @@ elif pagina == "Servicios":
     mostrar_servicios()
 elif pagina == "Sobre nosotros":
     mostrar_sobre_nosotros()
+
 
 
 
