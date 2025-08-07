@@ -411,6 +411,7 @@ elif pagina == "Recomendador turístico":
         recomendaciones_dict = {lugar: int(pred) for lugar, pred in zip(lugares, predicciones_binarias)}
         
         # Intentar obtener clima desde AEMET
+        clima_hoy = None
         try:
             clima_hoy = obtener_clima_hoy()  # usa la función cacheada
             recomendaciones_filtradas = filtrar_por_clima(recomendaciones_dict, clima_hoy)
@@ -438,6 +439,7 @@ elif pagina == "Servicios":
     mostrar_servicios()
 elif pagina == "Sobre nosotros":
     mostrar_sobre_nosotros()
+
 
 
 
