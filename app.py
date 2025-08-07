@@ -588,11 +588,11 @@ elif pagina == "Recomendador turístico":
             feedback = st.slider("¿Qué valoración darías a estas recomendaciones?", min_value=1, max_value=5, value=3)
             st.write("Tu valoración:", "⭐" * feedback)
         
-            if st.button("Enviar valoración", key="enviar_valoracion")):
+            if st.button("Enviar valoración", key="enviar_valoracion"):
                 # log_event("feedback", {"satisfaccion": feedback})
                 st.success(f"¡Gracias por tu valoración de {feedback} estrellas!")
         
-            if st.button("Volver a empezar", key="volver_a_empezar")):
+            if st.button("Volver a empezar", key="volver_a_empezar"):
                 st.session_state.clear()
                 st.experimental_rerun()
 
@@ -600,6 +600,7 @@ elif pagina == "Servicios":
     mostrar_servicios()
 elif pagina == "Sobre nosotros":
     mostrar_sobre_nosotros()
+
 
 
 
