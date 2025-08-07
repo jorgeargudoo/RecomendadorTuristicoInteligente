@@ -556,23 +556,22 @@ elif pagina == "Recomendador turístico":
         
         # Intentar obtener clima desde AEMET
         # Paso 1: Guardar en session_state los resultados (DENTRO del if st.button)
-        if st.button("Obtener recomendaciones"):
-            try:
-                clima_hoy = obtener_clima_hoy()
-                recomendaciones_filtradas = filtrar_por_clima(recomendaciones_dict, clima_hoy)
-                st.session_state.clima_hoy = clima_hoy
-                st.session_state.score_exterior = recomendar(clima_hoy)
-                st.info(f"Filtrado climático aplicado. Score exterior: {st.session_state.score_exterior:.2f}")
-            except Exception as e:
-                recomendaciones_filtradas = recomendaciones_dict
-                st.session_state.clima_hoy = None
-                st.warning("No se pudo obtener el clima actual. Las recomendaciones no han sido filtradas por condiciones meteorológicas.")
-                st.text(f"Error: {str(e)}")
+        try:
+            clima_hoy = obtener_clima_hoy()
+            recomendaciones_filtradas = filtrar_por_clima(recomendaciones_dict, clima_hoy)
+            st.session_state.clima_hoy = clima_hoy
+            st.session_state.score_exterior = recomendar(clima_hoy)
+            st.info(f"Filtrado climático aplicado. Score exterior: {st.session_state.score_exterior:.2f}")
+        except Exception as e:
+            recomendaciones_filtradas = recomendaciones_dict
+            st.session_state.clima_hoy = None
+            st.warning("No se pudo obtener el clima actual. Las recomendaciones no han sido filtradas por condiciones meteorológicas.")
+            st.text(f"Error: {str(e)}")
         
-            st.session_state.lugares_recomendados = [
-                lugar for lugar, v in recomendaciones_filtradas.items() if v == 1
-            ]
-            st.session_state.mostrar_resultados = True  # Activamos el bloque de visualización
+        st.session_state.lugares_recomendados = [
+            lugar for lugar, v in recomendaciones_filtradas.items() if v == 1
+        ]
+        st.session_state.mostrar_resultados = True  # Activamos el bloque de visualización
         
         # Paso 2: Mostrar mapa y feedback SI hay resultados
         if st.session_state.get("mostrar_resultados", False):
@@ -600,6 +599,7 @@ elif pagina == "Servicios":
     mostrar_servicios()
 elif pagina == "Sobre nosotros":
     mostrar_sobre_nosotros()
+
 
 
 
