@@ -499,10 +499,7 @@ if pagina == "Descubre Carboneras de Guadazaón":
     mostrar_informacion_local()
 elif pagina == "Recomendador turístico":
     st.header("Recomendador turístico")
-    datos_usuario = formulario_usuario()
-    if st.button("Obtener recomendaciones"):
-        # Asegurarse de que las columnas de entrada coincidan con las del modelo
-        columnas_entrenamiento = [
+    columnas_entrenamiento = [
             'edad', 'genero', 'actividad_frecuencia', 'freq_recom',
             'residencia_No', 'residencia_No, pero soy de aquí',
             'residencia_Solo en verano o en vacaciones', 'residencia_Sí, todo el año',
@@ -517,88 +514,89 @@ elif pagina == "Recomendador turístico":
             'recom_mayores_Eventos o fiestas', 'recom_mayores_Bares y restaurantes'
         ]
         
-        df_usuario = pd.DataFrame([datos_usuario])
+    df_usuario = pd.DataFrame([datos_usuario])
         
-        # Rellenar columnas faltantes con 0
-        for col in columnas_entrenamiento:
-            if col not in df_usuario.columns:
-                df_usuario[col] = 0
+    # Rellenar columnas faltantes con 0
+    for col in columnas_entrenamiento:
+        if col not in df_usuario.columns:
+            df_usuario[col] = 0
         
-        # Asegurar el mismo orden de columnas
-        df_usuario = df_usuario[columnas_entrenamiento]
+    # Asegurar el mismo orden de columnas
+    df_usuario = df_usuario[columnas_entrenamiento]
 
-        # Predecir con el modelo cargado
+        
+    # Extraer los nombres de lugares a partir de las columnas del modelo
+    lugares = [
+        "IglesiaSantoDomingoSilos",
+        "PanteonMarquesesMoya",
+        "CastilloAliaga",
+        "LagunaCaolin",
+        "RiberaRioGuadazaon",
+        "CerritoArena",
+        "MiradorCruz",
+        "FuenteTresCanos",
+        "PuenteCristinasRioCabriel",
+        "TorcasPalancaresTierraMuerta",
+        "LagunasCanadaHoyo",
+        "ChorrerasRioCabriel",
+        "FachadaHarinas",
+        "Ruta1",
+        "Ruta2",
+        "SaltoBalsa",
+        "MiradorPicarcho"
+    ]
+    if st.button("Obtener recomendaciones", key="obtener_recomendaciones"):
+        # Predecir
         modelo_recomendador = cargar_modelo()
         predicciones_binarias = modelo_recomendador.predict(df_usuario)[0]
-        
-        # Extraer los nombres de lugares a partir de las columnas del modelo
-        lugares = [
-            "IglesiaSantoDomingoSilos",
-            "PanteonMarquesesMoya",
-            "CastilloAliaga",
-            "LagunaCaolin",
-            "RiberaRioGuadazaon",
-            "CerritoArena",
-            "MiradorCruz",
-            "FuenteTresCanos",
-            "PuenteCristinasRioCabriel",
-            "TorcasPalancaresTierraMuerta",
-            "LagunasCanadaHoyo",
-            "ChorrerasRioCabriel",
-            "FachadaHarinas",
-            "Ruta1",
-            "Ruta2",
-            "SaltoBalsa",
-            "MiradorPicarcho"
-        ]
-
         recomendaciones_dict = {lugar: int(pred) for lugar, pred in zip(lugares, predicciones_binarias)}
-        
-        # Intentar obtener clima desde AEMET
-        # Paso 1: Guardar en session_state los resultados (DENTRO del if st.button)
         try:
             clima_hoy = obtener_clima_hoy()
             recomendaciones_filtradas = filtrar_por_clima(recomendaciones_dict, clima_hoy)
+            score_exterior = recomendar(clima_hoy)
             st.session_state.clima_hoy = clima_hoy
-            st.session_state.score_exterior = recomendar(clima_hoy)
-            st.info(f"Filtrado climático aplicado. Score exterior: {st.session_state.score_exterior:.2f}")
+            st.session_state.score_exterior = score_exterior
+            st.info(f"Filtrado climático aplicado. Score exterior: {score_exterior:.2f}")
         except Exception as e:
             recomendaciones_filtradas = recomendaciones_dict
             st.session_state.clima_hoy = None
             st.warning("No se pudo obtener el clima actual. Las recomendaciones no han sido filtradas por condiciones meteorológicas.")
             st.text(f"Error: {str(e)}")
-        
-        st.session_state.lugares_recomendados = [
-            lugar for lugar, v in recomendaciones_filtradas.items() if v == 1
-        ]
-        st.session_state.mostrar_resultados = True  # Activamos el bloque de visualización
-        
-        # Paso 2: Mostrar mapa y feedback SI hay resultados
-        if st.session_state.get("mostrar_resultados", False):
-            clima = st.session_state.get("clima_hoy", None)
-            lugares_recomendados = st.session_state.get("lugares_recomendados", [])
-        
-            if lugares_recomendados:
-                st.success("Lugares recomendados según tus gustos y el clima actual:" if clima else "Lugares recomendados según tus gustos:")
-                mostrar_mapa_recomendaciones(lugares_recomendados, LUGARES_INFO)
-            else:
-                st.warning("No se encontraron lugares recomendados para ti.")
-        
-            feedback = st.slider("¿Qué valoración darías a estas recomendaciones?", min_value=1, max_value=5, value=3)
-            st.write("Tu valoración:", "⭐" * feedback)
-        
-            if st.button("Enviar valoración", key="enviar_valoracion"):
-                # log_event("feedback", {"satisfaccion": feedback})
-                st.success(f"¡Gracias por tu valoración de {feedback} estrellas!")
-        
-            if st.button("Volver a empezar", key="volver_a_empezar"):
-                st.session_state.clear()
-                st.experimental_rerun()
+    
+        # Guardar resultados en sesión
+        st.session_state.lugares_recomendados = [lugar for lugar, v in recomendaciones_filtradas.items() if v == 1]
+        st.session_state.mostrar_resultados = True
+    
+    # ------------------------------
+    # ✅ 2. BLOQUE PERMANENTE: mostrar el mapa y el feedback si ya se hizo clic
+    # ------------------------------
+    if st.session_state.get("mostrar_resultados", False):
+        lugares_recomendados = st.session_state.get("lugares_recomendados", [])
+        clima_hoy = st.session_state.get("clima_hoy", None)
+    
+        if lugares_recomendados:
+            st.success("Lugares recomendados según tus gustos y el clima actual:" if clima_hoy else "Lugares recomendados según tus gustos:")
+            mostrar_mapa_recomendaciones(lugares_recomendados, LUGARES_INFO)
+        else:
+            st.warning("No se encontraron lugares recomendados para ti.")
+    
+        feedback = st.slider("¿Qué valoración darías a estas recomendaciones?", min_value=1, max_value=5, value=3)
+        st.write("Tu valoración:", "⭐" * feedback)
+    
+        if st.button("Enviar valoración", key="enviar_valoracion"):
+            # log_event("feedback", {"satisfaccion": feedback})
+            st.success(f"¡Gracias por tu valoración de {feedback} estrellas!")
+    
+        if st.button("Volver a empezar", key="volver_a_empezar"):
+            st.session_state.clear()
+            st.experimental_rerun()
+
 
 elif pagina == "Servicios":
     mostrar_servicios()
 elif pagina == "Sobre nosotros":
     mostrar_sobre_nosotros()
+
 
 
 
