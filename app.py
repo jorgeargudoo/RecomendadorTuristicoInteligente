@@ -555,46 +555,52 @@ elif pagina == "Recomendador turístico":
         recomendaciones_dict = {lugar: int(pred) for lugar, pred in zip(lugares, predicciones_binarias)}
         
         # Intentar obtener clima desde AEMET
-        clima_hoy = None
-        try:
-            clima_hoy = obtener_clima_hoy()  # usa la función cacheada
-            recomendaciones_filtradas = filtrar_por_clima(recomendaciones_dict, clima_hoy)
-            st.info(f"Filtrado climático aplicado. Score exterior: {recomendar(clima_hoy):.2f}")
-        except Exception as e:
-            recomendaciones_filtradas = recomendaciones_dict
-            st.warning("No se pudo obtener el clima actual. Las recomendaciones no han sido filtradas por condiciones meteorológicas.")
-            st.text(f"Error: {str(e)}")
-        # Guardar resultados en session_state
-        st.session_state.lugares_recomendados = [lugar for lugar, v in recomendaciones_filtradas.items() if v == 1]
-        st.session_state.clima_hoy = clima_hoy
-        st.session_state.mostrar_resultados = True
+        # Paso 1: Guardar en session_state los resultados (DENTRO del if st.button)
+        if st.button("Obtener recomendaciones"):
+            try:
+                clima_hoy = obtener_clima_hoy()
+                recomendaciones_filtradas = filtrar_por_clima(recomendaciones_dict, clima_hoy)
+                st.session_state.clima_hoy = clima_hoy
+                st.session_state.score_exterior = recomendar(clima_hoy)
+                st.info(f"Filtrado climático aplicado. Score exterior: {st.session_state.score_exterior:.2f}")
+            except Exception as e:
+                recomendaciones_filtradas = recomendaciones_dict
+                st.session_state.clima_hoy = None
+                st.warning("No se pudo obtener el clima actual. Las recomendaciones no han sido filtradas por condiciones meteorológicas.")
+                st.text(f"Error: {str(e)}")
         
-        # Mostrar mensaje de éxito
-        st.success(
-            "Lugares recomendados según tus gustos y el clima actual:"
-            if st.session_state.clima_hoy else "Lugares recomendados según tus gustos:"
-        )
+            st.session_state.lugares_recomendados = [
+                lugar for lugar, v in recomendaciones_filtradas.items() if v == 1
+            ]
+            st.session_state.mostrar_resultados = True  # Activamos el bloque de visualización
         
-        # Mostrar mapa con marcadores interactivos
-        mostrar_mapa_recomendaciones(st.session_state.lugares_recomendados, LUGARES_INFO)
+        # Paso 2: Mostrar mapa y feedback SI hay resultados
+        if st.session_state.get("mostrar_resultados", False):
+            clima = st.session_state.get("clima_hoy", None)
+            lugares_recomendados = st.session_state.get("lugares_recomendados", [])
         
-        # Feedback interactivo
-        feedback = st.slider("¿Qué valoración darías a estas recomendaciones?", min_value=1, max_value=5, value=3)
-        st.write("Tu valoración:", "⭐" * feedback)
+            if lugares_recomendados:
+                st.success("Lugares recomendados según tus gustos y el clima actual:" if clima else "Lugares recomendados según tus gustos:")
+                mostrar_mapa_recomendaciones(lugares_recomendados, LUGARES_INFO)
+            else:
+                st.warning("No se encontraron lugares recomendados para ti.")
         
-        if st.button("Enviar valoración"):
-            # log_event("feedback", {"satisfaccion": feedback})
-            st.success(f"¡Gracias por tu valoración de {feedback} estrellas!")
+            feedback = st.slider("¿Qué valoración darías a estas recomendaciones?", min_value=1, max_value=5, value=3)
+            st.write("Tu valoración:", "⭐" * feedback)
         
-        # Botón para reiniciar (opcional)
-        if st.button("Volver a empezar"):
-            st.session_state.clear()
-            st.experimental_rerun()
+            if st.button("Enviar valoración"):
+                # log_event("feedback", {"satisfaccion": feedback})
+                st.success(f"¡Gracias por tu valoración de {feedback} estrellas!")
+        
+            if st.button("Volver a empezar"):
+                st.session_state.clear()
+                st.experimental_rerun()
 
 elif pagina == "Servicios":
     mostrar_servicios()
 elif pagina == "Sobre nosotros":
     mostrar_sobre_nosotros()
+
 
 
 
