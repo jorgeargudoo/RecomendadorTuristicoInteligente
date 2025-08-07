@@ -9,7 +9,6 @@ from skfuzzy import control as ctrl
 import requests
 import numpy as np
 import os
-
 # Ruta relativa al modelo en tu repo
 RUTA_MODELO = "modelo_turismo.pkl"
 
@@ -148,13 +147,36 @@ st.markdown("""
 # FUNCIONES AUXILIARES
 # -------------------------
 
-def mostrar_mapa_recomendaciones(predicciones):
-    m = folium.Map(location=[39.8667, -1.8167], zoom_start=13)
-    for _, lugar in predicciones.iterrows():
-        folium.Marker(
-            [lugar['lat'], lugar['lon']],
-            popup=f"{lugar['nombre']} - {lugar['descripcion']}"
-        ).add_to(m)
+def mostrar_mapa_recomendaciones(lugares_recomendados, LUGARES_INFO):
+    """
+    Muestra en un mapa solo los lugares recomendados, con popups detallados.
+    
+    Parámetros:
+    - lugares_recomendados: lista con claves tipo "CastilloAliaga", "Ruta1", etc.
+    - LUGARES_INFO: diccionario anidado con la información detallada de cada lugar
+    """
+    m = folium.Map(location=[39.883, -1.80], zoom_start=13)
+
+    for clave in lugares_recomendados:
+        lugar = LUGARES_INFO.get(clave)
+        if lugar:
+            # Generar HTML para el popup
+            nombre = lugar.get("nombre", "Lugar sin nombre")
+            descripcion = lugar.get("descripcion", "")
+            imagen = lugar.get("imagen_url", "")
+            
+            popup_html = f"<b>{nombre}</b><br>"
+            if imagen:
+                popup_html += f'<img src="{imagen}" width="200"><br>'
+            popup_html += f'<p style="width:200px;">{descripcion}</p>'
+
+            folium.Marker(
+                location=[lugar["lat"], lugar["lon"]],
+                popup=folium.Popup(popup_html, max_width=250),
+                icon=folium.Icon(color="green", icon="info-sign")
+            ).add_to(m)
+
+    # Mostrar el mapa en Streamlit
     st_folium(m, width=700, height=500)
 
 def formulario_usuario():
@@ -335,6 +357,128 @@ LUGARES_EXTERIOR = {
             "MiradorPicarcho"
 }
 
+LUGARES_INFO = {
+    "IglesiaSantoDomingoSilos": {
+        "nombre": "Iglesia de Santo Domingo de Silos",
+        "lat": 39.901,  # aproximado desde waymarking GPS: N 39° 54.058 → 39.901; W 1° 48.786 → -1.8131:contentReference[oaicite:1]{index=1}
+        "lon": -1.8131,
+        "descripcion": "Iglesia medieval (siglos XIII‑XIV) con techos mudéjares, portada isabelina y espadaña herreriana.",
+        "imagen_url": ""
+    },
+    "PanteonMarquesesMoya": {
+        "nombre": "Iglesia‑Panteón de los Marqueses de Moya",
+        "lat": 39.901,  # misma ubicación aproximada que la iglesia anterior
+        "lon": -1.8131,
+        "descripcion": "Templo gótico‑isabelino donde descansan los fundadores dominicos, tumba de los Marqueses de Moya.",
+        "imagen_url": ""
+    },
+    "CastilloAliaga": {
+        "nombre": "Castillo de Aliaga",
+        "lat": 39.90,  # aproximado según ruta y descripciones visuales:contentReference[oaicite:2]{index=2}
+        "lon": -1.82,
+        "descripcion": "Ruinas medievales en colina (1 044 m alt.) con restos de murallas escalonadas de planta irregular.",
+        "imagen_url": ""
+    },
+    "LagunaCaolin": {
+        "nombre": "Laguna de Caolín",
+        "lat": 39.90,  # aproximado dentro del entorno de Carboneras
+        "lon": -1.82,
+        "descripcion": "Antigua cantera convertida en laguna turquesa, paisaje natural llamativo.",
+        "imagen_url": ""
+    },
+    "RiberaRioGuadazaon": {
+        "nombre": "Ribera del Río Guadazaón",
+        "lat": 39.883,  # coordenadas de Carboneras como referencia justa
+        "lon": -1.800,
+        "descripcion": "Tramo de ribera agrícola junto al río Guadazaón: huertas, flora de ribera y paseo tranquilo.",
+        "imagen_url": ""
+    },
+    "CerritoArena": {
+        "nombre": "Cerrito de la Arena",
+        "lat": 39.883,  # estimado cerca del entorno urbano
+        "lon": -1.800,
+        "descripcion": "Cerro y yacimiento neolítico con hallazgos de útiles prehistóricos (mazos de piedra).",
+        "imagen_url": ""
+    },
+    "MiradorCruz": {
+        "nombre": "Mirador de la Cruz",
+        "lat": 39.90,  # estimado loma cercana
+        "lon": -1.80,
+        "descripcion": "Mirador panorámico sobre la loma con cruz, vistas de campos y montes serranos.",
+        "imagen_url": ""
+    },
+    "FuenteTresCanos": {
+        "nombre": "Fuente de los Tres Caños",
+        "lat": 39.883,  # centro urbano
+        "lon": -1.800,
+        "descripcion": "Fuente pública con tres caños y pilón en el pueblo, antiguo punto de abrevadero.",
+        "imagen_url": ""
+    },
+    "PuenteCristinasRioCabriel": {
+        "nombre": "Puente de las Cristinas (río Cabriel)",
+        "lat": 39.89,  # aproximado entre Carboneras y Pajaroncillo:contentReference[oaicite:3]{index=3}
+        "lon": -1.79,
+        "descripcion": "Puente del siglo XVI sobre el Cabriel, financiado por dominicos, restaurado recientemente.",
+        "imagen_url": ""
+    },
+    "TorcasPalancaresTierraMuerta": {
+        "nombre": "Torcas de Palancares / Tierra Muerta",
+        "lat": 39.95,  # aproximado Serranía de Cuenca
+        "lon": -1.80,
+        "descripcion": "Monumento Natural: 22 dolinas kársticas profundas en zona forestal protegida.",
+        "imagen_url": ""
+    },
+    "LagunasCanadaHoyo": {
+        "nombre": "Lagunas de Cañada del Hoyo",
+        "lat": 39.9846,  # desde Panoramio GPS:contentReference[oaicite:4]{index=4}
+        "lon": -1.8734,
+        "descripcion": "Complejo de lagunas kársticas multicolor, Monumento Natural declarado en 2007.",
+        "imagen_url": ""
+    },
+    "ChorrerasRioCabriel": {
+        "nombre": "Las Chorreras del río Cabriel",
+        "lat": 39.95,  # estimado entre Enguídanos y Víllora
+        "lon": -1.70,
+        "descripcion": "Cascadas, pozas turquesas y senderos junto al Cabriel, entorno geológico singular.",
+        "imagen_url": ""
+    },
+    "FachadaHarinas": {
+        "nombre": "Fachada de la antigua fábrica de harinas",
+        "lat": 39.883,  # centro urbano
+        "lon": -1.800,
+        "descripcion": "Imponente fachada industrial de la vieja fábrica (1948), ahora en desuso.",
+        "imagen_url": ""
+    },
+    "Ruta1": {
+        "nombre": "Sendero Hoz del río Algarra",
+        "lat": 39.87,  # aproximado entorno del río afluente
+        "lon": -1.82,
+        "descripcion": "Sendero por la hoz del río Algarra entre vegetación de ribera y roquedo.",
+        "imagen_url": ""
+    },
+    "Ruta2": {
+        "nombre": "Ruta de los molinos de agua",
+        "lat": 39.883,
+        "lon": -1.800,
+        "descripcion": "Ruta para descubrir antiguos molinos hidráulicos junto al cauce y huertas del pueblo.",
+        "imagen_url": ""
+    },
+    "SaltoBalsa": {
+        "nombre": "Salto de la Balsa",
+        "lat": 39.90,  # ubicación aproximada entorno húmedo
+        "lon": -1.78,
+        "descripcion": "Pequeña cascada y pozas naturales en el arroyo la Balsa en entorno boscoso.",
+        "imagen_url": ""
+    },
+    "MiradorPicarcho": {
+        "nombre": "Mirador del Picarcho",
+        "lat": 39.967,  # coordenadas de Cañada del Hoyo → asumir cerro cercano:contentReference[oaicite:5]{index=5}
+        "lon": -1.900,
+        "descripcion": "Mirador en cerro con vistas panorámicas y yacimiento arqueológico de Edad del Bronce.",
+        "imagen_url": ""
+    }
+}
+
 
 def filtrar_por_clima(recomendaciones, clima):
     """
@@ -425,11 +569,7 @@ elif pagina == "Recomendador turístico":
         lugares_recomendados = [lugar for lugar, v in recomendaciones_filtradas.items() if v == 1]
         
         st.success("Lugares recomendados según tus gustos y el clima actual:" if clima_hoy else "Lugares recomendados según tus gustos:")
-        for lugar in lugares_recomendados:
-            st.write(f"- {lugar}")
-
-        st.success("¡Recomendaciones generadas!")
-        mostrar_mapa_recomendaciones(predicciones_finales)
+        mostrar_mapa_recomendaciones(lugares_recomendados, LUGARES_INFO)
         feedback = st.slider("¿Qué valoración darías a estas recomendaciones?", min_value=1, max_value=5, value=3)
         st.write("Tu valoración:", "⭐" * feedback)
         if st.button("Enviar valoración"):
@@ -439,6 +579,7 @@ elif pagina == "Servicios":
     mostrar_servicios()
 elif pagina == "Sobre nosotros":
     mostrar_sobre_nosotros()
+
 
 
 
