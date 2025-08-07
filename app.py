@@ -69,6 +69,40 @@ class AEMET:
         except Exception as e:
             raise ValueError(f"Error extrayendo datos: {e}")
 
+class OpenUV:
+    def __init__(self, api_key):
+        self.api_key = api_key
+        self.base_url = "https://api.openuv.io/api/v1"
+
+    def get_current_uv(self, lat, lon):
+        """Obtiene el UV actual en tiempo real desde OpenUV."""
+        headers = {"x-access-token": self.api_key}
+        params = {"lat": lat, "lng": lon}
+        resp = requests.get(f"{self.base_url}/uv", headers=headers, params=params)
+        resp.raise_for_status()
+        data = resp.json()
+        return round(data["result"]["uv"], 2)  # UV actual redondeado a 2 decimales
+
+@st.cache_data(ttl=3600)  # cachea durante 1 hora
+def obtener_clima_hoy():
+    """Consulta AEMET y OpenUV, y devuelve el clima de hoy."""
+    API_KEY_AEMET = st.secrets["API_KEY_AEMET"]
+    API_KEY_OPENUV = st.secrets["API_KEY_OPENUV"]
+
+    aemet = AEMET(api_key=API_KEY_AEMET)
+    openuv = OpenUV(api_key=API_KEY_OPENUV)
+
+    # 1️⃣ Obtener datos base desde AEMET
+    datos_url = aemet.get_prediccion_url("16055")  # ID de Carboneras de Guadazaón
+    prediccion_dia = aemet.get_datos_prediccion(datos_url)
+    clima_hoy = aemet.extraer_datos_relevantes(prediccion_dia)
+
+    # 2️⃣ Sustituir UV por valor actual desde OpenUV
+    uv_actual = openuv.get_current_uv(lat=39.8997, lon=-1.8123)
+    clima_hoy["UV"] = uv_actual
+
+    return clima_hoy
+
 modelo_recomendador = joblib.load("modelo_turismo.pkl")
 
 # from logger_gsheets import log_event  # Logs desactivados por ahora
@@ -377,19 +411,15 @@ elif pagina == "Recomendador turístico":
         recomendaciones_dict = {lugar: int(pred) for lugar, pred in zip(lugares, predicciones_binarias)}
         
         # Intentar obtener clima desde AEMET
-        API_KEY_AEMET = st.secrets["API_KEY_AEMET"]
-        aemet = AEMET(api_key=API_KEY_AEMET)
-        clima_hoy = None
         try:
-            datos_url = aemet.get_prediccion_url("16055")  # ID de Carboneras de Guadazaón
-            prediccion_dia = aemet.get_datos_prediccion(datos_url)
-            clima_hoy = aemet.extraer_datos_relevantes(prediccion_dia)
+            clima_hoy = obtener_clima_hoy()  # usa la función cacheada
             recomendaciones_filtradas = filtrar_por_clima(recomendaciones_dict, clima_hoy)
             st.info(f"Filtrado climático aplicado. Score exterior: {recomendar(clima_hoy):.2f}")
         except Exception as e:
             recomendaciones_filtradas = recomendaciones_dict
-            st.warning("No se pudo obtener el clima actual desde AEMET. Las recomendaciones no han sido filtradas por condiciones meteorológicas.")
+            st.warning("No se pudo obtener el clima actual. Las recomendaciones no han sido filtradas por condiciones meteorológicas.")
             st.text(f"Error: {str(e)}")
+
         # Mostrar lugares recomendados
         lugares_recomendados = [lugar for lugar, v in recomendaciones_filtradas.items() if v == 1]
         
@@ -408,6 +438,7 @@ elif pagina == "Servicios":
     mostrar_servicios()
 elif pagina == "Sobre nosotros":
     mostrar_sobre_nosotros()
+
 
 
 
