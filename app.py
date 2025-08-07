@@ -564,21 +564,38 @@ elif pagina == "Recomendador turístico":
             recomendaciones_filtradas = recomendaciones_dict
             st.warning("No se pudo obtener el clima actual. Las recomendaciones no han sido filtradas por condiciones meteorológicas.")
             st.text(f"Error: {str(e)}")
-
-        # Mostrar lugares recomendados
-        lugares_recomendados = [lugar for lugar, v in recomendaciones_filtradas.items() if v == 1]
+        # Guardar resultados en session_state
+        st.session_state.lugares_recomendados = [lugar for lugar, v in recomendaciones_filtradas.items() if v == 1]
+        st.session_state.clima_hoy = clima_hoy
+        st.session_state.mostrar_resultados = True
         
-        st.success("Lugares recomendados según tus gustos y el clima actual:" if clima_hoy else "Lugares recomendados según tus gustos:")
-        mostrar_mapa_recomendaciones(lugares_recomendados, LUGARES_INFO)
+        # Mostrar mensaje de éxito
+        st.success(
+            "Lugares recomendados según tus gustos y el clima actual:"
+            if st.session_state.clima_hoy else "Lugares recomendados según tus gustos:"
+        )
+        
+        # Mostrar mapa con marcadores interactivos
+        mostrar_mapa_recomendaciones(st.session_state.lugares_recomendados, LUGARES_INFO)
+        
+        # Feedback interactivo
         feedback = st.slider("¿Qué valoración darías a estas recomendaciones?", min_value=1, max_value=5, value=3)
         st.write("Tu valoración:", "⭐" * feedback)
+        
         if st.button("Enviar valoración"):
             # log_event("feedback", {"satisfaccion": feedback})
             st.success(f"¡Gracias por tu valoración de {feedback} estrellas!")
+        
+        # Botón para reiniciar (opcional)
+        if st.button("Volver a empezar"):
+            st.session_state.clear()
+            st.experimental_rerun()
+
 elif pagina == "Servicios":
     mostrar_servicios()
 elif pagina == "Sobre nosotros":
     mostrar_sobre_nosotros()
+
 
 
 
