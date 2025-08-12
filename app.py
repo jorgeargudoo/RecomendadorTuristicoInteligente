@@ -152,43 +152,65 @@ st.markdown("""
 # -------------------------
 # FUNCIONES AUXILIARES
 # -------------------------
-POPUP_W = 820   # ancho del panel
-MAP_W   = 900   # ponlo igual que en st_folium(...)
-MAP_H   = 520   # ponlo igual que en st_folium(...)
 
-def _popup_html_two_cols(lugar, box_w=POPUP_W):
-    """Popup en dos columnas: texto izquierda, imagen derecha (con fallback si no hay imagen)."""
-    nombre = html.escape(lugar.get("nombre", ""))
-    descripcion = html.escape(lugar.get("descripcion", ""))
+POPUP_MAX_W = 820  # ancho máximo en escritorio
+
+def _popup_html_two_cols(lugar):
+    """Popup responsive: 2 columnas en ancho grande, 1 columna en móvil, centrado sin huecos."""
+    import html as _html
+    nombre = _html.escape(lugar.get("nombre", ""))
+    descripcion = _html.escape(lugar.get("descripcion", ""))
     img = (lugar.get("imagen_url") or "").strip()
 
-    # columna derecha solo si hay imagen
-    right_col = f"""
-        <div style="flex:1 1 46%; max-width:46%;">
+    # columna de imagen (se oculta si no hay URL)
+    img_block = f"""
+        <div class="col-img">
           <img src="{img}" alt="{nombre}" loading="lazy"
                style="width:100%; height:auto; border-radius:14px; display:block;" />
         </div>
     """ if img else ""
 
-    # si no hay imagen, texto ocupa todo
-    left_flex   = "1 1 100%" if not img else "1 1 52%"
-    left_max_w  = "100%"     if not img else "52%"
-
     return f"""
-    <div style="
-        box-sizing:border-box; width:{box_w}px; max-width:{box_w}px;
-        padding:16px; background:#fff;
-        font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial; color:#222;
-    ">
-      <h2 style="margin:0 0 12px 0; font-size:24px; line-height:1.2;">{nombre}</h2>
+    <style>
+      /* Contenedor centrado y responsive */
+      .popup-wrap {{
+        box-sizing:border-box;
+        width:100%;
+        max-width:min({POPUP_MAX_W}px, 92vw);
+        margin:0 auto;                 /* 👉 centra el bloque en el popup */
+        padding:16px;
+        background:#fff;
+        font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;
+        color:#222;
+      }}
+      .popup-title {{
+        margin:0 0 12px 0;
+        font-size:clamp(20px, 2.5vw, 28px);
+        line-height:1.2;
+      }}
+      .popup-flex {{
+        display:flex;
+        flex-wrap:wrap;
+        gap:16px;
+      }}
+      .popup-flex .col-text {{ flex:1 1 52%; min-width:280px; }}
+      .popup-flex .col-img  {{ flex:1 1 46%; min-width:240px; }}
 
-      <div style="display:flex; gap:16px; align-items:flex-start; flex-wrap:nowrap;">
-        <div style="flex:{left_flex}; max-width:{left_max_w};">
+      /* Móvil: una sola columna para evitar banda gris */
+      @media (max-width: 600px) {{
+        .popup-flex {{ flex-direction:column; }}
+        .popup-flex .col-text, .popup-flex .col-img {{ max-width:100%; }}
+      }}
+    </style>
+    <div class="popup-wrap">
+      <h2 class="popup-title">{nombre}</h2>
+      <div class="popup-flex">
+        <div class="col-text">
           <div style="font-size:16px; line-height:1.55; text-align:justify;">
             {descripcion}
           </div>
         </div>
-        {right_col}
+        {img_block}
       </div>
     </div>
     """
@@ -205,18 +227,26 @@ def mostrar_mapa_recomendaciones(lugares_recomendados, LUGARES_INFO):
         if lat is None or lon is None:
             continue
 
-        html_content = _popup_html_two_cols(lugar, box_w=POPUP_W)
+        html_content = _popup_html_two_cols(lugar)
         html_obj = Html(html_content, script=True)
-        popup = folium.Popup(html_obj, max_width=POPUP_W + 40)  # deja margen para la “X”
+
+        # max_width al 100% para que el panel se adapte al mapa (y se centre por el CSS)
+        popup = folium.Popup(html_obj, max_width="100%")
 
         folium.Marker(
             location=[lat, lon],
-            popup=popup,                     # botón de cerrar visible (no usamos IFrame)
-            tooltip=lugar.get("nombre",""),
+            popup=popup,                     # ✔️ conserva la cruz de cerrar
+            tooltip=lugar.get("nombre", ""),
             icon=folium.Icon(color="green", icon="info-sign")
         ).add_to(cluster)
 
-    st_folium(m, width=MAP_W, height=MAP_H)
+    # ✔️ mapa fluido: en escritorio usa todo el ancho del contenedor; en móvil se adapta
+    try:
+        st_folium(m, height=520, use_container_width=True)
+    except TypeError:
+        # si tu versión de streamlit_folium no acepta use_container_width
+        st_folium(m, height=520)
+
 
 def formulario_usuario():
     st.write("Por favor, rellena este formulario para obtener recomendaciones personalizadas:")
@@ -652,6 +682,7 @@ elif pagina == "Servicios":
     mostrar_servicios()
 elif pagina == "Sobre nosotros":
     mostrar_sobre_nosotros()
+
 
 
 
