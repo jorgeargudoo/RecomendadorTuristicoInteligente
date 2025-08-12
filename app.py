@@ -13,6 +13,7 @@ from folium.plugins import MarkerCluster
 from folium import Html
 from branca.element import IFrame
 import html
+from folium import Popup
 
 # Ruta relativa al modelo en tu repo
 RUTA_MODELO = "modelo_turismo.pkl"
@@ -151,55 +152,58 @@ st.markdown("""
 # -------------------------
 # FUNCIONES AUXILIARES
 # -------------------------
+MAP_W = 900  
+MAP_H = 520  
 
-def _popup_html(lugar, popup_width=300):
-    """HTML estilizado para el popup (título, imagen, descripción)."""
+def _popup_html_full(lugar, box_w):
+    """HTML que rellenará el panel a tamaño mapa."""
     nombre = html.escape(lugar.get("nombre",""))
     descripcion = html.escape(lugar.get("descripcion",""))
     img = (lugar.get("imagen_url") or "").strip()
 
     img_block = f"""
       <img src="{img}" alt="{nombre}" loading="lazy"
-           style="width:100%;height:auto;border-radius:10px;margin:0 0 8px 0; display:block;" />
+           style="width:100%;height:auto;border-radius:16px;margin:0 0 12px 0;display:block;" />
     """ if img else ""
 
+    # Contenedor a ancho completo; el alto lo pone el IFrame
     return f"""
-    <div style="font-family:system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial; width:{popup_width}px;">
-      <h3 style="margin:0 0 8px 0; font-size:18px; line-height:1.2;">{nombre}</h3>
+    <div style="
+        box-sizing:border-box;
+        width:{box_w}px;
+        height:100%;
+        padding:18px;
+        font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;
+        background:#fff;
+        overflow:auto;
+      ">
+      <h2 style="margin:0 0 12px 0; font-size:24px; line-height:1.2;">{nombre}</h2>
       {img_block}
-      <div style="font-size:14px; line-height:1.45; color:#222;">
+      <div style="font-size:16px; line-height:1.55; color:#222;">
         {descripcion}
       </div>
     </div>
     """
 
 def mostrar_mapa_recomendaciones(lugares_recomendados, LUGARES_INFO):
-    """
-    Mapa con popups bonitos (título + imagen + texto) y MarkerCluster.
-    - lugares_recomendados: lista de claves
-    - LUGARES_INFO: dict con nombre, lat, lon, descripcion, imagen_url (URL directa)
-    """
     m = folium.Map(location=[39.8997, -1.8123], zoom_start=12, tiles="OpenStreetMap")
     cluster = MarkerCluster().add_to(m)
 
-    POPUP_W = 300
-    def popup_height(tiene_img):
-        return 360 if tiene_img else 200
+    # margen para la “chrome” del popup (bordes)
+    iframe_w = MAP_W - 20
+    iframe_h = MAP_H - 20
 
-    for key in LUGARES_INFO: #HAY QUE PONER lugares_recomendados
+    for key in lugares_recomendados:
         lugar = LUGARES_INFO.get(key)
-        if not lugar:
+        if not lugar: 
             continue
         lat, lon = lugar.get("lat"), lugar.get("lon")
         if lat is None or lon is None:
             continue
 
-        html_content = _popup_html(lugar, popup_width=POPUP_W)
-        has_img = bool((lugar.get("imagen_url") or "").strip())
-
-        # Renderiza HTML real (no texto)
-        html_obj = Html(html_content, script=True)
-        popup = folium.Popup(html_obj, max_width=POPUP_W+40)
+        html_content = _popup_html_full(lugar, box_w=iframe_w-24)
+        iframe = IFrame(html=html_content, width=iframe_w, height=iframe_h)
+        popup = Popup(iframe, max_width=MAP_W+200, show=True)  # show=True abre centrado
 
         folium.Marker(
             location=[lat, lon],
@@ -208,7 +212,8 @@ def mostrar_mapa_recomendaciones(lugares_recomendados, LUGARES_INFO):
             icon=folium.Icon(color="green", icon="info-sign")
         ).add_to(cluster)
 
-    st_folium(m, width=900, height=520)
+    # Muy importante: que coincida con MAP_W / MAP_H
+    st_folium(m, width=MAP_W, height=MAP_H)
 
 def formulario_usuario():
     st.write("Por favor, rellena este formulario para obtener recomendaciones personalizadas:")
@@ -644,6 +649,7 @@ elif pagina == "Servicios":
     mostrar_servicios()
 elif pagina == "Sobre nosotros":
     mostrar_sobre_nosotros()
+
 
 
 
