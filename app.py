@@ -661,7 +661,8 @@ elif pagina == "Recomendador turístico":
             st.success("Lugares recomendados según tus gustos y el clima actual:" if clima_hoy else "Lugares recomendados según tus gustos:")
             mostrar_mapa_recomendaciones(lugares_recomendados, LUGARES_INFO)
         else:
-            st.warning("No se encontraron lugares recomendados para ti.")
+            st.warning("No se encontraron lugares recomendados para ti. Por ello te mostramos todos.")
+            mostrar_mapa_recomendaciones(LUGARES_INFO, LUGARES_INFO)
     
         feedback = st.slider("¿Qué valoración darías a estas recomendaciones?", min_value=1, max_value=5, value=3)
         st.write("Tu valoración:", "⭐" * feedback)
@@ -679,6 +680,7 @@ elif pagina == "Servicios":
     mostrar_servicios()
 elif pagina == "Sobre nosotros":
     mostrar_sobre_nosotros()
+
 
 
 
