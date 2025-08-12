@@ -453,7 +453,7 @@ LUGARES_INFO = {
         "lat": 39.84720272670936,
         "lon": -1.819389044226957,
         "descripcion": "Una joya escondida en la Serranía Baja de Cuenca. Sus aguas, teñidas por el caolín, adquieren un tono turquesa tan intenso como mágico, ofreciendo un escenario paisajístico que impacta al visitante. Rodeada por la tranquilidad del entorno, es el lugar perfecto para perderse en un paseo, relajarse en sus orillas o simplemente dejar volar la mirada hacia ese cielo despejado ideal para contemplar las estrellas. Un rincón íntimo y auténtico para los amantes de la calma, la fotografía y la naturaleza en estado puro.",
-        "imagen_url": "https://raw.githubusercontent.com/jorgeargudoo/RecomendadorTuristicoInteligente/blob/6908f89378bb433ab807a13c583bf90f5827c839/imagenes/LagunaCaolin.png"
+        "imagen_url": "https://raw.githubusercontent.com/jorgeargudoo/RecomendadorTuristicoInteligente/6908f89378bb433ab807a13c583bf90f5827c839/imagenes/LagunaCaolin.png"
     },  
 
     "RiberaRioGuadazaon": {
@@ -461,7 +461,7 @@ LUGARES_INFO = {
         "lat": 39.90780001314428, 
         "lon": -1.8501391205319577,
         "descripcion": "Este tramo del río Guadazaón integra una Reserva Natural Fluvial, un desfiladero calcáreo de gran belleza que conserva una notable pureza natural. Su curso, constante y fresco, discurre por un paisaje abierto en el que predomina la ribera despejada, arena y matorral bajo.",
-        "imagen_url": "https://raw.githubusercontent.com/jorgeargudoo/RecomendadorTuristicoInteligente/blob/6908f89378bb433ab807a13c583bf90f5827c839/imagenes/RiberaRioGuadaza%C3%B3n.png"
+        "imagen_url": "https://raw.githubusercontent.com/jorgeargudoo/RecomendadorTuristicoInteligente/6908f89378bb433ab807a13c583bf90f5827c839/imagenes/RiberaRioGuadaza%C3%B3n.png"
     },  
 
     "CerritoArena": {
@@ -469,7 +469,7 @@ LUGARES_INFO = {
         "lat": 39.89086406647863, 
         "lon": -1.8221526191135788,
         "descripcion": "Un pequeño pero significativo altozano arqueológico donde convergen naturaleza y memoria ancestral. Aquí se descubrieron mazos neolíticos que revelan la presencia de sociedades humanas en tiempos remotos. Rodeado de un paisaje sereno y de rasgos rurales, el Cerrito invita a escalar con calma, respirar historia y sentir el pulso de un territorio milenario. Ideal para quienes disfrutan del senderismo pausado, la arqueología y los rincones cargados de pasado.",
-        "imagen_url": "https://raw.githubusercontent.com/jorgeargudoo/RecomendadorTuristicoInteligente/blob/6908f89378bb433ab807a13c583bf90f5827c839/imagenes/CerritoArena.png"
+        "imagen_url": "https://raw.githubusercontent.com/jorgeargudoo/RecomendadorTuristicoInteligente/6908f89378bb433ab807a13c583bf90f5827c839/imagenes/CerritoArena.png"
     }, 
 
     "MiradorCruz": {
@@ -477,7 +477,7 @@ LUGARES_INFO = {
         "lat": 39.89114466708043, 
         "lon": -1.811936158954885,
         "descripcion": "Situado junto al barranco de la Cruz, este mirador natural ofrece una vista amplia y despejada sobre la serranía conquense y el entorno rural que rodea Carboneras de Guadazaón. El paraje, de unos 30 hectáreas, está dominado por pinar rodeno y curiosas formaciones areniscas que dan al paisaje un carácter escultórico y salvaje. Desde este punto elevado, los visitantes pueden disfrutar de panorámicas relajantes que incluyen las lomas, los barrancos y aldeas vecinas, ideal para contemplación, fotografía o relajarse en plena naturaleza.",
-        "imagen_url": "https://raw.githubusercontent.com/jorgeargudoo/RecomendadorTuristicoInteligente/blob/6908f89378bb433ab807a13c583bf90f5827c839/imagenes/MiradorDeLaCruz.jpg"
+        "imagen_url": "https://raw.githubusercontent.com/jorgeargudoo/RecomendadorTuristicoInteligente/6908f89378bb433ab807a13c583bf90f5827c839/imagenes/MiradorDeLaCruz.jpg"
     }, 
 
     "FuenteTresCanos": {
@@ -485,7 +485,7 @@ LUGARES_INFO = {
         "lat": 39.901025495667355, 
         "lon": -1.8099679469497392,
         "descripcion": "Una joya discreta y llena de encanto en el descanso del casco urbano, esta fuente tradicional destaca por sus tres caños que vierten agua —probablemente sobre un pilote rectangular tallado en piedra— evocando la serenidad de tiempos pasados. Esta estructura hidráulica, aunque humilde, posee un gran valor simbólico como punto de encuentro cotidiano de generaciones de vecinos y visitantes que acudían para proveerse de agua fresca.",
-        "imagen_url": "https://raw.githubusercontent.com/jorgeargudoo/RecomendadorTuristicoInteligente/blob/6908f89378bb433ab807a13c583bf90f5827c839/imagenes/FuenteTresCa%C3%B1os.png"
+        "imagen_url": "https://raw.githubusercontent.com/jorgeargudoo/RecomendadorTuristicoInteligente/6908f89378bb433ab807a13c583bf90f5827c839/imagenes/FuenteTresCa%C3%B1os.png"
     },  
 
     "PuenteCristinasRioCabriel": {
@@ -680,6 +680,7 @@ elif pagina == "Servicios":
     mostrar_servicios()
 elif pagina == "Sobre nosotros":
     mostrar_sobre_nosotros()
+
 
 
 
