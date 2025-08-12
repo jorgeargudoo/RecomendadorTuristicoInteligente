@@ -186,7 +186,7 @@ def mostrar_mapa_recomendaciones(lugares_recomendados, LUGARES_INFO):
     def popup_height(tiene_img):
         return 360 if tiene_img else 200
 
-    for key in lugares_recomendados:
+    for key in LUGARES_INFO: #HAY QUE PONER lugares_recomendados
         lugar = LUGARES_INFO.get(key)
         if not lugar:
             continue
@@ -644,6 +644,7 @@ elif pagina == "Servicios":
     mostrar_servicios()
 elif pagina == "Sobre nosotros":
     mostrar_sobre_nosotros()
+
 
 
 
