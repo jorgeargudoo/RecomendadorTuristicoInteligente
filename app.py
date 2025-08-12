@@ -506,7 +506,7 @@ LUGARES_INFO = {
 
     "LagunasCanadaHoyo": {
         "nombre": "Lagunas de Cañada del Hoyo",
-        "lat": 39.98888093941978, -1.8746057027507999
+        "lat": 39.98888093941978, 
         "lon": -1.8746057027507999,
         "descripcion": "Adéntrate en un paisaje kárstico único: siete lagunas circulares que emergen pujantes en un terreno calizo modelado por el agua y el tiempo. Cada una luce un color distinto—desde azules profundos hasta verdosos, negros o incluso lechosos—como una paleta viva al aire libre. Algunas acogen fenómenos naturales extraordinarios: la Laguna Gitana conserva estratos acuáticos inalterados, otras se tornan blancas por reacciones químicas y una ha llegado a enrojecer bajo la acción de microorganismos. Profundidades que superan los 30 m, vuelos sobre la roca viva, senderos accesibles y espacios protegidos: un rincón lleno de misterio, ciencia y belleza.",
         "imagen_url": "https://upload.wikimedia.org/wikipedia/commons/0/05/Lagunas_de_Ca%C3%B1ada_del_Hoyo%2C_pan16_20101108_%285167346167%29.jpg"
@@ -680,6 +680,7 @@ elif pagina == "Servicios":
     mostrar_servicios()
 elif pagina == "Sobre nosotros":
     mostrar_sobre_nosotros()
+
 
 
 
