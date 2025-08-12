@@ -219,7 +219,7 @@ def mostrar_mapa_recomendaciones(lugares_recomendados, LUGARES_INFO):
     m = folium.Map(location=[39.8997, -1.8123], zoom_start=12, tiles="OpenStreetMap")
     cluster = MarkerCluster().add_to(m)
 
-    for key in LUGARES_INFO:#lugares_recomendados
+    for key in lugares_recomendados:
         lugar = LUGARES_INFO.get(key)
         if not lugar:
             continue
@@ -661,7 +661,7 @@ elif pagina == "Recomendador turístico":
             st.success("Lugares recomendados según tus gustos y el clima actual:" if clima_hoy else "Lugares recomendados según tus gustos:")
             mostrar_mapa_recomendaciones(lugares_recomendados, LUGARES_INFO)
         else:
-            st.warning("No se encontraron lugares recomendados para ti. Por ello te mostramos todos.")
+            st.warning("No se encontraron lugares recomendados para ti. Por ello, te mostramos todos.")
             mostrar_mapa_recomendaciones(LUGARES_INFO, LUGARES_INFO)
     
         feedback = st.slider("¿Qué valoración darías a estas recomendaciones?", min_value=1, max_value=5, value=3)
@@ -670,6 +670,9 @@ elif pagina == "Recomendador turístico":
         if st.button("Enviar valoración", key="enviar_valoracion"):
             # log_event("feedback", {"satisfaccion": feedback})
             st.success(f"¡Gracias por tu valoración de {feedback} estrellas!")
+
+        if st.button("Mostrar mapa con todos los puntos de interés", key="mapa_completo"):
+            mostrar_mapa_recomendaciones(LUGARES_INFO, LUGARES_INFO)
     
         if st.button("Volver a empezar", key="volver_a_empezar"):
             st.session_state.clear()
@@ -680,6 +683,7 @@ elif pagina == "Servicios":
     mostrar_servicios()
 elif pagina == "Sobre nosotros":
     mostrar_sobre_nosotros()
+
 
 
 
