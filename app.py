@@ -394,7 +394,7 @@ LUGARES_INFO = {
         "lat": 39.90095,
         "lon": -1.81300,
         "descripcion": "La Iglesia de Santo Domingo de Silos es uno de los lugares más emblemáticos de Carboneras de Guadazaón. Su origen se remonta al siglo XIII, aunque a lo largo del tiempo ha sido ampliada y transformada, combinando elementos románicos, mudéjares y toques más recientes, como su espadaña herreriana. En el interior sorprende su artesonado mudéjar policromado, una auténtica joya artesanal, y la pila bautismal románica que ha visto pasar generaciones de vecinos. Entre sus murales, pintados en el siglo XX por el párroco Carlos de la Rica, aparecen detalles curiosos y modernos que contrastan con la solemnidad del templo.",
-        "imagen_url": "https://commons.wikimedia.org/wiki/File:IglesiaCarboneras.JPG"
+        "imagen_url": "https://upload.wikimedia.org/wikipedia/commons/8/87/IglesiaCarboneras.JPG"
     },  
 
     "PanteonMarquesesMoya": {
@@ -402,7 +402,7 @@ LUGARES_INFO = {
         "lat": 39.90419,
         "lon": -1.81184,
         "descripcion": "La Iglesia-Panteón de los Marqueses de Moya es un monumento único en Carboneras de Guadazaón y un auténtico símbolo de su historia. Construida en el siglo XVI sobre el antiguo convento de Santo Domingo, destaca por su estilo gótico-isabelino, elegante y sobrio a la vez.En su interior descansan los Marqueses de Moya, Andrés de Cabrera y Beatriz de Bobadilla, figuras clave en la corte de los Reyes Católicos y protectores de Cristóbal Colón. Sus sepulcros, de piedra tallada con gran detalle, evocan el esplendor de la nobleza castellana de la época. El conjunto conserva elementos originales como la portada de arco apuntado y una cuidada decoración interior, que invitan a sumergirse en la historia local y en el papel que este rincón jugó en los grandes acontecimientos del siglo XV y XVI. Un lugar de visita obligada para los amantes de la historia y la arquitectura.",
-        "imagen_url": "https://commons.wikimedia.org/wiki/File:Carboneras-iglesiaPante%C3%B3n_(2019)9522.jpg"
+        "imagen_url": "https://upload.wikimedia.org/wikipedia/commons/0/08/Carboneras-iglesiaPante%C3%B3n_%282019%299522.jpg"
     },  
 
     "CastilloAliaga": {
@@ -410,7 +410,8 @@ LUGARES_INFO = {
         "lat": 39.951194001639635, 
         "lon": -1.84319081923086,
         "descripcion": "El Castillo de Aliaga se alza sobre un cerro cercano a Carboneras de Guadazaón, dominando el paisaje con sus restos de murallas y su privilegiada vista del valle del Guadazaón. Construido en época medieval como fortaleza defensiva, formó parte del sistema de control territorial de la Serranía y fue testigo de siglos de historia local. Aunque hoy solo se conservan las ruinas, su emplazamiento permite imaginar la importancia estratégica que tuvo. La subida al castillo, entre pinares y sendas, culmina con un mirador natural que regala panorámicas espectaculares, especialmente al atardecer. Visitarlo es una oportunidad para combinar naturaleza, senderismo y un viaje al pasado, en un entorno donde el silencio y las vistas invitan a detenerse y contemplar.",
-        "imagen_url": "https://github.com/jorgeargudoo/RecomendadorTuristicoInteligente/blob/5c0f5f9d41e40faf86d76a69dc77b1bbbc4b24da/imagenes/CastilloAliaga.png"
+        "imagen_url": "https://raw.githubusercontent.com/jorgeargudoo/RecomendadorTuristicoInteligente/30e299d7c34cdab69548f78849e99d320ae10f34/imagenes/CastilloAliaga.png
+"
     },  
 
     "LagunaCaolin": {
@@ -644,6 +645,7 @@ elif pagina == "Servicios":
     mostrar_servicios()
 elif pagina == "Sobre nosotros":
     mostrar_sobre_nosotros()
+
 
 
 
