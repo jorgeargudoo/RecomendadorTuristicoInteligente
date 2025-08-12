@@ -357,7 +357,6 @@ LUGARES_EXTERIOR = {
             "MiradorPicarcho"
 }
 
-}
 LUGARES_INFO = {
     "IglesiaSantoDomingoSilos": {
         "nombre": "Iglesia de Santo Domingo de Silos",
@@ -619,6 +618,7 @@ elif pagina == "Servicios":
     mostrar_servicios()
 elif pagina == "Sobre nosotros":
     mostrar_sobre_nosotros()
+
 
 
 
