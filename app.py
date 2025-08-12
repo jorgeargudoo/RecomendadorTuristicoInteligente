@@ -525,7 +525,7 @@ LUGARES_INFO = {
         "lat": 39.898954262914344, 
         "lon": -1.8065016657198403,
         "descripcion": "Su arquitectura exterior transmite la solidez propia de la industria agroalimentaria de mediados del siglo pasado: una composición de múltiples plantas, ventanales ordenados que aseguran iluminación y ventilación en su interior, y una fusión de materiales como mampostería y ladrillo que otorgan carácter al edificio. Aunque hoy yace en estado de abandono, su fachada sigue evocando la vital actividad que un día albergó, y constituye un interesante vestigio del patrimonio industrial de Carboneras de Guadazaón",
-        "imagen_url": ""
+        "imagen_url": "https://raw.githubusercontent.com/jorgeargudoo/RecomendadorTuristicoInteligente/748dc62c925e45f6fab0fcd6ce2385968526ec1f/imagenes/FabricaHarinas.png"
     },  
 
     "Ruta1": {
@@ -537,28 +537,28 @@ LUGARES_INFO = {
     }, 
 
     "Ruta2": {
-        "nombre": "Ruta de los molinos de agua",
-        "lat": 39.8880,
-        "lon": -1.8020,
-        "descripcion": "Itinerario local por antiguos aprovechamientos hidráulicos y vegas del Guadazaón.",
-        "imagen_url": "https://commons.wikimedia.org/wiki/File:Estaci%C3%B3n_de_Carboneras_de_Guadaza%C3%B3n_05.jpg"
-    },  # (punto de salida en el pueblo; imagen local libre) :contentReference[oaicite:14]{index=14}
+        "nombre": "Ruta: Selva Pascuala – Torre Barrachina – Torre Balbina",
+        "lat": 39.92985933475362, 
+        "lon": -1.672240749627503,
+        "descripcion": "Un recorrido circular de unos 21 km, con un desnivel acumulado de 550 m, que se desarrolla entre los 951 m y los 1 172 m de altitud. Aunque la dificultad técnica es moderada, la distancia y el desnivel requieren buena condición física. El itinerario dura alrededor de 4 horas, incluido el tiempo para disfrutar los monumentos naturales e históricos que atraviesa. Comienza en el paraje de El Cañizar, accediendo por pista hasta el abrigo de arte rupestre levantino de Selva Pascuala, joya escenográfica e histórica. Prosigue hacia la Torre Barrachina, vestigio defensivo musulmán. El punto culminante es la Torre Balbina, una catedral de roca que remata en un mirador panorámico sobre el mar de pinos rodenos. Una experiencia ideal para quienes buscan viajar a través del tiempo, combinando arte milenario, arquitectura antigua y horizontes serranos en una ruta exigente pero fascinante.",
+        "imagen_url": ""
+    }, 
 
     "SaltoBalsa": {
         "nombre": "Salto de la Balsa",
-        "lat": 39.9050,
-        "lon": -1.7800,
-        "descripcion": "Cascadilla y pozas del arroyo de la Balsa en entorno de pinar; tramo corto y umbrío.",
-        "imagen_url": "https://commons.wikimedia.org/wiki/File:Torcas_de_Palancares_(14_de_abril_de_2007,_Serran%C3%ADa_de_Cuenca)_06.JPG"
-    },  # (aprox.; imagen natural libre de la Serranía) :contentReference[oaicite:15]{index=15}
+        "lat": 40.0791327310064,
+        "lon": -1.7769833334497602,
+        "descripcion": "A sólo 2 km de Valdemoro-Sierra, este lugar mágico despliega una larga cascada tobácea de más de 50 m, donde el agua brota y se desliza por una roca porosa que forma charcas y arroyuelos antes de unirse al río Guadazaón. Su encanto reside en la extensión del salto más que en su altura. El acceso es sencillo: aparcamiento junto al puente sobre el Guadazaón y paseo de menos de 500 m hasta el mirador natural. El entorno está acondicionado con merendero, mesas y fuente. Primavera y época de lluvias exaltan su belleza; en invierno, el hielo lo transforma en un rincón de cuento.",
+        "imagen_url": "https://raw.githubusercontent.com/jorgeargudoo/RecomendadorTuristicoInteligente/748dc62c925e45f6fab0fcd6ce2385968526ec1f/imagenes/ChorrerasValdemoro.png"
+    },  
 
     "MiradorPicarcho": {
         "nombre": "Mirador del Picarcho",
-        "lat": 39.9670,
-        "lon": -1.9000,
-        "descripcion": "Alto cercano a Cañada del Hoyo con vistas a los pinares y lagunas; buen punto para amanecer/atardecer.",
-        "imagen_url": "https://commons.wikimedia.org/wiki/File:Lagunas_de_Ca%C3%B1ada_del_Hoyo,_pan16_20101108_(5167346167).jpg"
-    }  # (entorno de Cañada del Hoyo; imagen libre de las lagunas) :contentReference[oaicite:16]{index=16}
+        "lat": 39.895714368311324, 
+        "lon": -1.8125385683922977,
+        "descripcion": "A pocos pasos del centro de Carboneras de Guadazaón, este mirador privilegiado sobre el cordal ofrece vistas amplias del pueblo, los valles y montañas de la Serranía Baja. Al caer la tarde, el paisaje se tiñe de luz cálida, y por la noche —especialmente durante la fiesta de San Lorenzo— la oscuridad se convierte en un lienzo perfecto para las Perseidas, un espectáculo celestial que parece dibujarse en silencio en el firmamento. Ideal para una pausa contemplativa al aire libre, fotografía panorámica o simplemente para tomar aire: un lugar donde el cielo y la tierra se encuentran con magia. Si duermes en el pueblo, no olvides pasar por aquí: es mucho más que un mirador, es un puente hacia el infinito.",
+        "imagen_url": "https://raw.githubusercontent.com/jorgeargudoo/RecomendadorTuristicoInteligente/748dc62c925e45f6fab0fcd6ce2385968526ec1f/imagenes/MiradorPicarcho.png"
+    }  
 }
 
 
@@ -680,6 +680,7 @@ elif pagina == "Servicios":
     mostrar_servicios()
 elif pagina == "Sobre nosotros":
     mostrar_sobre_nosotros()
+
 
 
 
