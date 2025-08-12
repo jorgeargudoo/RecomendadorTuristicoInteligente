@@ -357,126 +357,148 @@ LUGARES_EXTERIOR = {
             "MiradorPicarcho"
 }
 
+}
 LUGARES_INFO = {
     "IglesiaSantoDomingoSilos": {
         "nombre": "Iglesia de Santo Domingo de Silos",
-        "lat": 39.901,  # aproximado desde waymarking GPS: N 39° 54.058 → 39.901; W 1° 48.786 → -1.8131:contentReference[oaicite:1]{index=1}
-        "lon": -1.8131,
-        "descripcion": "Iglesia medieval (siglos XIII‑XIV) con techos mudéjares, portada isabelina y espadaña herreriana.",
-        "imagen_url": ""
-    },
+        "lat": 39.90095,
+        "lon": -1.81300,
+        "descripcion": "La Iglesia de Santo Domingo de Silos es uno de los lugares más emblemáticos de Carboneras de Guadazaón. Su origen se remonta al siglo XIII, aunque a lo largo del tiempo ha sido ampliada y transformada, combinando elementos románicos, mudéjares y toques más recientes, como su espadaña herreriana.
+En el interior sorprende su artesonado mudéjar policromado, una auténtica joya artesanal, y la pila bautismal románica que ha visto pasar generaciones de vecinos. Entre sus murales, pintados en el siglo XX por el párroco Carlos de la Rica, aparecen detalles curiosos y modernos que contrastan con la solemnidad del templo.",
+        "imagen_url": "https://commons.wikimedia.org/wiki/File:IglesiaCarboneras.JPG"
+    },  
+
     "PanteonMarquesesMoya": {
         "nombre": "Iglesia‑Panteón de los Marqueses de Moya",
-        "lat": 39.901,  # misma ubicación aproximada que la iglesia anterior
-        "lon": -1.8131,
-        "descripcion": "Templo gótico‑isabelino donde descansan los fundadores dominicos, tumba de los Marqueses de Moya.",
-        "imagen_url": ""
-    },
+        "lat": 39.90419,
+        "lon": -1.81184,
+        "descripcion": "La Iglesia-Panteón de los Marqueses de Moya es un monumento único en Carboneras de Guadazaón y un auténtico símbolo de su historia. Construida en el siglo XVI sobre el antiguo convento de Santo Domingo, destaca por su estilo gótico-isabelino, elegante y sobrio a la vez.
+En su interior descansan los Marqueses de Moya, Andrés de Cabrera y Beatriz de Bobadilla, figuras clave en la corte de los Reyes Católicos y protectores de Cristóbal Colón. Sus sepulcros, de piedra tallada con gran detalle, evocan el esplendor de la nobleza castellana de la época.
+El conjunto conserva elementos originales como la portada de arco apuntado y una cuidada decoración interior, que invitan a sumergirse en la historia local y en el papel que este rincón jugó en los grandes acontecimientos del siglo XV y XVI. Un lugar de visita obligada para los amantes de la historia y la arquitectura.",
+        "imagen_url": "https://commons.wikimedia.org/wiki/File:Carboneras-iglesiaPante%C3%B3n_(2019)9522.jpg"
+    },  
+
     "CastilloAliaga": {
         "nombre": "Castillo de Aliaga",
-        "lat": 39.90,  # aproximado según ruta y descripciones visuales:contentReference[oaicite:2]{index=2}
-        "lon": -1.82,
-        "descripcion": "Ruinas medievales en colina (1 044 m alt.) con restos de murallas escalonadas de planta irregular.",
+        "lat": 39.951194001639635, 
+        "lon": -1.84319081923086,
+        "descripcion": "El Castillo de Aliaga se alza sobre un cerro cercano a Carboneras de Guadazaón, dominando el paisaje con sus restos de murallas y su privilegiada vista del valle del Guadazaón. Construido en época medieval como fortaleza defensiva, formó parte del sistema de control territorial de la Serranía y fue testigo de siglos de historia local.
+Aunque hoy solo se conservan las ruinas, su emplazamiento permite imaginar la importancia estratégica que tuvo. La subida al castillo, entre pinares y sendas, culmina con un mirador natural que regala panorámicas espectaculares, especialmente al atardecer.
+Visitarlo es una oportunidad para combinar naturaleza, senderismo y un viaje al pasado, en un entorno donde el silencio y las vistas invitan a detenerse y contemplar.",
         "imagen_url": ""
-    },
+    },  
+
     "LagunaCaolin": {
         "nombre": "Laguna de Caolín",
-        "lat": 39.90,  # aproximado dentro del entorno de Carboneras
-        "lon": -1.82,
-        "descripcion": "Antigua cantera convertida en laguna turquesa, paisaje natural llamativo.",
-        "imagen_url": ""
-    },
+        "lat": 39.9035,
+        "lon": -1.8200,
+        "descripcion": "Antigua cantera de caolín hoy inundada; aguas turquesa en paisaje de pinar y yesos. Muy fotogénica.",
+        "imagen_url": "https://commons.wikimedia.org/wiki/File:Ayuntamiento_de_Carboneras_de_Guadaza%C3%B3n.jpg"
+    },  # (coordenadas aproximadas; imagen municipal representativa) :contentReference[oaicite:3]{index=3}
+
     "RiberaRioGuadazaon": {
         "nombre": "Ribera del Río Guadazaón",
-        "lat": 39.883,  # coordenadas de Carboneras como referencia justa
-        "lon": -1.800,
-        "descripcion": "Tramo de ribera agrícola junto al río Guadazaón: huertas, flora de ribera y paseo tranquilo.",
-        "imagen_url": ""
-    },
+        "lat": 39.89614,
+        "lon": -1.81006,
+        "descripcion": "Paseo por vegas y huertas del Guadazaón con flora de ribera y tramos de sombra agradables.",
+        "imagen_url": "https://commons.wikimedia.org/wiki/File:Estaci%C3%B3n_de_Carboneras_de_Guadaza%C3%B3n_04.jpg"
+    },  # (lat/long del núcleo como acceso; imagen del entorno local) :contentReference[oaicite:4]{index=4}
+
     "CerritoArena": {
         "nombre": "Cerrito de la Arena",
-        "lat": 39.883,  # estimado cerca del entorno urbano
-        "lon": -1.800,
-        "descripcion": "Cerro y yacimiento neolítico con hallazgos de útiles prehistóricos (mazos de piedra).",
-        "imagen_url": ""
-    },
+        "lat": 39.9000,
+        "lon": -1.8050,
+        "descripcion": "Pequeño alto testigo con yacimiento neolítico asociado a hallazgos de ‘mazos de piedra’ citados en la bibliografía local.",
+        "imagen_url": "https://commons.wikimedia.org/wiki/File:Ayuntamiento_de_Carboneras_de_Guadaza%C3%B3n.jpg"
+    },  # (punto cercano al casco; referencia histórica en Wikipedia) :contentReference[oaicite:5]{index=5}
+
     "MiradorCruz": {
         "nombre": "Mirador de la Cruz",
-        "lat": 39.90,  # estimado loma cercana
-        "lon": -1.80,
-        "descripcion": "Mirador panorámico sobre la loma con cruz, vistas de campos y montes serranos.",
-        "imagen_url": ""
-    },
+        "lat": 39.9050,
+        "lon": -1.8000,
+        "descripcion": "Pequeña loma con cruz y vistas abiertas de los campos serranos; atardeceres muy vistosos.",
+        "imagen_url": "https://commons.wikimedia.org/wiki/File:Plaza_de_toros_de_Carboneras_de_Guadaza%C3%B3n.jpg"
+    },  # (ubicación aproximada; imagen local libre) :contentReference[oaicite:6]{index=6}
+
     "FuenteTresCanos": {
         "nombre": "Fuente de los Tres Caños",
-        "lat": 39.883,  # centro urbano
-        "lon": -1.800,
-        "descripcion": "Fuente pública con tres caños y pilón en el pueblo, antiguo punto de abrevadero.",
-        "imagen_url": ""
-    },
+        "lat": 39.8995,
+        "lon": -1.8120,
+        "descripcion": "Fuente tradicional del pueblo, punto de agua y reunión en el casco histórico.",
+        "imagen_url": "https://commons.wikimedia.org/wiki/File:Ayuntamiento_de_Carboneras_de_Guadaza%C3%B3n.jpg"
+    },  # (centro urbano; imagen representativa) :contentReference[oaicite:7]{index=7}
+
     "PuenteCristinasRioCabriel": {
         "nombre": "Puente de las Cristinas (río Cabriel)",
-        "lat": 39.89,  # aproximado entre Carboneras y Pajaroncillo:contentReference[oaicite:3]{index=3}
-        "lon": -1.79,
-        "descripcion": "Puente del siglo XVI sobre el Cabriel, financiado por dominicos, restaurado recientemente.",
-        "imagen_url": ""
-    },
+        "lat": 39.93069,
+        "lon": -1.72325,
+        "descripcion": "Puente de sillería (s. XVI) sobre el Cabriel, restaurado en 2018–2019; tramo de vía pecuaria histórica.",
+        "imagen_url": "https://commons.wikimedia.org/wiki/File:Pajaroncillo-puenteCristinas_(2019)9516.jpg"
+    },  # :contentReference[oaicite:8]{index=8}
+
     "TorcasPalancaresTierraMuerta": {
         "nombre": "Torcas de Palancares / Tierra Muerta",
-        "lat": 39.95,  # aproximado Serranía de Cuenca
-        "lon": -1.80,
-        "descripcion": "Monumento Natural: 22 dolinas kársticas profundas en zona forestal protegida.",
-        "imagen_url": ""
-    },
+        "lat": 40.02854,
+        "lon": -1.96132,
+        "descripcion": "Conjunto de dolinas kársticas de gran tamaño en el monte de Los Palancares; senderos señalizados y pinar de pino negral.",
+        "imagen_url": "https://commons.wikimedia.org/wiki/File:Torcas_de_los_Palancares_-_Cuenca_-_Spain_-_panoramio.jpg"
+    },  # (coords aproximadas del acceso; foto libre) :contentReference[oaicite:9]{index=9}
+
     "LagunasCanadaHoyo": {
         "nombre": "Lagunas de Cañada del Hoyo",
-        "lat": 39.9846,  # desde Panoramio GPS:contentReference[oaicite:4]{index=4}
-        "lon": -1.8734,
-        "descripcion": "Complejo de lagunas kársticas multicolor, Monumento Natural declarado en 2007.",
-        "imagen_url": ""
-    },
+        "lat": 39.98611,
+        "lon": -1.87222,
+        "descripcion": "Monumento Natural (2007): lagunas kársticas de colores (Gitana, Tejo, Parra…); pasarelas y miradores.",
+        "imagen_url": "https://commons.wikimedia.org/wiki/File:Vistatotal3.jpg"
+    },  # :contentReference[oaicite:10]{index=10}
+
     "ChorrerasRioCabriel": {
         "nombre": "Las Chorreras del río Cabriel",
-        "lat": 39.95,  # estimado entre Enguídanos y Víllora
-        "lon": -1.70,
-        "descripcion": "Cascadas, pozas turquesas y senderos junto al Cabriel, entorno geológico singular.",
-        "imagen_url": ""
-    },
+        "lat": 39.672,
+        "lon": -1.595,
+        "descripcion": "Saltos, tobas y pozas turquesas entre Enguídanos y Víllora; paraje geológico y de baño regulado en verano.",
+        "imagen_url": "https://commons.wikimedia.org/wiki/File:Chorreras_de_Engu%C3%ADdanos_07.jpg"
+    },  # (coords de entorno; imagen libre) :contentReference[oaicite:11]{index=11}
+
     "FachadaHarinas": {
         "nombre": "Fachada de la antigua fábrica de harinas",
-        "lat": 39.883,  # centro urbano
-        "lon": -1.800,
-        "descripcion": "Imponente fachada industrial de la vieja fábrica (1948), ahora en desuso.",
-        "imagen_url": ""
-    },
+        "lat": 39.8990,
+        "lon": -1.8125,
+        "descripcion": "Vestigio industrial (mediados del s. XX) junto al casco; fachada conservada como memoria del pasado fabril.",
+        "imagen_url": "https://commons.wikimedia.org/wiki/File:Ayuntamiento_de_Carboneras_de_Guadaza%C3%B3n.jpg"
+    },  # (punto urbano; imagen local libre) :contentReference[oaicite:12]{index=12}
+
     "Ruta1": {
         "nombre": "Sendero Hoz del río Algarra",
-        "lat": 39.87,  # aproximado entorno del río afluente
-        "lon": -1.82,
-        "descripcion": "Sendero por la hoz del río Algarra entre vegetación de ribera y roquedo.",
-        "imagen_url": ""
-    },
+        "lat": 39.8700,
+        "lon": -1.8200,
+        "descripcion": "Senda fluvial por la hoz del Algarra, con alternancia de ribera y farallones calcáreos; apta para público general.",
+        "imagen_url": "https://commons.wikimedia.org/wiki/File:Cabriel_River_-_Hoces_del_Cabriel_Natural_Park.jpg"
+    },  # (aprox. entorno serrano; imagen del Cabriel/Hoces representativa) :contentReference[oaicite:13]{index=13}
+
     "Ruta2": {
         "nombre": "Ruta de los molinos de agua",
-        "lat": 39.883,
-        "lon": -1.800,
-        "descripcion": "Ruta para descubrir antiguos molinos hidráulicos junto al cauce y huertas del pueblo.",
-        "imagen_url": ""
-    },
+        "lat": 39.8880,
+        "lon": -1.8020,
+        "descripcion": "Itinerario local por antiguos aprovechamientos hidráulicos y vegas del Guadazaón.",
+        "imagen_url": "https://commons.wikimedia.org/wiki/File:Estaci%C3%B3n_de_Carboneras_de_Guadaza%C3%B3n_05.jpg"
+    },  # (punto de salida en el pueblo; imagen local libre) :contentReference[oaicite:14]{index=14}
+
     "SaltoBalsa": {
         "nombre": "Salto de la Balsa",
-        "lat": 39.90,  # ubicación aproximada entorno húmedo
-        "lon": -1.78,
-        "descripcion": "Pequeña cascada y pozas naturales en el arroyo la Balsa en entorno boscoso.",
-        "imagen_url": ""
-    },
+        "lat": 39.9050,
+        "lon": -1.7800,
+        "descripcion": "Cascadilla y pozas del arroyo de la Balsa en entorno de pinar; tramo corto y umbrío.",
+        "imagen_url": "https://commons.wikimedia.org/wiki/File:Torcas_de_Palancares_(14_de_abril_de_2007,_Serran%C3%ADa_de_Cuenca)_06.JPG"
+    },  # (aprox.; imagen natural libre de la Serranía) :contentReference[oaicite:15]{index=15}
+
     "MiradorPicarcho": {
         "nombre": "Mirador del Picarcho",
-        "lat": 39.967,  # coordenadas de Cañada del Hoyo → asumir cerro cercano:contentReference[oaicite:5]{index=5}
-        "lon": -1.900,
-        "descripcion": "Mirador en cerro con vistas panorámicas y yacimiento arqueológico de Edad del Bronce.",
-        "imagen_url": ""
-    }
+        "lat": 39.9670,
+        "lon": -1.9000,
+        "descripcion": "Alto cercano a Cañada del Hoyo con vistas a los pinares y lagunas; buen punto para amanecer/atardecer.",
+        "imagen_url": "https://commons.wikimedia.org/wiki/File:Lagunas_de_Ca%C3%B1ada_del_Hoyo,_pan16_20101108_(5167346167).jpg"
+    }  # (entorno de Cañada del Hoyo; imagen libre de las lagunas) :contentReference[oaicite:16]{index=16}
 }
 
 
@@ -597,6 +619,7 @@ elif pagina == "Servicios":
     mostrar_servicios()
 elif pagina == "Sobre nosotros":
     mostrar_sobre_nosotros()
+
 
 
 
