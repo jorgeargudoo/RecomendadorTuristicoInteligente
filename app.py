@@ -9,6 +9,11 @@ from skfuzzy import control as ctrl
 import requests
 import numpy as np
 import os
+from folium.plugins import MarkerCluster
+from folium import Html
+from branca.element import IFrame
+import html
+
 # Ruta relativa al modelo en tu repo
 RUTA_MODELO = "modelo_turismo.pkl"
 
@@ -147,37 +152,63 @@ st.markdown("""
 # FUNCIONES AUXILIARES
 # -------------------------
 
+def _popup_html(lugar, popup_width=300):
+    """HTML estilizado para el popup (título, imagen, descripción)."""
+    nombre = html.escape(lugar.get("nombre",""))
+    descripcion = html.escape(lugar.get("descripcion",""))
+    img = (lugar.get("imagen_url") or "").strip()
+
+    img_block = f"""
+      <img src="{img}" alt="{nombre}" loading="lazy"
+           style="width:100%;height:auto;border-radius:10px;margin:0 0 8px 0; display:block;" />
+    """ if img else ""
+
+    return f"""
+    <div style="font-family:system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial; width:{popup_width}px;">
+      <h3 style="margin:0 0 8px 0; font-size:18px; line-height:1.2;">{nombre}</h3>
+      {img_block}
+      <div style="font-size:14px; line-height:1.45; color:#222;">
+        {descripcion}
+      </div>
+    </div>
+    """
+
 def mostrar_mapa_recomendaciones(lugares_recomendados, LUGARES_INFO):
     """
-    Muestra en un mapa solo los lugares recomendados, con popups detallados.
-    
-    Parámetros:
-    - lugares_recomendados: lista con claves tipo "CastilloAliaga", "Ruta1", etc.
-    - LUGARES_INFO: diccionario anidado con la información detallada de cada lugar
+    Mapa con popups bonitos (título + imagen + texto) y MarkerCluster.
+    - lugares_recomendados: lista de claves
+    - LUGARES_INFO: dict con nombre, lat, lon, descripcion, imagen_url (URL directa)
     """
-    m = folium.Map(location=[39.883, -1.80], zoom_start=13)
+    m = folium.Map(location=[39.8997, -1.8123], zoom_start=12, tiles="OpenStreetMap")
+    cluster = MarkerCluster().add_to(m)
 
-    for clave in LUGARES_INFO: #HAY QUE PONER lugares_recomendados
-        lugar = LUGARES_INFO.get(clave)
-        if lugar:
-            # Generar HTML para el popup
-            nombre = lugar.get("nombre", "Lugar sin nombre")
-            descripcion = lugar.get("descripcion", "")
-            imagen = lugar.get("imagen_url", "")
-            
-            popup_html = f"<b>{nombre}</b><br>"
-            if imagen:
-                popup_html += f'<img src="{imagen}" width="200"><br>'
-            popup_html += f'<p style="width:200px;">{descripcion}</p>'
+    POPUP_W = 300
+    def popup_height(tiene_img):
+        return 360 if tiene_img else 200
 
-            folium.Marker(
-                location=[lugar["lat"], lugar["lon"]],
-                popup=folium.Popup(popup_html, max_width=250),
-                icon=folium.Icon(color="green", icon="info-sign")
-            ).add_to(m)
+    for key in lugares_recomendados:
+        lugar = LUGARES_INFO.get(key)
+        if not lugar:
+            continue
+        lat, lon = lugar.get("lat"), lugar.get("lon")
+        if lat is None or lon is None:
+            continue
 
-    # Mostrar el mapa en Streamlit
-    st_folium(m, width=700, height=500)
+        html_content = _popup_html(lugar, popup_width=POPUP_W)
+        has_img = bool((lugar.get("imagen_url") or "").strip())
+
+        # Renderiza HTML real (no texto)
+        html_obj = Html(html_content, script=True)
+        popup = folium.Popup(html_obj, max_width=POPUP_W+40)
+
+        folium.Marker(
+            location=[lat, lon],
+            popup=popup,
+            tooltip=lugar.get("nombre",""),
+            icon=folium.Icon(color="green", icon="info-sign")
+        ).add_to(cluster)
+
+    st_folium(m, width=900, height=520)
 
 def formulario_usuario():
     st.write("Por favor, rellena este formulario para obtener recomendaciones personalizadas:")
@@ -613,6 +644,7 @@ elif pagina == "Servicios":
     mostrar_servicios()
 elif pagina == "Sobre nosotros":
     mostrar_sobre_nosotros()
+
 
 
 
