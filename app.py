@@ -157,7 +157,7 @@ def mostrar_mapa_recomendaciones(lugares_recomendados, LUGARES_INFO):
     """
     m = folium.Map(location=[39.883, -1.80], zoom_start=13)
 
-    for clave in lugares_recomendados:
+    for clave in LUGARES_INFO: #HAY QUE PONER lugares_recomendados
         lugar = LUGARES_INFO.get(clave)
         if lugar:
             # Generar HTML para el popup
@@ -385,7 +385,7 @@ El conjunto conserva elementos originales como la portada de arco apuntado y una
         "descripcion": "El Castillo de Aliaga se alza sobre un cerro cercano a Carboneras de Guadazaón, dominando el paisaje con sus restos de murallas y su privilegiada vista del valle del Guadazaón. Construido en época medieval como fortaleza defensiva, formó parte del sistema de control territorial de la Serranía y fue testigo de siglos de historia local.
 Aunque hoy solo se conservan las ruinas, su emplazamiento permite imaginar la importancia estratégica que tuvo. La subida al castillo, entre pinares y sendas, culmina con un mirador natural que regala panorámicas espectaculares, especialmente al atardecer.
 Visitarlo es una oportunidad para combinar naturaleza, senderismo y un viaje al pasado, en un entorno donde el silencio y las vistas invitan a detenerse y contemplar.",
-        "imagen_url": ""
+        "imagen_url": "https://github.com/jorgeargudoo/RecomendadorTuristicoInteligente/blob/5c0f5f9d41e40faf86d76a69dc77b1bbbc4b24da/imagenes/CastilloAliaga.png"
     },  
 
     "LagunaCaolin": {
@@ -619,6 +619,7 @@ elif pagina == "Servicios":
     mostrar_servicios()
 elif pagina == "Sobre nosotros":
     mostrar_sobre_nosotros()
+
 
 
 
