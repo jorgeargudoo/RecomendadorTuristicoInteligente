@@ -219,7 +219,7 @@ def mostrar_mapa_recomendaciones(lugares_recomendados, LUGARES_INFO):
     m = folium.Map(location=[39.8997, -1.8123], zoom_start=12, tiles="OpenStreetMap")
     cluster = MarkerCluster().add_to(m)
 
-    for key in lugares_recomendados:
+    for key in LUGARES_INFO:#lugares_recomendados
         lugar = LUGARES_INFO.get(key)
         if not lugar:
             continue
@@ -679,6 +679,7 @@ elif pagina == "Servicios":
     mostrar_servicios()
 elif pagina == "Sobre nosotros":
     mostrar_sobre_nosotros()
+
 
 
 
