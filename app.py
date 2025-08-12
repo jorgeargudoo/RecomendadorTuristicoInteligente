@@ -450,91 +450,91 @@ LUGARES_INFO = {
 
     "LagunaCaolin": {
         "nombre": "Laguna de Caolín",
-        "lat": 39.9035,
-        "lon": -1.8200,
-        "descripcion": "Antigua cantera de caolín hoy inundada; aguas turquesa en paisaje de pinar y yesos. Muy fotogénica.",
-        "imagen_url": "https://commons.wikimedia.org/wiki/File:Ayuntamiento_de_Carboneras_de_Guadaza%C3%B3n.jpg"
-    },  # (coordenadas aproximadas; imagen municipal representativa) :contentReference[oaicite:3]{index=3}
+        "lat": 39.84720272670936,
+        "lon": -1.819389044226957,
+        "descripcion": "Una joya escondida en la Serranía Baja de Cuenca. Sus aguas, teñidas por el caolín, adquieren un tono turquesa tan intenso como mágico, ofreciendo un escenario paisajístico que impacta al visitante. Rodeada por la tranquilidad del entorno, es el lugar perfecto para perderse en un paseo, relajarse en sus orillas o simplemente dejar volar la mirada hacia ese cielo despejado ideal para contemplar las estrellas. Un rincón íntimo y auténtico para los amantes de la calma, la fotografía y la naturaleza en estado puro.",
+        "imagen_url": "https://raw.githubusercontent.com/jorgeargudoo/RecomendadorTuristicoInteligente/blob/6908f89378bb433ab807a13c583bf90f5827c839/imagenes/LagunaCaolin.png"
+    },  
 
     "RiberaRioGuadazaon": {
-        "nombre": "Ribera del Río Guadazaón",
-        "lat": 39.89614,
-        "lon": -1.81006,
-        "descripcion": "Paseo por vegas y huertas del Guadazaón con flora de ribera y tramos de sombra agradables.",
-        "imagen_url": "https://commons.wikimedia.org/wiki/File:Estaci%C3%B3n_de_Carboneras_de_Guadaza%C3%B3n_04.jpg"
-    },  # (lat/long del núcleo como acceso; imagen del entorno local) :contentReference[oaicite:4]{index=4}
+        "nombre": "Ribera y Vega del Río Guadazaón",
+        "lat": 39.90780001314428, 
+        "lon": -1.8501391205319577,
+        "descripcion": "Este tramo del río Guadazaón integra una Reserva Natural Fluvial, un desfiladero calcáreo de gran belleza que conserva una notable pureza natural. Su curso, constante y fresco, discurre por un paisaje abierto en el que predomina la ribera despejada, arena y matorral bajo.",
+        "imagen_url": "https://raw.githubusercontent.com/jorgeargudoo/RecomendadorTuristicoInteligente/blob/6908f89378bb433ab807a13c583bf90f5827c839/imagenes/RiberaRioGuadaza%C3%B3n.png"
+    },  
 
     "CerritoArena": {
         "nombre": "Cerrito de la Arena",
-        "lat": 39.9000,
-        "lon": -1.8050,
-        "descripcion": "Pequeño alto testigo con yacimiento neolítico asociado a hallazgos de ‘mazos de piedra’ citados en la bibliografía local.",
-        "imagen_url": "https://commons.wikimedia.org/wiki/File:Ayuntamiento_de_Carboneras_de_Guadaza%C3%B3n.jpg"
-    },  # (punto cercano al casco; referencia histórica en Wikipedia) :contentReference[oaicite:5]{index=5}
+        "lat": 39.89086406647863, 
+        "lon": -1.8221526191135788,
+        "descripcion": "Un pequeño pero significativo altozano arqueológico donde convergen naturaleza y memoria ancestral. Aquí se descubrieron mazos neolíticos que revelan la presencia de sociedades humanas en tiempos remotos. Rodeado de un paisaje sereno y de rasgos rurales, el Cerrito invita a escalar con calma, respirar historia y sentir el pulso de un territorio milenario. Ideal para quienes disfrutan del senderismo pausado, la arqueología y los rincones cargados de pasado.",
+        "imagen_url": "https://raw.githubusercontent.com/jorgeargudoo/RecomendadorTuristicoInteligente/blob/6908f89378bb433ab807a13c583bf90f5827c839/imagenes/CerritoArena.png"
+    }, 
 
     "MiradorCruz": {
         "nombre": "Mirador de la Cruz",
-        "lat": 39.9050,
-        "lon": -1.8000,
-        "descripcion": "Pequeña loma con cruz y vistas abiertas de los campos serranos; atardeceres muy vistosos.",
-        "imagen_url": "https://commons.wikimedia.org/wiki/File:Plaza_de_toros_de_Carboneras_de_Guadaza%C3%B3n.jpg"
-    },  # (ubicación aproximada; imagen local libre) :contentReference[oaicite:6]{index=6}
+        "lat": 39.89114466708043, 
+        "lon": -1.811936158954885,
+        "descripcion": "Situado junto al barranco de la Cruz, este mirador natural ofrece una vista amplia y despejada sobre la serranía conquense y el entorno rural que rodea Carboneras de Guadazaón. El paraje, de unos 30 hectáreas, está dominado por pinar rodeno y curiosas formaciones areniscas que dan al paisaje un carácter escultórico y salvaje. Desde este punto elevado, los visitantes pueden disfrutar de panorámicas relajantes que incluyen las lomas, los barrancos y aldeas vecinas, ideal para contemplación, fotografía o relajarse en plena naturaleza.",
+        "imagen_url": "https://raw.githubusercontent.com/jorgeargudoo/RecomendadorTuristicoInteligente/blob/6908f89378bb433ab807a13c583bf90f5827c839/imagenes/MiradorDeLaCruz.jpg"
+    }, 
 
     "FuenteTresCanos": {
         "nombre": "Fuente de los Tres Caños",
-        "lat": 39.8995,
-        "lon": -1.8120,
-        "descripcion": "Fuente tradicional del pueblo, punto de agua y reunión en el casco histórico.",
-        "imagen_url": "https://commons.wikimedia.org/wiki/File:Ayuntamiento_de_Carboneras_de_Guadaza%C3%B3n.jpg"
-    },  # (centro urbano; imagen representativa) :contentReference[oaicite:7]{index=7}
+        "lat": 39.901025495667355, 
+        "lon": -1.8099679469497392,
+        "descripcion": "Una joya discreta y llena de encanto en el descanso del casco urbano, esta fuente tradicional destaca por sus tres caños que vierten agua —probablemente sobre un pilote rectangular tallado en piedra— evocando la serenidad de tiempos pasados. Esta estructura hidráulica, aunque humilde, posee un gran valor simbólico como punto de encuentro cotidiano de generaciones de vecinos y visitantes que acudían para proveerse de agua fresca.",
+        "imagen_url": "https://raw.githubusercontent.com/jorgeargudoo/RecomendadorTuristicoInteligente/blob/6908f89378bb433ab807a13c583bf90f5827c839/imagenes/FuenteTresCa%C3%B1os.png"
+    },  
 
     "PuenteCristinasRioCabriel": {
-        "nombre": "Puente de las Cristinas (río Cabriel)",
-        "lat": 39.93069,
-        "lon": -1.72325,
-        "descripcion": "Puente de sillería (s. XVI) sobre el Cabriel, restaurado en 2018–2019; tramo de vía pecuaria histórica.",
-        "imagen_url": "https://commons.wikimedia.org/wiki/File:Pajaroncillo-puenteCristinas_(2019)9516.jpg"
-    },  # :contentReference[oaicite:8]{index=8}
+        "nombre": "Puente de Cristinas (río Cabriel)",
+        "lat": 39.93071335264869,
+        "lon": -1.7232249678399227,
+        "descripcion": "El puente de Cristinas se trata de un viaducto de estilo gótico tardío construido en el siglo XVI. Está ubicado junto a la carretera N‑420, a unos 3 km de Pajaroncillo, enclavado en un punto estratégico donde se cruzan rutas hacia Cañete, Teruel, Albarracín y Villar del Humo. El Cabriel, de aguas cristalinas, ha sido durante siglos una vía natural esencial para el transporte de madera y el paso de ganados. Fluye por parajes de gran valor paisajístico y ecológico, surcando hoces, meandros, cascadas y pozas, configurando un entorno contrastado entre la fuerza del agua y la serenidad del paisaje",
+        "imagen_url": "https://upload.wikimedia.org/wikipedia/commons/9/9f/Pajaroncillo-puenteCristinas_%282019%299516.jpg"
+    }, 
 
     "TorcasPalancaresTierraMuerta": {
-        "nombre": "Torcas de Palancares / Tierra Muerta",
-        "lat": 40.02854,
-        "lon": -1.96132,
-        "descripcion": "Conjunto de dolinas kársticas de gran tamaño en el monte de Los Palancares; senderos señalizados y pinar de pino negral.",
-        "imagen_url": "https://commons.wikimedia.org/wiki/File:Torcas_de_los_Palancares_-_Cuenca_-_Spain_-_panoramio.jpg"
-    },  # (coords aproximadas del acceso; foto libre) :contentReference[oaicite:9]{index=9}
+        "nombre": "Torcas de Palancares y Tierra Muerta",
+        "lat": 40.022446164770116, 
+        "lon": -1.9504629457191553,
+        "descripcion": "Explora uno de los paisajes kársticos más fascinantes de la Serranía de Cuenca: un Monumento Natural donde el terreno se hunde en profundas y misteriosas dolinas. Con cerca de 30 torcas de tamaños que van desde la pequeña Torca de la Novia hasta la inmensa Torca Larga (más de 10 ha) o la impresionante Torca de las Colmenas (90 m de profundidad), este enclave sobrecoge por su belleza abrupta y su historia milenaria.La denominación de Tierra Muerta no es azarosa: aunque las lluvias son frecuentes, casi ninguna agua aflora en forma de manantial —toda se filtra hacia los acuíferos subterráneos—, dejando un entorno áspero, silencioso, donde la vegetación y la fauna sobreviven en equilibrio con la aridez.",
+        "imagen_url": "https://upload.wikimedia.org/wikipedia/commons/e/e7/Torcas_de_los_Palancares_-_Cuenca_-_Spain_-_panoramio.jpg"
+    },  
 
     "LagunasCanadaHoyo": {
         "nombre": "Lagunas de Cañada del Hoyo",
-        "lat": 39.98611,
-        "lon": -1.87222,
-        "descripcion": "Monumento Natural (2007): lagunas kársticas de colores (Gitana, Tejo, Parra…); pasarelas y miradores.",
-        "imagen_url": "https://commons.wikimedia.org/wiki/File:Vistatotal3.jpg"
-    },  # :contentReference[oaicite:10]{index=10}
+        "lat": 39.98888093941978, -1.8746057027507999
+        "lon": -1.8746057027507999,
+        "descripcion": "Adéntrate en un paisaje kárstico único: siete lagunas circulares que emergen pujantes en un terreno calizo modelado por el agua y el tiempo. Cada una luce un color distinto—desde azules profundos hasta verdosos, negros o incluso lechosos—como una paleta viva al aire libre. Algunas acogen fenómenos naturales extraordinarios: la Laguna Gitana conserva estratos acuáticos inalterados, otras se tornan blancas por reacciones químicas y una ha llegado a enrojecer bajo la acción de microorganismos. Profundidades que superan los 30 m, vuelos sobre la roca viva, senderos accesibles y espacios protegidos: un rincón lleno de misterio, ciencia y belleza.",
+        "imagen_url": "https://upload.wikimedia.org/wikipedia/commons/0/05/Lagunas_de_Ca%C3%B1ada_del_Hoyo%2C_pan16_20101108_%285167346167%29.jpg"
+    }, 
 
     "ChorrerasRioCabriel": {
         "nombre": "Las Chorreras del río Cabriel",
-        "lat": 39.672,
-        "lon": -1.595,
-        "descripcion": "Saltos, tobas y pozas turquesas entre Enguídanos y Víllora; paraje geológico y de baño regulado en verano.",
-        "imagen_url": "https://commons.wikimedia.org/wiki/File:Chorreras_de_Engu%C3%ADdanos_07.jpg"
-    },  # (coords de entorno; imagen libre) :contentReference[oaicite:11]{index=11}
+        "lat": 39.70466133418501, 
+        "lon": -1.6191941477875167,
+        "descripcion": "Descubre uno de los parajes más espectaculares de la Serranía de Cuenca: un tramo del río Cabriel que ha esculpido cascadas, pozas turquesa y cavernas tobáceas sobre piedra caliza. Este Monumento Natural, declarado en 2019, forma parte de la Reserva de la Biosfera del Valle del Cabriel y combina belleza geológica, aguas cristalinas y biodiversidad notable. Aunque el baño ahora está prohibido debido a recientes desprendimientos, se puede recorrer un sendero seguro (PR-CU-53) por la margen izquierda, con miradores impresionantes. Es un destino ideal para quienes buscan paisajes naturales, geología viva y fauna fluvial en estado casi salvaje.",
+        "imagen_url": "https://upload.wikimedia.org/wikipedia/commons/3/3e/Chorreras_de_Engu%C3%ADdanos_07.jpg"
+    }, 
 
     "FachadaHarinas": {
-        "nombre": "Fachada de la antigua fábrica de harinas",
-        "lat": 39.8990,
-        "lon": -1.8125,
-        "descripcion": "Vestigio industrial (mediados del s. XX) junto al casco; fachada conservada como memoria del pasado fabril.",
-        "imagen_url": "https://commons.wikimedia.org/wiki/File:Ayuntamiento_de_Carboneras_de_Guadaza%C3%B3n.jpg"
-    },  # (punto urbano; imagen local libre) :contentReference[oaicite:12]{index=12}
+        "nombre": "Fachada de la antigua Fábrica de Harinas",
+        "lat": 39.898954262914344, 
+        "lon": -1.8065016657198403,
+        "descripcion": "Su arquitectura exterior transmite la solidez propia de la industria agroalimentaria de mediados del siglo pasado: una composición de múltiples plantas, ventanales ordenados que aseguran iluminación y ventilación en su interior, y una fusión de materiales como mampostería y ladrillo que otorgan carácter al edificio. Aunque hoy yace en estado de abandono, su fachada sigue evocando la vital actividad que un día albergó, y constituye un interesante vestigio del patrimonio industrial de Carboneras de Guadazaón",
+        "imagen_url": ""
+    },  
 
     "Ruta1": {
-        "nombre": "Sendero Hoz del río Algarra",
-        "lat": 39.8700,
-        "lon": -1.8200,
-        "descripcion": "Senda fluvial por la hoz del Algarra, con alternancia de ribera y farallones calcáreos; apta para público general.",
-        "imagen_url": "https://commons.wikimedia.org/wiki/File:Cabriel_River_-_Hoces_del_Cabriel_Natural_Park.jpg"
-    },  # (aprox. entorno serrano; imagen del Cabriel/Hoces representativa) :contentReference[oaicite:13]{index=13}
+        "nombre": "Ruta: Las Corveteras - Los Castellones - Castillo del Saladar (Pajaroncillo)",
+        "lat": 39.95349525977749, 
+        "lon": -1.7114109725881712,
+        "descripcion": "Una excursión circular de cerca de 5,6 km y 3 horas de duración, que descubre rincones inolvidables de la Serranía Baja de Cuenca. Comienza atravesando pinares de rodeno, hasta alcanzar Los Castellones, con sus escarpadas formaciones rocosas y vistas al valle del Cabriel. El punto culminante lo ofrece el Castillo del Saladar, un antiguo castro celtibérico que guarda restos de murallas y aljibes tallados en la roca: su cumbre, accesible mediante cadenas, regala panorámicas memorables. El broche de oro llega al descender entre paisajes tallados por la erosión: “Las Corveteras”, chimeneas rocosas de formas caprichosas que evocan fantasía geológica. Tonos ocres bajo el sol, ecos de historia y el silencio del monte —esta ruta lo tiene todo.",
+        "imagen_url": ""
+    }, 
 
     "Ruta2": {
         "nombre": "Ruta de los molinos de agua",
@@ -680,6 +680,7 @@ elif pagina == "Servicios":
     mostrar_servicios()
 elif pagina == "Sobre nosotros":
     mostrar_sobre_nosotros()
+
 
 
 
