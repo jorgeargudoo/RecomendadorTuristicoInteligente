@@ -152,35 +152,43 @@ st.markdown("""
 # -------------------------
 # FUNCIONES AUXILIARES
 # -------------------------
-MAP_W = 900  
-MAP_H = 520  
+POPUP_W = 820   # ancho del panel
+MAP_W   = 900   # ponlo igual que en st_folium(...)
+MAP_H   = 520   # ponlo igual que en st_folium(...)
 
-def _popup_html_full(lugar, box_w):
-    """HTML que rellenará el panel a tamaño mapa."""
-    nombre = html.escape(lugar.get("nombre",""))
-    descripcion = html.escape(lugar.get("descripcion",""))
+def _popup_html_two_cols(lugar, box_w=POPUP_W):
+    """Popup en dos columnas: texto izquierda, imagen derecha (con fallback si no hay imagen)."""
+    nombre = html.escape(lugar.get("nombre", ""))
+    descripcion = html.escape(lugar.get("descripcion", ""))
     img = (lugar.get("imagen_url") or "").strip()
 
-    img_block = f"""
-      <img src="{img}" alt="{nombre}" loading="lazy"
-           style="width:100%;height:auto;border-radius:16px;margin:0 0 12px 0;display:block;" />
+    # columna derecha solo si hay imagen
+    right_col = f"""
+        <div style="flex:1 1 46%; max-width:46%;">
+          <img src="{img}" alt="{nombre}" loading="lazy"
+               style="width:100%; height:auto; border-radius:14px; display:block;" />
+        </div>
     """ if img else ""
 
-    # Contenedor a ancho completo; el alto lo pone el IFrame
+    # si no hay imagen, texto ocupa todo
+    left_flex   = "1 1 100%" if not img else "1 1 52%"
+    left_max_w  = "100%"     if not img else "52%"
+
     return f"""
     <div style="
-        box-sizing:border-box;
-        width:{box_w}px;
-        height:100%;
-        padding:18px;
-        font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;
-        background:#fff;
-        overflow:auto;
-      ">
+        box-sizing:border-box; width:{box_w}px; max-width:{box_w}px;
+        padding:16px; background:#fff;
+        font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial; color:#222;
+    ">
       <h2 style="margin:0 0 12px 0; font-size:24px; line-height:1.2;">{nombre}</h2>
-      {img_block}
-      <div style="font-size:16px; line-height:1.55; color:#222;">
-        {descripcion}
+
+      <div style="display:flex; gap:16px; align-items:flex-start; flex-wrap:nowrap;">
+        <div style="flex:{left_flex}; max-width:{left_max_w};">
+          <div style="font-size:16px; line-height:1.55; text-align:justify;">
+            {descripcion}
+          </div>
+        </div>
+        {right_col}
       </div>
     </div>
     """
@@ -189,30 +197,25 @@ def mostrar_mapa_recomendaciones(lugares_recomendados, LUGARES_INFO):
     m = folium.Map(location=[39.8997, -1.8123], zoom_start=12, tiles="OpenStreetMap")
     cluster = MarkerCluster().add_to(m)
 
-    # margen para la “chrome” del popup (bordes)
-    iframe_w = MAP_W - 20
-    iframe_h = MAP_H - 20
-
     for key in lugares_recomendados:
         lugar = LUGARES_INFO.get(key)
-        if not lugar: 
+        if not lugar:
             continue
         lat, lon = lugar.get("lat"), lugar.get("lon")
         if lat is None or lon is None:
             continue
 
-        html_content = _popup_html_full(lugar, box_w=iframe_w-24)
-        iframe = IFrame(html=html_content, width=iframe_w, height=iframe_h)
-        popup = Popup(iframe, max_width=MAP_W+200, show=True)  # show=True abre centrado
+        html_content = _popup_html_two_cols(lugar, box_w=POPUP_W)
+        html_obj = Html(html_content, script=True)
+        popup = folium.Popup(html_obj, max_width=POPUP_W + 40)  # deja margen para la “X”
 
         folium.Marker(
             location=[lat, lon],
-            popup=popup,
+            popup=popup,                     # botón de cerrar visible (no usamos IFrame)
             tooltip=lugar.get("nombre",""),
             icon=folium.Icon(color="green", icon="info-sign")
         ).add_to(cluster)
 
-    # Muy importante: que coincida con MAP_W / MAP_H
     st_folium(m, width=MAP_W, height=MAP_H)
 
 def formulario_usuario():
@@ -649,6 +652,7 @@ elif pagina == "Servicios":
     mostrar_servicios()
 elif pagina == "Sobre nosotros":
     mostrar_sobre_nosotros()
+
 
 
 
