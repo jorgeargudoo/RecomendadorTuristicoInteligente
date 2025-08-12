@@ -155,62 +155,74 @@ st.markdown("""
 
 POPUP_MAX_W = 820  # ancho máximo en escritorio
 
-def _popup_html_two_cols(lugar):
-    """Popup responsive: 2 columnas en ancho grande, 1 columna en móvil, centrado sin huecos."""
+POPUP_MAX_W = 1100   # ancho máximo del panel en escritorio
+
+def _popup_html_fullscreen_two_cols(lugar):
+    """
+    Panel grande: ocupa casi todo el mapa (95vw x 80vh), con X visible.
+    Dos columnas en escritorio; una sola columna en móvil. Incluye scroll si el texto es largo.
+    """
     import html as _html
     nombre = _html.escape(lugar.get("nombre", ""))
     descripcion = _html.escape(lugar.get("descripcion", ""))
     img = (lugar.get("imagen_url") or "").strip()
 
-    # columna de imagen (se oculta si no hay URL)
     img_block = f"""
-        <div class="col-img">
-          <img src="{img}" alt="{nombre}" loading="lazy"
-               style="width:100%; height:auto; border-radius:14px; display:block;" />
-        </div>
+      <div class="col-img">
+        <img src="{img}" alt="{nombre}" loading="lazy"
+             style="width:100%;height:auto;border-radius:14px;display:block;" />
+      </div>
     """ if img else ""
 
     return f"""
     <style>
-      /* Contenedor centrado y responsive */
-      .popup-wrap {{
-        box-sizing:border-box;
-        width:100%;
-        max-width:min({POPUP_MAX_W}px, 92vw);
-        margin:0 auto;                 /* 👉 centra el bloque en el popup */
-        padding:16px;
-        background:#fff;
-        font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;
-        color:#222;
+      .popup-outer {{
+        /* tamaño “pantalla”: ancho casi total y alto alto, pero con límites */
+        width: min({POPUP_MAX_W}px, 95vw);
+        height: min(80vh, 640px);
+        background: #fff;
+        border-radius: 12px;
+        box-sizing: border-box;
+        padding: 18px;
+        margin: 0 auto;            /* centra dentro del popup */
+        font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+        color: #222;
+        overflow: hidden;          /* el scroll va en .popup-scroll */
       }}
       .popup-title {{
-        margin:0 0 12px 0;
-        font-size:clamp(20px, 2.5vw, 28px);
-        line-height:1.2;
+        margin: 0 0 14px 0;
+        font-size: clamp(20px, 2.4vw, 30px);
+        line-height: 1.2;
+      }}
+      .popup-scroll {{
+        height: calc(100% - 46px); /* deja sitio al título */
+        overflow-y: auto;          /* 👉 scroll interno si hace falta */
       }}
       .popup-flex {{
-        display:flex;
-        flex-wrap:wrap;
-        gap:16px;
+        display: flex;
+        gap: 18px;
+        align-items: flex-start;
+        flex-wrap: nowrap;
       }}
-      .popup-flex .col-text {{ flex:1 1 52%; min-width:280px; }}
-      .popup-flex .col-img  {{ flex:1 1 46%; min-width:240px; }}
+      .col-text {{ flex: 1 1 54%; min-width: 280px; }}
+      .col-img  {{ flex: 1 1 44%; min-width: 240px; }}
+      .col-text p {{ margin: 0; font-size: 16px; line-height: 1.55; text-align: justify; }}
 
-      /* Móvil: una sola columna para evitar banda gris */
-      @media (max-width: 600px) {{
-        .popup-flex {{ flex-direction:column; }}
-        .popup-flex .col-text, .popup-flex .col-img {{ max-width:100%; }}
+      /* Móvil: una columna para ocupar todo y evitar bandas vacías */
+      @media (max-width: 680px) {{
+        .popup-outer {{ width: 96vw; height: min(82vh, 640px); padding: 14px; }}
+        .popup-flex  {{ flex-direction: column; }}
+        .col-text, .col-img {{ min-width: 100%; }}
       }}
     </style>
-    <div class="popup-wrap">
+
+    <div class="popup-outer">
       <h2 class="popup-title">{nombre}</h2>
-      <div class="popup-flex">
-        <div class="col-text">
-          <div style="font-size:16px; line-height:1.55; text-align:justify;">
-            {descripcion}
-          </div>
+      <div class="popup-scroll">
+        <div class="popup-flex">
+          <div class="col-text"><p>{descripcion}</p></div>
+          {img_block}
         </div>
-        {img_block}
       </div>
     </div>
     """
@@ -227,24 +239,23 @@ def mostrar_mapa_recomendaciones(lugares_recomendados, LUGARES_INFO):
         if lat is None or lon is None:
             continue
 
-        html_content = _popup_html_two_cols(lugar)
+        html_content = _popup_html_fullscreen_two_cols(lugar)
         html_obj = Html(html_content, script=True)
-
-        # max_width al 100% para que el panel se adapte al mapa (y se centre por el CSS)
-        popup = folium.Popup(html_obj, max_width="100%")
+        # max_width grande para permitir el panel “pantalla completa”;
+        # keepInView ayuda a centrar el popup dentro del mapa
+        popup = folium.Popup(html_obj, max_width=2000, keep_in_view=True)
 
         folium.Marker(
             location=[lat, lon],
-            popup=popup,                     # ✔️ conserva la cruz de cerrar
+            popup=popup,                         # ✔️ mantiene la “X” visible
             tooltip=lugar.get("nombre", ""),
             icon=folium.Icon(color="green", icon="info-sign")
         ).add_to(cluster)
 
-    # ✔️ mapa fluido: en escritorio usa todo el ancho del contenedor; en móvil se adapta
+    # El mapa usa todo el ancho de la columna; alto cómodo
     try:
         st_folium(m, height=520, use_container_width=True)
     except TypeError:
-        # si tu versión de streamlit_folium no acepta use_container_width
         st_folium(m, height=520)
 
 
@@ -682,6 +693,7 @@ elif pagina == "Servicios":
     mostrar_servicios()
 elif pagina == "Sobre nosotros":
     mostrar_sobre_nosotros()
+
 
 
 
