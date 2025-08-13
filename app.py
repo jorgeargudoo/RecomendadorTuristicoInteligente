@@ -60,7 +60,6 @@ def get_query_value(key: str):
 
 if "src" not in st.session_state:
     src = get_query_value("src")
-    st.caption(f"DEBUG -> src={src}")
     if src:
         log_event("user_first_entry", {
             "user_id": st.session_state.user_id,
@@ -750,6 +749,7 @@ if st.session_state.get("mostrar_resultados", False):
                     })
     else:
         st.info("Ya has enviado tu valoración. ¡Gracias!")
+
 
 
 
