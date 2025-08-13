@@ -1,4 +1,4 @@
-streamlit>=1.33,<1.37
+streamlit
 pandas
 folium
 streamlit-folium
@@ -9,5 +9,6 @@ requests
 gspread
 google-auth
 networkx
-streamlit-cookies-manager>=0.2.0
+streamlit-cookies-manager
 cryptography==41.0.3
+
