@@ -44,7 +44,9 @@ except Exception:
 
 if "utm_source" not in st.session_state:
     params = st.experimental_get_query_params()
+    print(params)
     utm_source = params.get("utm_source", [None])[0]
+    print(utm_source)
     st.session_state.utm_source = utm_source
 
     if utm_source:
@@ -735,6 +737,7 @@ if st.session_state.get("mostrar_resultados", False):
                     })
     else:
         st.info("Ya has enviado tu valoración. ¡Gracias!")
+
 
 
 
