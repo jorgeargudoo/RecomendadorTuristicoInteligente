@@ -11,7 +11,6 @@ import numpy as np
 import os
 from folium.plugins import MarkerCluster
 from folium import Html
-from branca.element import IFrame
 import html
 from folium import Popup
 
@@ -108,8 +107,6 @@ def obtener_clima_hoy():
 
     return clima_hoy
 
-modelo_recomendador = joblib.load("modelo_turismo.pkl")
-
 # from logger_gsheets import log_event  # Logs desactivados por ahora
 
 # -------------------------
@@ -152,74 +149,70 @@ st.markdown("""
 # -------------------------
 # FUNCIONES AUXILIARES
 # -------------------------
+def _thumb(url: str, width: int = 900):
+    """Devuelve una versión ligera de la imagen cuando es de Wikimedia; el resto tal cual."""
+    if not url:
+        return url
+    if "upload.wikimedia.org" in url and "/thumb/" not in url:
+        parts = url.split("/commons/")
+        if len(parts) == 2:
+            rest = parts[1]
+            return f"https://upload.wikimedia.org/wikipedia/commons/thumb/{rest}/{width}px-{rest.split('/')[-1]}"
+    return url  # Para tus imágenes de GitHub: idealmente súbelas en .webp ~1000px
+
 
 POPUP_MAX_W = 1100   # ancho máx. en escritorio
 
 def _popup_html_responsive(lugar):
     """
-    Móvil: título + foto arriba + texto scroll debajo.
-    Escritorio: dos columnas (texto izquierda, foto derecha).
-    Altura limitada (82vh) para que la X de Leaflet se vea siempre.
+    Popup ligero y apto para móvil:
+    - Imagen (miniatura) arriba con lazy-loading
+    - Título
+    - Descripción en bloque scrollable pero sin CSS global ni <style>, solo inline
     """
     import html as _html
     nombre = _html.escape(lugar.get("nombre", ""))
     descripcion = _html.escape(lugar.get("descripcion", ""))
-    img = (lugar.get("imagen_url") or "").strip()
+    img = _thumb((lugar.get("imagen_url") or "").strip(), width=900)
 
-    img_block = f"""
-      <div class="cell-img">
-        <img src="{img}" alt="{nombre}" loading="lazy"
-             style="width:100%;height:auto;border-radius:14px;display:block;" />
+    # Bloque imagen opcional
+    img_block = f'''
+      <div style="width:100%;margin:0 0 8px 0;">
+        <img src="{img}" alt="{nombre}" loading="lazy" decoding="async"
+             referrerpolicy="no-referrer"
+             style="width:100%;height:auto;border-radius:12px;display:block;max-height:320px;object-fit:cover;" />
       </div>
-    """ if img else ""
+    ''' if img else ""
 
-    return f"""
-    <style>
-      .pop-wrap {{
-        width: min({POPUP_MAX_W}px, 95vw);
-        height: clamp(420px, 82vh, 640px);   /* ⬅️ limita alto => X visible */
-        background:#fff; border-radius:12px;
-        box-sizing:border-box; margin:0 auto; padding:14px 16px;
-        font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial; color:#222;
-        display:flex; flex-direction:column;
-      }}
-      .pop-title {{
-        margin:0 0 10px 0; line-height:1.2;
-        font-size:clamp(20px,2.3vw,30px);
-      }}
-      /* grid: móvil 1 columna, escritorio 2 columnas */
-      .pop-grid {{
-        display:grid; grid-template-columns: 1fr; gap:14px;
-        /* área scrollable: ocupa todo el alto restante */
-        overflow-y:auto; padding-right:4px;
-      }}
-      .cell-text p {{ margin:0; font-size:16px; line-height:1.55; text-align:justify; }}
-
-      @media (min-width: 780px) {{
-        .pop-grid {{ grid-template-columns: 1.1fr 0.9fr; gap:18px; }}
-        .cell-text p {{ font-size:16px; }}
-      }}
-      @media (max-width: 779px) {{
-        /* en móvil queremos foto ARRIBA y texto debajo */
-        .cell-img {{ order: -1; }}
-        .cell-text p {{ font-size:15px; line-height:1.6; }}
-      }}
-    </style>
-
-    <div class="pop-wrap">
-      <h2 class="pop-title">{nombre}</h2>
-      <div class="pop-grid">
+    # Contenedor: sin <style> global, solo inline; alto máximo para que se vea la X
+    return f'''
+      <div style="width:min(92vw, {POPUP_MAX_W}px);max-height:78vh;padding:12px 12px 8px 12px;
+                  background:#fff;border-radius:12px;box-sizing:border-box;overflow:auto;
+                  font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;color:#222;">
+        <h2 style="margin:0 0 8px 0;font-size:20px;line-height:1.2;">{nombre}</h2>
         {img_block}
-        <div class="cell-text"><p>{descripcion}</p></div>
+        <div style="font-size:15px;line-height:1.55;text-align:justify;">{descripcion}</div>
       </div>
-    </div>
-    """
+    '''
+
 
 def mostrar_mapa_recomendaciones(lugares_recomendados, LUGARES_INFO):
-    m = folium.Map(location=[39.8997, -1.8123], zoom_start=12, tiles="OpenStreetMap")
-    cluster = MarkerCluster().add_to(m)
+    # Mapa ligero para móvil
+    m = folium.Map(
+        location=[39.8997, -1.8123],
+        zoom_start=12,
+        tiles="CartoDB positron",
+        prefer_canvas=True
+    )
 
-    for key in lugares_recomendados:
+    # Normaliza a lista de claves
+    keys = (
+        lugares_recomendados
+        if isinstance(lugares_recomendados, (list, set, tuple))
+        else list(lugares_recomendados.keys())
+    )
+
+    for key in keys:
         lugar = LUGARES_INFO.get(key)
         if not lugar:
             continue
@@ -227,22 +220,24 @@ def mostrar_mapa_recomendaciones(lugares_recomendados, LUGARES_INFO):
         if lat is None or lon is None:
             continue
 
+        # HTML mínimo con imagen + texto (sin scripts)
         html_content = _popup_html_responsive(lugar)
-        html_obj = Html(html_content, script=True)
-        popup = folium.Popup(html_obj, max_width=2000, keep_in_view=True)  # grande pero dentro del mapa
+        html_obj = Html(html_content, script=False)  # script=False = menos peso
+        popup = folium.Popup(html_obj, max_width=980, keep_in_view=True)
 
         folium.Marker(
             location=[lat, lon],
-            popup=popup,                       # la X se mantiene visible
+            popup=popup,
             tooltip=lugar.get("nombre", ""),
             icon=folium.Icon(color="green", icon="info-sign")
-        ).add_to(cluster)
+        ).add_to(m)
 
-    # mapa fluido (en móvil ocupa todo el ancho de la columna)
+    # Render compacto (si tu versión soporta returned_objects)
     try:
-        st_folium(m, height=520, use_container_width=True)
+        st_folium(m, height=420, use_container_width=True, returned_objects=[])
     except TypeError:
-        st_folium(m, height=520)
+        st_folium(m, height=420, use_container_width=True)
+
 
 
 def formulario_usuario():
@@ -349,54 +344,54 @@ pagina = st.radio(
     horizontal=True
 )
 
-# Lógica difusa
-tmax = ctrl.Antecedent(np.arange(-5, 46, 1), 'tmax')
-tmin = ctrl.Antecedent(np.arange(-10, 36, 1), 'tmin')
-prob = ctrl.Antecedent(np.arange(0, 101, 1), 'prob_lluvia')
-uv = ctrl.Antecedent(np.arange(0, 13, 1), 'UV')
-recom_exterior = ctrl.Consequent(np.arange(0, 1.1, 0.1), 'recom_exterior')
-# tmax
-tmax['frio'] = fuzz.trapmf(tmax.universe, [-5, -5, 5, 12])
-tmax['moderado'] = fuzz.trimf(tmax.universe, [10, 20, 28])
-tmax['calido'] = fuzz.trapmf(tmax.universe, [25, 30, 45, 45])
+@st.cache_resource
+def _build_fuzzy_system():
+    import numpy as np
+    import skfuzzy as fuzz
+    from skfuzzy import control as ctrl
 
-# tmin
-tmin['muy_frio'] = fuzz.trapmf(tmin.universe, [-10, -10, 0, 5])
-tmin['frio'] = fuzz.trimf(tmin.universe, [3, 8, 13])
-tmin['suave'] = fuzz.trapmf(tmin.universe, [10, 15, 35, 35])
+    tmax = ctrl.Antecedent(np.arange(-5, 46, 1), 'tmax')
+    tmin = ctrl.Antecedent(np.arange(-10, 36, 1), 'tmin')
+    prob = ctrl.Antecedent(np.arange(0, 101, 1), 'prob_lluvia')
+    uv = ctrl.Antecedent(np.arange(0, 13, 1), 'UV')
+    recom_exterior = ctrl.Consequent(np.arange(0, 1.1, 0.1), 'recom_exterior')
 
-# prob_lluvia
-prob['baja'] = fuzz.trapmf(prob.universe, [0, 0, 20, 30])
-prob['media'] = fuzz.trimf(prob.universe, [20, 50, 80])
-prob['alta'] = fuzz.trapmf(prob.universe, [70, 85, 100, 100])
+    tmax['frio'] = fuzz.trapmf(tmax.universe, [-5, -5, 5, 12])
+    tmax['moderado'] = fuzz.trimf(tmax.universe, [10, 20, 28])
+    tmax['calido'] = fuzz.trapmf(tmax.universe, [25, 30, 45, 45])
 
-# UV
-uv['bajo'] = fuzz.trapmf(uv.universe, [0, 0, 3, 6])
-uv['moderado'] = fuzz.trimf(uv.universe, [4, 7, 9])
-uv['alto'] = fuzz.trapmf(uv.universe, [6, 10, 14, 14])
+    tmin['muy_frio'] = fuzz.trapmf(tmin.universe, [-10, -10, 0, 5])
+    tmin['frio'] = fuzz.trimf(tmin.universe, [3, 8, 13])
+    tmin['suave'] = fuzz.trapmf(tmin.universe, [10, 15, 35, 35])
 
-# recom_exterior
-recom_exterior['no'] = fuzz.trapmf(recom_exterior.universe, [0, 0, 0.2, 0.4])
-recom_exterior['posible'] = fuzz.trimf(recom_exterior.universe, [0.3, 0.5, 0.7])
-recom_exterior['si'] = fuzz.trapmf(recom_exterior.universe, [0.6, 0.8, 1, 1])
-rules = [
-    # NO RECOMENDABLE
-    ctrl.Rule(prob['alta'], recom_exterior['no']),
-    ctrl.Rule(tmax['frio'] & tmin['muy_frio'], recom_exterior['no']),
-    ctrl.Rule(tmax['calido'] & uv['alto'], recom_exterior['no']),
+    prob['baja'] = fuzz.trapmf(prob.universe, [0, 0, 20, 30])
+    prob['media'] = fuzz.trimf(prob.universe, [20, 50, 80])
+    prob['alta'] = fuzz.trapmf(prob.universe, [70, 85, 100, 100])
 
-    # POSIBLE
-    ctrl.Rule(prob['media'] & (tmax['moderado'] | tmax['calido']), recom_exterior['posible']),
-    ctrl.Rule(prob['baja'] & tmax['frio'] & tmin['frio'], recom_exterior['posible']),
-    ctrl.Rule(prob['baja'] & uv['moderado'], recom_exterior['posible']),
+    uv['bajo'] = fuzz.trapmf(uv.universe, [0, 0, 3, 6])
+    uv['moderado'] = fuzz.trimf(uv.universe, [4, 7, 9])
+    uv['alto'] = fuzz.trapmf(uv.universe, [6, 10, 14, 14])
 
-    # SI RECOMENDABLE
-    ctrl.Rule(prob['baja'] & tmax['moderado'] & tmin['suave'], recom_exterior['si']),
-    ctrl.Rule(prob['baja'] & uv['bajo'], recom_exterior['si']),
-    ctrl.Rule(prob['baja'] & tmax['calido'] & uv['bajo'], recom_exterior['si']),
-]
-sistema_ctrl = ctrl.ControlSystem(rules)
+    recom_exterior['no'] = fuzz.trapmf(recom_exterior.universe, [0, 0, 0.2, 0.4])
+    recom_exterior['posible'] = fuzz.trimf(recom_exterior.universe, [0.3, 0.5, 0.7])
+    recom_exterior['si'] = fuzz.trapmf(recom_exterior.universe, [0.6, 0.8, 1, 1])
+
+    rules = [
+        ctrl.Rule(prob['alta'], recom_exterior['no']),
+        ctrl.Rule(tmax['frio'] & tmin['muy_frio'], recom_exterior['no']),
+        ctrl.Rule(tmax['calido'] & uv['alto'], recom_exterior['no']),
+        ctrl.Rule(prob['media'] & (tmax['moderado'] | tmax['calido']), recom_exterior['posible']),
+        ctrl.Rule(prob['baja'] & tmax['frio'] & tmin['frio'], recom_exterior['posible']),
+        ctrl.Rule(prob['baja'] & uv['moderado'], recom_exterior['posible']),
+        ctrl.Rule(prob['baja'] & tmax['moderado'] & tmin['suave'], recom_exterior['si']),
+        ctrl.Rule(prob['baja'] & uv['bajo'], recom_exterior['si']),
+        ctrl.Rule(prob['baja'] & tmax['calido'] & uv['bajo'], recom_exterior['si']),
+    ]
+    sistema_ctrl = ctrl.ControlSystem(rules)
+    return sistema_ctrl
+
 def recomendar(clima):
+    sistema_ctrl = _build_fuzzy_system()
     sim = ctrl.ControlSystemSimulation(sistema_ctrl)
     sim.input['tmax'] = clima.get('tmax', 20)
     sim.input['tmin'] = clima.get('tmin', 10)
@@ -404,6 +399,7 @@ def recomendar(clima):
     sim.input['UV'] = clima.get('UV', 5)
     sim.compute()
     return sim.output.get('recom_exterior')
+
 
 LUGARES_EXTERIOR = {
             "CastilloAliaga",
@@ -580,9 +576,13 @@ def filtrar_por_clima(recomendaciones, clima):
 if pagina == "Descubre Carboneras de Guadazaón":
     mostrar_informacion_local()
 elif pagina == "Recomendador turístico":
-    st.header("Recomendador turístico")
-    datos_usuario = formulario_usuario()  
-    columnas_entrenamiento = [
+    with st.form("form_recomendador", clear_on_submit=False):
+        st.header("Recomendador turístico")
+        datos_usuario = formulario_usuario()
+        submitted = st.form_submit_button("Obtener recomendaciones")
+    
+    if submitted:
+        columnas_entrenamiento = [
             'edad', 'genero', 'actividad_frecuencia', 'freq_recom',
             'residencia_No', 'residencia_No, pero soy de aquí',
             'residencia_Solo en verano o en vacaciones', 'residencia_Sí, todo el año',
@@ -596,45 +596,25 @@ elif pagina == "Recomendador turístico":
             'recom_mayores_Monumentos o historia', 'recom_mayores_Sitios tranquilos para descansar',
             'recom_mayores_Eventos o fiestas', 'recom_mayores_Bares y restaurantes'
         ]
-        
-    df_usuario = pd.DataFrame([datos_usuario])
-        
-    # Rellenar columnas faltantes con 0
-    for col in columnas_entrenamiento:
-        if col not in df_usuario.columns:
-            df_usuario[col] = 0
-        
-    # Asegurar el mismo orden de columnas
-    df_usuario = df_usuario[columnas_entrenamiento]
-
-        
-    # Extraer los nombres de lugares a partir de las columnas del modelo
-    lugares = [
-        "IglesiaSantoDomingoSilos",
-        "PanteonMarquesesMoya",
-        "CastilloAliaga",
-        "LagunaCaolin",
-        "RiberaRioGuadazaon",
-        "CerritoArena",
-        "MiradorCruz",
-        "FuenteTresCanos",
-        "PuenteCristinasRioCabriel",
-        "TorcasPalancaresTierraMuerta",
-        "LagunasCanadaHoyo",
-        "ChorrerasRioCabriel",
-        "FachadaHarinas",
-        "Ruta1",
-        "Ruta2",
-        "SaltoBalsa",
-        "MiradorPicarcho"
-    ]
-    if st.button("Obtener recomendaciones", key="obtener_recomendaciones"):
-        # Predecir
+        df_usuario = pd.DataFrame([datos_usuario])
+        for col in columnas_entrenamiento:
+            if col not in df_usuario.columns:
+                df_usuario[col] = 0
+        df_usuario = df_usuario[columnas_entrenamiento]
+    
         modelo_recomendador = cargar_modelo()
         predicciones_binarias = modelo_recomendador.predict(df_usuario)[0]
+    
+        lugares = [
+            "IglesiaSantoDomingoSilos","PanteonMarquesesMoya","CastilloAliaga","LagunaCaolin",
+            "RiberaRioGuadazaon","CerritoArena","MiradorCruz","FuenteTresCanos",
+            "PuenteCristinasRioCabriel","TorcasPalancaresTierraMuerta","LagunasCanadaHoyo",
+            "ChorrerasRioCabriel","FachadaHarinas","Ruta1","Ruta2","SaltoBalsa","MiradorPicarcho"
+        ]
         recomendaciones_dict = {lugar: int(pred) for lugar, pred in zip(lugares, predicciones_binarias)}
+    
         try:
-            clima_hoy = obtener_clima_hoy()
+            clima_hoy = obtener_clima_hoy(usar_uv_en_tiempo_real=False)  # ahorro por defecto
             recomendaciones_filtradas = filtrar_por_clima(recomendaciones_dict, clima_hoy)
             score_exterior = recomendar(clima_hoy)
             st.session_state.clima_hoy = clima_hoy
@@ -646,9 +626,9 @@ elif pagina == "Recomendador turístico":
             st.warning("No se pudo obtener el clima actual. Las recomendaciones no han sido filtradas por condiciones meteorológicas.")
             st.text(f"Error: {str(e)}")
     
-        # Guardar resultados en sesión
         st.session_state.lugares_recomendados = [lugar for lugar, v in recomendaciones_filtradas.items() if v == 1]
         st.session_state.mostrar_resultados = True
+
     
     # ------------------------------
     # ✅ 2. BLOQUE PERMANENTE: mostrar el mapa y el feedback si ya se hizo clic
@@ -670,54 +650,12 @@ elif pagina == "Recomendador turístico":
         if st.button("Enviar valoración", key="enviar_valoracion"):
             # log_event("feedback", {"satisfaccion": feedback})
             st.success(f"¡Gracias por tu valoración de {feedback} estrellas!")
-
-        if st.button("Mostrar mapa con todos los puntos de interés", key="mapa_completo"):
-            mostrar_mapa_recomendaciones(LUGARES_INFO, LUGARES_INFO)
     
         if st.button("Volver a empezar", key="volver_a_empezar"):
             st.session_state.clear()
             st.experimental_rerun()
 
-
 elif pagina == "Servicios":
     mostrar_servicios()
 elif pagina == "Sobre nosotros":
     mostrar_sobre_nosotros()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
