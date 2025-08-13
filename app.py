@@ -127,6 +127,15 @@ st.markdown("""
             margin-top: -10px;
             font-style: italic;
         }
+        .info-card{
+              background:#ffffffcc; border:1px solid #d8ead8; border-radius:14px;
+              padding:14px 16px; margin:10px 0 18px 0;
+              box-shadow:0 1px 3px rgba(0,0,0,.04);
+            }
+            .info-card h4{margin:0 0 6px 0; color:#2f4f2f;}
+            .info-card p{margin:0; color:#385438;}
+            .info-card ul{margin:8px 0 0 18px; padding:0;}
+            .info-card li{margin:4px 0;}
     </style>
 """, unsafe_allow_html=True)
 
@@ -520,9 +529,28 @@ def filtrar_por_clima(recomendaciones, clima):
                 filtradas[lugar] = 0
     return filtradas
 
+st.markdown("""
+<div class="info-card">
+  <h4>¿Por qué te preguntamos esto?</h4>
+  <p>Unas pocas respuestas nos ayudan a afinar el perfil turístico y darte planes que encajen mejor contigo:</p>
+  <ul>
+    <li><b>Edad y género</b> orientan el tono de las propuestas (tranquilas vs. activas).</li>
+    <li><b>Si vives aquí</b> prioriza rincones menos obvios para locales o esenciales si vienes de fuera.</li>
+    <li><b>Frecuencia</b> (lo que haces y recomiendas) calibra cuánto explorar vs. ir a tiro fijo.</li>
+    <li><b>Tipos de actividades por público</b> nos dicen qué recomendarías a familias, jóvenes y mayores.</li>
+  </ul>
+</div>
+""", unsafe_allow_html=True)
 
 with st.form("form_recomendador", clear_on_submit=False):
     st.header("Recomendador turístico")
+    with st.expander("ℹ️ Cómo funciona en 10 segundos"):
+        st.markdown("""
+    - Primero calculamos tus **preferencias** a partir del formulario (modelo multi‑salida).
+    - Luego aplicamos un **filtro meteorológico** con lógica difusa (AEMET + UV en tiempo real) para priorizar exterior/interior.
+    - El mapa te muestra **recomendados** y puedes alternar a **Puntos de Interés** para ver todo.
+    """)
+
     datos_usuario = formulario_usuario()
     submitted = st.form_submit_button("Obtener recomendaciones")
 
@@ -605,4 +633,5 @@ if st.session_state.get("mostrar_resultados", False):
     if st.button("Volver a empezar", key="volver_a_empezar"):
         st.session_state.clear()
         st.experimental_rerun()
+
 
