@@ -42,11 +42,16 @@ def get_sheet():
 def log_event(evento, datos):
     try:
         sheet = get_sheet()
-        fila = [datetime.utcnow().isoformat(), evento, json.dumps(datos, ensure_ascii=False)]
+        fila = [
+                (datetime.utcnow() + timedelta(hours=2)).replace(microsecond=0).isoformat(),
+                evento,
+                json.dumps(datos, ensure_ascii=False)
+            ]
         sheet.append_row(fila)
     except Exception as e:
         key = "_gsheets_error_shown"
         if not st.session_state.get(key):
             st.session_state[key] = True
             st.error(f"Error al guardar en Google Sheets: {e}")
+
 
