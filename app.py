@@ -220,9 +220,9 @@ def mostrar_mapa_recomendaciones(lugares_recomendados, LUGARES_INFO):
         if lat is None or lon is None:
             continue
 
-        html_content = _popup_html_responsive(lugar)  
-        html_obj = Html(html_content, script=False)    
-        popup = folium.Popup(html_obj, max_width=980, keep_in_view=True)
+        html_content = _popup_html_responsive(lugar)
+        popup = folium.Popup(html_content, max_width=980, keep_in_view=True, parse_html=True)
+
 
         folium.Marker(
             location=[lat, lon],
@@ -658,4 +658,5 @@ elif pagina == "Servicios":
     mostrar_servicios()
 elif pagina == "Sobre nosotros":
     mostrar_sobre_nosotros()
+
 
