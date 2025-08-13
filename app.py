@@ -17,9 +17,6 @@ from logger_gsheets import log_event
 import uuid
 from urllib.parse import urlparse, parse_qs
 
-params = st.query_params()
-utm_source = params.get("utm_source", [None])[0]
-
 try:
     from streamlit_cookies_manager import EncryptedCookieManager
     cookies = EncryptedCookieManager(
@@ -46,10 +43,11 @@ except Exception:
         st.session_state.is_new_user = True
 
 if "utm_source" not in st.session_state:
+    params = st.query_params()
+    utm_source = params.get("utm_source", [None])[0]
     st.session_state.utm_source = utm_source
 
     if utm_source:
-        from logger_gsheets import log_event
         log_event("user_first_entry", {
             "user_id": st.session_state.user_id,
             "utm_source": utm_source
@@ -737,6 +735,7 @@ if st.session_state.get("mostrar_resultados", False):
                     })
     else:
         st.info("Ya has enviado tu valoración. ¡Gracias!")
+
 
 
 
