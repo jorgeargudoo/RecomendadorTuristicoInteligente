@@ -13,6 +13,7 @@ from folium.plugins import MarkerCluster
 from folium import Html
 import html
 from folium import Popup
+from branca.element import IFrame
 
 # Ruta relativa al modelo en tu repo
 RUTA_MODELO = "modelo_turismo.pkl"
@@ -221,7 +222,18 @@ def mostrar_mapa_recomendaciones(lugares_recomendados, LUGARES_INFO):
             continue
 
         html_content = _popup_html_responsive(lugar)
-        popup = folium.Popup(html_content, max_width=980, keep_in_view=True, parse_html=True)
+
+        # 1) Intento directo con parse_html=True (normalmente suficiente)
+        try:
+            popup = folium.Popup(html_content, max_width=980, keep_in_view=True, parse_html=True)
+        except Exception:
+            popup = None
+        
+        # 2) Fallback con IFrame si sigue sin interpretarlo como HTML
+        if popup is None:
+            iframe = IFrame(html=html_content, width=min(POPUP_MAX_W, 980), height=420)
+            popup = folium.Popup(iframe, max_width=980, keep_in_view=True)
+
 
 
         folium.Marker(
@@ -613,7 +625,7 @@ elif pagina == "Recomendador turístico":
         recomendaciones_dict = {lugar: int(pred) for lugar, pred in zip(lugares, predicciones_binarias)}
     
         try:
-            clima_hoy = obtener_clima_hoy(usar_uv_en_tiempo_real=False)  # ahorro por defecto
+            clima_hoy = obtener_clima_hoy()  
             recomendaciones_filtradas = filtrar_por_clima(recomendaciones_dict, clima_hoy)
             score_exterior = recomendar(clima_hoy)
             st.session_state.clima_hoy = clima_hoy
@@ -658,5 +670,6 @@ elif pagina == "Servicios":
     mostrar_servicios()
 elif pagina == "Sobre nosotros":
     mostrar_sobre_nosotros()
+
 
 
