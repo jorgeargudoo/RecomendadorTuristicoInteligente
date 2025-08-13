@@ -635,15 +635,16 @@ if submitted:
         df_usuario = df_usuario[columnas_entrenamiento]
 
         log_event("form_submitted", {
-                    "user_id": st.session_state.user_id,
-                    "edad": datos_usuario.get("edad"),
-                    "genero": datos_usuario.get("genero"),
-                    "actividad_frecuencia": datos_usuario.get("actividad_frecuencia"),
-                    "freq_recom": datos_usuario.get("freq_recom"),
-                    "familias_sum": int(sum(v for k,v in datos_usuario.items() if k.startswith("recom_familias_"))),
-                    "jovenes_sum": int(sum(v for k,v in datos_usuario.items() if k.startswith("recom_jovenes_"))),
-                    "mayores_sum": int(sum(v for k,v in datos_usuario.items() if k.startswith("recom_mayores_")))
-                })
+                "user_id": st.session_state.user_id,
+                "edad": datos_usuario.get("edad"),
+                "genero": datos_usuario.get("genero"),
+                "actividad_frecuencia": datos_usuario.get("actividad_frecuencia"),
+                "freq_recom": datos_usuario.get("freq_recom"),
+                "familias_list": [k.replace("recom_familias_", "") for k, v in datos_usuario.items() if k.startswith("recom_familias_") and v == 1],
+                "jovenes_list": [k.replace("recom_jovenes_", "") for k, v in datos_usuario.items() if k.startswith("recom_jovenes_") and v == 1],
+                "mayores_list": [k.replace("recom_mayores_", "") for k, v in datos_usuario.items() if k.startswith("recom_mayores_") and v == 1]
+            })
+
 
         modelo_recomendador = cargar_modelo()
         predicciones_binarias = modelo_recomendador.predict(df_usuario)[0]
@@ -749,6 +750,7 @@ if st.session_state.get("mostrar_resultados", False):
                     })
     else:
         st.info("Ya has enviado tu valoración. ¡Gracias!")
+
 
 
 
