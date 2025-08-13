@@ -17,7 +17,7 @@ from logger_gsheets import log_event
 import uuid
 from urllib.parse import urlparse, parse_qs
 
-params = st.experimental_get_query_params()
+params = st.query_params()
 utm_source = params.get("utm_source", [None])[0]
 
 try:
@@ -737,6 +737,7 @@ if st.session_state.get("mostrar_resultados", False):
                     })
     else:
         st.info("Ya has enviado tu valoración. ¡Gracias!")
+
 
 
 
