@@ -12,7 +12,8 @@ import os
 from folium.plugins import MarkerCluster
 import html
 from folium import Popup
-from branca.element import Html, IFrame
+from folium.plugins import MarkerCluster
+from folium import Html
 
 
 # Ruta relativa al modelo en tu repo
@@ -150,63 +151,67 @@ st.markdown("""
 # -------------------------
 # FUNCIONES AUXILIARES
 # -------------------------
-def _thumb(url: str, width: int = 900):
-    """Devuelve una versión ligera de la imagen cuando es de Wikimedia; el resto tal cual."""
-    if not url:
-        return url
-    if "upload.wikimedia.org" in url and "/thumb/" not in url:
-        parts = url.split("/commons/")
-        if len(parts) == 2:
-            rest = parts[1]
-            return f"https://upload.wikimedia.org/wikipedia/commons/thumb/{rest}/{width}px-{rest.split('/')[-1]}"
-    return url  # Para tus imágenes de GitHub: idealmente súbelas en .webp ~1000px
-
-
 POPUP_MAX_W = 1100   # ancho máx. en escritorio
 
 def _popup_html_responsive(lugar):
     """
-    Popup ligero y apto para móvil:
-    - Imagen (miniatura) arriba con lazy-loading
-    - Título
-    - Descripción en bloque scrollable pero sin CSS global ni <style>, solo inline
+    Móvil: título + foto arriba + texto scroll debajo.
+    Escritorio: dos columnas (texto izquierda, foto derecha).
+    Altura limitada (82vh) para que la X de Leaflet se vea siempre.
     """
     import html as _html
     nombre = _html.escape(lugar.get("nombre", ""))
     descripcion = _html.escape(lugar.get("descripcion", ""))
-    img = _thumb((lugar.get("imagen_url") or "").strip(), width=900)
+    img = (lugar.get("imagen_url") or "").strip()
 
-    # Bloque imagen opcional
-    img_block = f'''
-      <div style="width:100%;margin:0 0 8px 0;">
-        <img src="{img}" alt="{nombre}" loading="lazy" decoding="async"
-             referrerpolicy="no-referrer"
-             style="width:100%;height:auto;border-radius:12px;display:block;max-height:320px;object-fit:cover;" />
+    img_block = f"""
+      <div class="cell-img">
+        <img src="{img}" alt="{nombre}" loading="lazy"
+             style="width:100%;height:auto;border-radius:14px;display:block;" />
       </div>
-    ''' if img else ""
+    """ if img else ""
 
-    # Contenedor: sin <style> global, solo inline; alto máximo para que se vea la X
-    return f'''
-      <div style="width:min(92vw, {POPUP_MAX_W}px);max-height:78vh;padding:12px 12px 8px 12px;
-                  background:#fff;border-radius:12px;box-sizing:border-box;overflow:auto;
-                  font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;color:#222;">
-        <h2 style="margin:0 0 8px 0;font-size:20px;line-height:1.2;">{nombre}</h2>
+    return f"""
+    <style>
+      .pop-wrap {{
+        width: min({POPUP_MAX_W}px, 95vw);
+        height: clamp(420px, 82vh, 640px);
+        background:#fff; border-radius:12px;
+        box-sizing:border-box; margin:0 auto; padding:14px 16px;
+        font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial; color:#222;
+        display:flex; flex-direction:column;
+      }}
+      .pop-title {{
+        margin:0 0 10px 0; line-height:1.2;
+        font-size:clamp(20px,2.3vw,30px);
+      }}
+      .pop-grid {{
+        display:grid; grid-template-columns: 1fr; gap:14px;
+        overflow-y:auto; padding-right:4px;
+      }}
+      .cell-text p {{ margin:0; font-size:16px; line-height:1.55; text-align:justify; }}
+      @media (min-width: 780px) {{
+        .pop-grid {{ grid-template-columns: 1.1fr 0.9fr; gap:18px; }}
+        .cell-text p {{ font-size:16px; }}
+      }}
+      @media (max-width: 779px) {{
+        .cell-img {{ order: -1; }}
+        .cell-text p {{ font-size:15px; line-height:1.6; }}
+      }}
+    </style>
+
+    <div class="pop-wrap">
+      <h2 class="pop-title">{nombre}</h2>
+      <div class="pop-grid">
         {img_block}
-        <div style="font-size:15px;line-height:1.55;text-align:justify;">{descripcion}</div>
+        <div class="cell-text"><p>{descripcion}</p></div>
       </div>
-    '''
-
-
+    </div>
+    """
 def mostrar_mapa_recomendaciones(lugares_recomendados, LUGARES_INFO):
-    # Mapa ligero para móvil
-    m = folium.Map(
-        location=[39.8997, -1.8123],
-        zoom_start=12,
-        tiles="CartoDB positron",
-        prefer_canvas=True
-    )
+    m = folium.Map(location=[39.8997, -1.8123], zoom_start=12, tiles="OpenStreetMap")
+    cluster = MarkerCluster().add_to(m)
 
-    # Normaliza a lista de claves
     keys = (
         lugares_recomendados
         if isinstance(lugares_recomendados, (list, set, tuple))
@@ -222,29 +227,20 @@ def mostrar_mapa_recomendaciones(lugares_recomendados, LUGARES_INFO):
             continue
 
         html_content = _popup_html_responsive(lugar)
-        html_obj = Html(html_content, script=False)   
-        popup = folium.Popup(html_obj, max_width=980, keep_in_view=True)
-        
-        # 2) Fallback con IFrame si sigue sin interpretarlo como HTML
-        if popup is None:
-            iframe = IFrame(html=html_content, width=min(POPUP_MAX_W, 980), height=420)
-            popup = folium.Popup(iframe, max_width=980, keep_in_view=True)
-
-
+        html_obj = Html(html_content, script=True)  # <- así lo tenías
+        popup = folium.Popup(html_obj, max_width=2000, keep_in_view=True)
 
         folium.Marker(
             location=[lat, lon],
             popup=popup,
             tooltip=lugar.get("nombre", ""),
             icon=folium.Icon(color="green", icon="info-sign")
-        ).add_to(m)
+        ).add_to(cluster)
 
-    # Render compacto (si tu versión soporta returned_objects)
     try:
-        st_folium(m, height=420, use_container_width=True, returned_objects=[])
+        st_folium(m, height=520, use_container_width=True)
     except TypeError:
-        st_folium(m, height=420, use_container_width=True)
-
+        st_folium(m, height=520)
 
 
 def formulario_usuario():
@@ -666,6 +662,7 @@ elif pagina == "Servicios":
     mostrar_servicios()
 elif pagina == "Sobre nosotros":
     mostrar_sobre_nosotros()
+
 
 
 
