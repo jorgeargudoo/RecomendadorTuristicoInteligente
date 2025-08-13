@@ -189,13 +189,6 @@ st.markdown("""
             .info-card li{margin:4px 0;}
     </style>
 """, unsafe_allow_html=True)
-
-if "mostrar_todos" not in st.session_state:
-    st.session_state.mostrar_todos = False
-if "valoracion_enviada" not in st.session_state:
-    st.session_state.valoracion_enviada = False
-if "feedback" not in st.session_state:
-    st.session_state.feedback = 3
     
 POPUP_MAX_W = 1100  
 
@@ -600,20 +593,42 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-with st.form("form_recomendador", clear_on_submit=False):
-    st.header("Recomendador turístico")
-    with st.expander("ℹ️ Cómo funciona en 10 segundos"):
-        st.markdown("""
-    - Primero calculamos tus **preferencias** a partir del formulario (modelo multi‑salida).
-    - Luego aplicamos un **filtro meteorológico** con lógica difusa (AEMET + UV en tiempo real) para priorizar exterior/interior.
-    - El mapa te muestra **recomendados** y puedes alternar a **Puntos de Interés** para ver todo.
-    """)
 
-    datos_usuario = formulario_usuario()
-    submitted = st.form_submit_button("Obtener recomendaciones")
+for k, v in {
+    "form_bloqueado": False,
+    "datos_usuario_guardados": None,
+    "mostrar_resultados": False,
+    "lugares_recomendados": [],
+    "mostrar_todos": False,
+    "feedback": 3,
+    "valoracion_enviada": False,
+    "score_exterior": None,
+    "clima_hoy": None,
+}.items():
+    st.session_state.setdefault(k, v)
 
-if submitted:
+if not st.session_state.form_bloqueado:
+    with st.form("form_recomendador", clear_on_submit=False):
+        st.header("Recomendador turístico")
+        with st.expander("ℹ️ Cómo funciona en 10 segundos"):
+            st.markdown("""
+        - Primero calculamos tus **preferencias** a partir del formulario (modelo multi‑salida).
+        - Luego aplicamos un **filtro meteorológico** con lógica difusa (AEMET + UV en tiempo real) para priorizar exterior/interior.
+        - El mapa te muestra **recomendados** y puedes alternar a **Puntos de Interés** para ver todo.
+        """)
+
+        datos_usuario = formulario_usuario()
+        submitted = st.form_submit_button("Obtener recomendaciones")
+
+    if submitted:
+        st.session_state.datos_usuario_guardados = datos_usuario
+        st.session_state.form_bloqueado = True
+        st.rerun()
+
+elif not st.session_state.mostrar_resultados:
     with st.spinner("💡 Pensando tus recomendaciones..."):
+        datos_usuario = st.session_state.datos_usuario_guardados
+
         columnas_entrenamiento = [
             'edad', 'genero', 'actividad_frecuencia', 'freq_recom',
             'residencia_No', 'residencia_No, pero soy de aquí',
@@ -635,20 +650,19 @@ if submitted:
         df_usuario = df_usuario[columnas_entrenamiento]
 
         log_event("form_submitted", {
-                "user_id": st.session_state.user_id,
-                "edad": datos_usuario.get("edad"),
-                "genero": datos_usuario.get("genero"),
-                "actividad_frecuencia": datos_usuario.get("actividad_frecuencia"),
-                "freq_recom": datos_usuario.get("freq_recom"),
-                "familias_list": [k.replace("recom_familias_", "") for k, v in datos_usuario.items() if k.startswith("recom_familias_") and v == 1],
-                "jovenes_list": [k.replace("recom_jovenes_", "") for k, v in datos_usuario.items() if k.startswith("recom_jovenes_") and v == 1],
-                "mayores_list": [k.replace("recom_mayores_", "") for k, v in datos_usuario.items() if k.startswith("recom_mayores_") and v == 1]
-            })
-
+            "user_id": st.session_state.user_id,
+            "edad": datos_usuario.get("edad"),
+            "genero": datos_usuario.get("genero"),
+            "actividad_frecuencia": datos_usuario.get("actividad_frecuencia"),
+            "freq_recom": datos_usuario.get("freq_recom"),
+            "familias_list": [k.replace("recom_familias_", "") for k, v in datos_usuario.items() if k.startswith("recom_familias_") and v == 1],
+            "jovenes_list": [k.replace("recom_jovenes_", "") for k, v in datos_usuario.items() if k.startswith("recom_jovenes_") and v == 1],
+            "mayores_list": [k.replace("recom_mayores_", "") for k, v in datos_usuario.items() if k.startswith("recom_mayores_") and v == 1]
+        })
 
         modelo_recomendador = cargar_modelo()
         predicciones_binarias = modelo_recomendador.predict(df_usuario)[0]
-    
+
         lugares = [
             "IglesiaSantoDomingoSilos","PanteonMarquesesMoya","CastilloAliaga","LagunaCaolin",
             "RiberaRioGuadazaon","CerritoArena","MiradorCruz","FuenteTresCanos",
@@ -661,26 +675,22 @@ if submitted:
             "user_id": st.session_state.user_id,
             "n_outputs": len(predicciones_binarias),
             "predicted_sum": int(sum(int(x) for x in predicciones_binarias)),
-            "recommended_keys": [k for k,v in recomendaciones_dict.items() if v == 1]
+            "recommended_keys": [k for k, v in recomendaciones_dict.items() if v == 1]
         })
 
         try:
-            clima_hoy = obtener_clima_hoy()  
-            
-            log_event("weather_ok", {
-                        "user_id": st.session_state.user_id,
-                        **clima_hoy
-                    })
+            clima_hoy = obtener_clima_hoy()
+            log_event("weather_ok", {"user_id": st.session_state.user_id, **clima_hoy})
 
             recomendaciones_filtradas = filtrar_por_clima(recomendaciones_dict, clima_hoy)
             score_exterior = recomendar(clima_hoy)
-            
+
             log_event("filtered_by_weather", {
-                        "user_id": st.session_state.user_id,
-                        "score_exterior": float(score_exterior),
-                        "clima": clima_hoy,
-                        "recommended_after_filter": [k for k,v in recomendaciones_filtradas.items() if v == 1]
-                    })
+                "user_id": st.session_state.user_id,
+                "score_exterior": float(score_exterior),
+                "clima": clima_hoy,
+                "recommended_after_filter": [k for k, v in recomendaciones_filtradas.items() if v == 1]
+            })
 
             st.session_state.clima_hoy = clima_hoy
             st.session_state.score_exterior = score_exterior
@@ -689,14 +699,12 @@ if submitted:
             recomendaciones_filtradas = recomendaciones_dict
             st.session_state.clima_hoy = None
             st.warning("No se pudo obtener el clima actual. Las recomendaciones no han sido filtradas por condiciones meteorológicas.")
-            log_event("weather_error", {
-                        "user_id": st.session_state.user_id,
-                        "error": str(e)
-                    })
+            log_event("weather_error", {"user_id": st.session_state.user_id, "error": str(e)})
             st.text(f"Error: {str(e)}")
-    
+
         st.session_state.lugares_recomendados = [lugar for lugar, v in recomendaciones_filtradas.items() if v == 1]
         st.session_state.mostrar_resultados = True
+
 
 if st.session_state.get("mostrar_resultados", False):
     mostrar_todos = st.session_state.get("mostrar_todos", False)
@@ -726,44 +734,25 @@ if st.session_state.get("mostrar_resultados", False):
 
     feedback = st.slider(
         "¿Qué valoración darías a estas recomendaciones?",
-        min_value=1, max_value=5, value=st.session_state.feedback,
+        min_value=1, max_value=5,
+        value=st.session_state.feedback,
         key="feedback_slider",
         disabled=st.session_state.valoracion_enviada
     )
-    
     st.session_state.feedback = feedback
-    
-    
     st.write("Tu valoración:", "⭐" * int(st.session_state.feedback))
-    
+
     if not st.session_state.valoracion_enviada:
         if st.button("Enviar valoración", key="enviar_valoracion"):
             st.session_state.valoracion_enviada = True
             st.success(f"¡Gracias por tu valoración de {st.session_state.feedback} estrellas!")
             log_event("feedback_sent", {
-                        "user_id": st.session_state.user_id,
-                        "stars": int(st.session_state.feedback),
-                        "mode": "all" if st.session_state.get("mostrar_todos", False) else "recommended",
-                        "n_recommended": len(st.session_state.get("lugares_recomendados", [])),
-                        "score_exterior": float(st.session_state.get("score_exterior") or -1),
-                        "clima": st.session_state.get("clima_hoy")
-                    })
+                "user_id": st.session_state.user_id,
+                "stars": int(st.session_state.feedback),
+                "mode": "all" if st.session_state.get("mostrar_todos", False) else "recommended",
+                "n_recommended": len(st.session_state.get("lugares_recomendados", [])),
+                "score_exterior": float(st.session_state.get("score_exterior") or -1),
+                "clima": st.session_state.get("clima_hoy")
+            })
     else:
         st.info("Ya has enviado tu valoración. ¡Gracias!")
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
