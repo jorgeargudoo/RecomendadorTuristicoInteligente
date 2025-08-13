@@ -42,13 +42,21 @@ except Exception:
         st.session_state.user_id = str(uuid.uuid4())
         st.session_state.is_new_user = True
 
-if "utm_source" not in st.session_state:
-    params = st.query_params()
-    print(params)
-    utm_source = params.get("utm_source", [None])[0]
-    print(utm_source)
-    st.session_state.utm_source = utm_source
+def _get_utm_source():
+    try:
+        return st.query_params.get("utm_source") or None
+    except Exception:
+        params = st.experimental_get_query_params()
+        vals = params.get("utm_source")
+        if isinstance(vals, list) and vals:
+            return vals[0]
+        return None
 
+utm_source = _get_utm_source()
+
+if "utm_source" not in st.session_state:
+    utm_source = _get_utm_source()
+    st.session_state.utm_source = utm_source
     if utm_source:
         log_event("user_first_entry", {
             "user_id": st.session_state.user_id,
@@ -737,6 +745,7 @@ if st.session_state.get("mostrar_resultados", False):
                     })
     else:
         st.info("Ya has enviado tu valoración. ¡Gracias!")
+
 
 
 
