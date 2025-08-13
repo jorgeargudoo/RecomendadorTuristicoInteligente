@@ -570,7 +570,7 @@ LUGARES_INFO = {
 }
 
 
-def filtrar_por_clima(recomendaciones, clima):
+def filtrar_por_clima(recomendaciones, clima): 
     filtradas = recomendaciones.copy()
     if score_exterior < 0.50:
         for lugar in LUGARES_EXTERIOR:
@@ -679,8 +679,8 @@ elif not st.session_state.mostrar_resultados:
         try:
             clima_hoy = obtener_clima_hoy()
             log_event("weather_ok", {"user_id": st.session_state.user_id, **clima_hoy})
-            recomendaciones_filtradas = filtrar_por_clima(recomendaciones_dict, clima_hoy)
             score_exterior = recomendar(clima_hoy)
+            recomendaciones_filtradas = filtrar_por_clima(recomendaciones_dict, clima_hoy)
             log_event("filtered_by_weather", {
                 "user_id": st.session_state.user_id,
                 "score_exterior": float(score_exterior),
@@ -752,3 +752,4 @@ if st.session_state.get("mostrar_resultados", False):
             })
     else:
         st.info("Ya has enviado tu valoración. ¡Gracias!")
+
