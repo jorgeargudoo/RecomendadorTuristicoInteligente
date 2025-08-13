@@ -309,27 +309,9 @@ def formulario_usuario():
     
     return datos_usuario
 
-def mostrar_informacion_local():
-    st.header("Descubre Carboneras de Guadazaón")
-    st.subheader("Fiestas del municipio")
-    st.write("Durante la última semana de agosto, se realizan actividades culturales, conciertos y mercados artesanales.")
-    st.subheader("Domingo de Procesiones en Mayo")
-    st.write("Se celebra con desfiles tradicionales y música en vivo.")
-    st.subheader("Lugares de interés")
-    st.write("Aquí aparecerá la lista de todos los lugares con su información.")
-
-def mostrar_servicios():
-    st.header("Servicios")
-    st.write("Aquí aparecerán las tiendas, hostales, casas rurales, restaurantes, bares, etc.")
-
-def mostrar_sobre_nosotros():
-    st.header("Sobre nosotros")
-    st.write("Información sobre el ayuntamiento, el alcalde y la finalidad de esta página.")
-
 # -------------------------
 # CUERPO PRINCIPAL
 # -------------------------
-# Título con escudo
 col1, col2, col3 = st.columns([1, 3, 1])
 with col2:
     st.markdown(f"""
@@ -338,14 +320,6 @@ with col2:
         </div>
     """, unsafe_allow_html=True)
     st.markdown('<div class="subtitle">DONDE REPOSA EL SUEÑO DEL NUEVO MUNDO</div>', unsafe_allow_html=True)
-
-# Navegación principal
-pagina = st.radio(
-    " ", 
-    ["Descubre Carboneras de Guadazaón", "Recomendador turístico", "Servicios", "Sobre nosotros"],
-    index=0,
-    horizontal=True
-)
 
 @st.cache_resource
 def _build_fuzzy_system():
@@ -662,6 +636,7 @@ elif pagina == "Servicios":
     mostrar_servicios()
 elif pagina == "Sobre nosotros":
     mostrar_sobre_nosotros()
+
 
 
 
