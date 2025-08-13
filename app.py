@@ -87,7 +87,7 @@ def obtener_clima_hoy():
     aemet = AEMET(api_key=API_KEY_AEMET)
     openuv = OpenUV(api_key=API_KEY_OPENUV)
 
-    datos_url = aemet.get_prediccion_url("16055")  # ID de Carboneras de Guadazaón
+    datos_url = aemet.get_prediccion_url("16055")  
     prediccion_dia = aemet.get_datos_prediccion(datos_url)
     clima_hoy = aemet.extraer_datos_relevantes(prediccion_dia)
 
@@ -97,7 +97,6 @@ def obtener_clima_hoy():
     return clima_hoy
 
 # from logger_gsheets import log_event  
-
 
 st.set_page_config(page_title="Carboneras de Guadazaón", layout="wide")
 
@@ -528,52 +527,53 @@ with st.form("form_recomendador", clear_on_submit=False):
     submitted = st.form_submit_button("Obtener recomendaciones")
 
 if submitted:
-    columnas_entrenamiento = [
-        'edad', 'genero', 'actividad_frecuencia', 'freq_recom',
-        'residencia_No', 'residencia_No, pero soy de aquí',
-        'residencia_Solo en verano o en vacaciones', 'residencia_Sí, todo el año',
-        'recom_familias_Naturaleza y paseos', 'recom_familias_Rutas',
-        'recom_familias_Monumentos o historia', 'recom_familias_Sitios tranquilos para descansar',
-        'recom_familias_Eventos o fiestas', 'recom_familias_Bares y restaurantes',
-        'recom_jovenes_Naturaleza y paseos', 'recom_jovenes_Rutas',
-        'recom_jovenes_Monumentos o historia', 'recom_jovenes_Sitios tranquilos para descansar',
-        'recom_jovenes_Eventos o fiestas', 'recom_jovenes_Bares y restaurantes',
-        'recom_mayores_Naturaleza y paseos', 'recom_mayores_Rutas',
-        'recom_mayores_Monumentos o historia', 'recom_mayores_Sitios tranquilos para descansar',
-        'recom_mayores_Eventos o fiestas', 'recom_mayores_Bares y restaurantes'
-    ]
-    df_usuario = pd.DataFrame([datos_usuario])
-    for col in columnas_entrenamiento:
-        if col not in df_usuario.columns:
-            df_usuario[col] = 0
-    df_usuario = df_usuario[columnas_entrenamiento]
-
-    modelo_recomendador = cargar_modelo()
-    predicciones_binarias = modelo_recomendador.predict(df_usuario)[0]
-
-    lugares = [
-        "IglesiaSantoDomingoSilos","PanteonMarquesesMoya","CastilloAliaga","LagunaCaolin",
-        "RiberaRioGuadazaon","CerritoArena","MiradorCruz","FuenteTresCanos",
-        "PuenteCristinasRioCabriel","TorcasPalancaresTierraMuerta","LagunasCanadaHoyo",
-        "ChorrerasRioCabriel","FachadaHarinas","Ruta1","Ruta2","SaltoBalsa","MiradorPicarcho"
-    ]
-    recomendaciones_dict = {lugar: int(pred) for lugar, pred in zip(lugares, predicciones_binarias)}
-
-    try:
-        clima_hoy = obtener_clima_hoy()  
-        recomendaciones_filtradas = filtrar_por_clima(recomendaciones_dict, clima_hoy)
-        score_exterior = recomendar(clima_hoy)
-        st.session_state.clima_hoy = clima_hoy
-        st.session_state.score_exterior = score_exterior
-        st.info(f"Filtrado climático aplicado. Score exterior: {score_exterior:.2f}")
-    except Exception as e:
-        recomendaciones_filtradas = recomendaciones_dict
-        st.session_state.clima_hoy = None
-        st.warning("No se pudo obtener el clima actual. Las recomendaciones no han sido filtradas por condiciones meteorológicas.")
-        st.text(f"Error: {str(e)}")
-
-    st.session_state.lugares_recomendados = [lugar for lugar, v in recomendaciones_filtradas.items() if v == 1]
-    st.session_state.mostrar_resultados = True
+    with st.spinner("💡 Pensando tus recomendaciones..."):
+        columnas_entrenamiento = [
+            'edad', 'genero', 'actividad_frecuencia', 'freq_recom',
+            'residencia_No', 'residencia_No, pero soy de aquí',
+            'residencia_Solo en verano o en vacaciones', 'residencia_Sí, todo el año',
+            'recom_familias_Naturaleza y paseos', 'recom_familias_Rutas',
+            'recom_familias_Monumentos o historia', 'recom_familias_Sitios tranquilos para descansar',
+            'recom_familias_Eventos o fiestas', 'recom_familias_Bares y restaurantes',
+            'recom_jovenes_Naturaleza y paseos', 'recom_jovenes_Rutas',
+            'recom_jovenes_Monumentos o historia', 'recom_jovenes_Sitios tranquilos para descansar',
+            'recom_jovenes_Eventos o fiestas', 'recom_jovenes_Bares y restaurantes',
+            'recom_mayores_Naturaleza y paseos', 'recom_mayores_Rutas',
+            'recom_mayores_Monumentos o historia', 'recom_mayores_Sitios tranquilos para descansar',
+            'recom_mayores_Eventos o fiestas', 'recom_mayores_Bares y restaurantes'
+        ]
+        df_usuario = pd.DataFrame([datos_usuario])
+        for col in columnas_entrenamiento:
+            if col not in df_usuario.columns:
+                df_usuario[col] = 0
+        df_usuario = df_usuario[columnas_entrenamiento]
+    
+        modelo_recomendador = cargar_modelo()
+        predicciones_binarias = modelo_recomendador.predict(df_usuario)[0]
+    
+        lugares = [
+            "IglesiaSantoDomingoSilos","PanteonMarquesesMoya","CastilloAliaga","LagunaCaolin",
+            "RiberaRioGuadazaon","CerritoArena","MiradorCruz","FuenteTresCanos",
+            "PuenteCristinasRioCabriel","TorcasPalancaresTierraMuerta","LagunasCanadaHoyo",
+            "ChorrerasRioCabriel","FachadaHarinas","Ruta1","Ruta2","SaltoBalsa","MiradorPicarcho"
+        ]
+        recomendaciones_dict = {lugar: int(pred) for lugar, pred in zip(lugares, predicciones_binarias)}
+    
+        try:
+            clima_hoy = obtener_clima_hoy()  
+            recomendaciones_filtradas = filtrar_por_clima(recomendaciones_dict, clima_hoy)
+            score_exterior = recomendar(clima_hoy)
+            st.session_state.clima_hoy = clima_hoy
+            st.session_state.score_exterior = score_exterior
+            st.info(f"Filtrado climático aplicado. Score exterior: {score_exterior:.2f}")
+        except Exception as e:
+            recomendaciones_filtradas = recomendaciones_dict
+            st.session_state.clima_hoy = None
+            st.warning("No se pudo obtener el clima actual. Las recomendaciones no han sido filtradas por condiciones meteorológicas.")
+            st.text(f"Error: {str(e)}")
+    
+        st.session_state.lugares_recomendados = [lugar for lugar, v in recomendaciones_filtradas.items() if v == 1]
+        st.session_state.mostrar_resultados = True
 
 if st.session_state.get("mostrar_resultados", False):
     mostrar_todos = st.session_state.get("mostrar_todos", False)
@@ -605,3 +605,4 @@ if st.session_state.get("mostrar_resultados", False):
     if st.button("Volver a empezar", key="volver_a_empezar"):
         st.session_state.clear()
         st.experimental_rerun()
+
