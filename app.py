@@ -58,15 +58,15 @@ def get_query_value(key: str):
         pass
     return None
 
-if "utm_source" not in st.session_state:
-    utm_source = get_query_value("src")
-    st.caption(f"DEBUG -> utm_source={src}")
-    if utm_source:
+if "src" not in st.session_state:
+    src = get_query_value("src")
+    st.caption(f"DEBUG -> src={src}")
+    if src:
         log_event("user_first_entry", {
             "user_id": st.session_state.user_id,
-            "utm_source": utm_source
+            "src": src
         })
-    st.session_state.utm_source = utm_source
+    st.session_state.src = src
         
 RUTA_MODELO = "modelo_turismo.pkl"
 
@@ -750,6 +750,7 @@ if st.session_state.get("mostrar_resultados", False):
                     })
     else:
         st.info("Ya has enviado tu valoración. ¡Gracias!")
+
 
 
 
