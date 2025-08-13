@@ -526,16 +526,17 @@ mapa_slot = st.empty()
 def renderizar_mapa_resultados():
     with mapa_slot.container():
         if st.session_state.mostrar_todos:
+            st.markdown("### Puntos de Interés")
             mostrar_mapa_recomendaciones(LUGARES_INFO, LUGARES_INFO)
         else:
+            st.markdown("### Recomendaciones para ti")
             lugares_recomendados = st.session_state.get("lugares_recomendados", [])
-            clima_hoy = st.session_state.get("clima_hoy", None)
             if lugares_recomendados:
-                st.success("Lugares recomendados según tus gustos y el clima actual:" if clima_hoy else "Lugares recomendados según tus gustos:")
                 mostrar_mapa_recomendaciones(lugares_recomendados, LUGARES_INFO)
             else:
-                st.warning("No se encontraron lugares recomendados para ti. Por ello, te mostramos todos.")
+                st.info("No hay recomendaciones ahora mismo. Te mostramos todos los puntos de interés.")
                 mostrar_mapa_recomendaciones(LUGARES_INFO, LUGARES_INFO)
+
 
 
 with st.form("form_recomendador", clear_on_submit=False):
@@ -593,17 +594,12 @@ if submitted:
 
 if st.session_state.get("mostrar_resultados", False):
     renderizar_mapa_resultados()
-
-    col_a, col_b = st.columns([1, 3])
-    with col_a:
-        if st.session_state.mostrar_todos:
-            if st.button("Volver a ver solo recomendados", key="btn_volver_recomendados"):
-                st.session_state.mostrar_todos = False
-                st.rerun()
-        else:
-            if st.button("Mostrar todos los puntos de interés", key="btn_mostrar_todos"):
-                st.session_state.mostrar_todos = True
-                st.rerun()
+    etiqueta = ("Volver a ver tus recomendaciones"
+                if st.session_state.mostrar_todos
+                else "Mostrar todos los puntos de interés")
+    if st.button(etiqueta, key="btn_toggle_mapa"):
+        st.session_state.mostrar_todos = not st.session_state.mostrar_todos
+        st.rerun()
 
     feedback = st.slider("¿Qué valoración darías a estas recomendaciones?", min_value=1, max_value=5, value=3)
     st.write("Tu valoración:", "⭐" * feedback)
@@ -615,3 +611,4 @@ if st.session_state.get("mostrar_resultados", False):
     if st.button("Volver a empezar", key="volver_a_empezar"):
         st.session_state.clear()
         st.experimental_rerun()
+
