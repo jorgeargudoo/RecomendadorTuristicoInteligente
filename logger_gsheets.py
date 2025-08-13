@@ -1,6 +1,6 @@
 import streamlit as st
 import json
-from datetime import datetime
+from datetime import datetime, timedelta
 import gspread
 from google.oauth2.service_account import Credentials
 
@@ -53,5 +53,6 @@ def log_event(evento, datos):
         if not st.session_state.get(key):
             st.session_state[key] = True
             st.error(f"Error al guardar en Google Sheets: {e}")
+
 
 
