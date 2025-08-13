@@ -17,8 +17,8 @@ from logger_gsheets import log_event
 import uuid
 from urllib.parse import urlparse, parse_qs
 
-query_params = st.query_params
-utm_source = query_params.get("utm_source", [None])[0] if isinstance(query_params.get("utm_source"), list) else query_params.get("utm_source")
+params = st.experimental_get_query_params()
+utm_source = params.get("utm_source", [None])[0]
 
 try:
     from streamlit_cookies_manager import EncryptedCookieManager
@@ -737,6 +737,7 @@ if st.session_state.get("mostrar_resultados", False):
                     })
     else:
         st.info("Ya has enviado tu valoración. ¡Gracias!")
+
 
 
 
