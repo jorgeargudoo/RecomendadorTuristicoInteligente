@@ -15,11 +15,8 @@ from folium import Popup
 from folium.plugins import MarkerCluster
 from folium import Html
 
-
-# Ruta relativa al modelo en tu repo
 RUTA_MODELO = "modelo_turismo.pkl"
 
-# Cargar el modelo una sola vez
 @st.cache_resource
 def cargar_modelo():
     return joblib.load(RUTA_MODELO)
@@ -30,7 +27,6 @@ class AEMET:
         self.base_url = "https://opendata.aemet.es/opendata/api"
 
     def get_prediccion_url(self, id_municipio):
-        """Obtiene la URL de los datos crudos para un municipio."""
         resp = requests.get(
             f"{self.base_url}/prediccion/especifica/municipio/diaria/{id_municipio}",
             headers={"api_key": self.api_key}
@@ -39,26 +35,22 @@ class AEMET:
         return resp.json().get("datos")
 
     def get_datos_prediccion(self, datos_url):
-        """Descarga el JSON de predicción desde la URL proporcionada por AEMET."""
         resp = requests.get(datos_url)
         resp.raise_for_status()
         datos = resp.json()
 
-        # Asegurarnos de que existe la estructura esperada
         if isinstance(datos, list) and "prediccion" in datos[0]:
             return datos[0]["prediccion"]["dia"][0]  # Día de hoy
         else:
             raise ValueError("Estructura de JSON inesperada en datos de AEMET")
 
     def extraer_datos_relevantes(self, prediccion_dia):
-        """Extrae las variables relevantes para el sistema de recomendaciones."""
         try:
             fecha = prediccion_dia.get("fecha", None)
 
             tmax = prediccion_dia.get("temperatura", {}).get("maxima", None)
             tmin = prediccion_dia.get("temperatura", {}).get("minima", None)
 
-            # Precipitación: tomamos el primer valor disponible (periodo 00-24)
             prob_lluvia = 0
             if "probPrecipitacion" in prediccion_dia and len(prediccion_dia["probPrecipitacion"]) > 0:
                 prob_lluvia = prediccion_dia["probPrecipitacion"][0].get("value", 0) or 0
@@ -81,47 +73,39 @@ class OpenUV:
         self.base_url = "https://api.openuv.io/api/v1"
 
     def get_current_uv(self, lat, lon):
-        """Obtiene el UV actual en tiempo real desde OpenUV."""
         headers = {"x-access-token": self.api_key}
         params = {"lat": lat, "lng": lon}
         resp = requests.get(f"{self.base_url}/uv", headers=headers, params=params)
         resp.raise_for_status()
         data = resp.json()
-        return round(data["result"]["uv"], 2)  # UV actual redondeado a 2 decimales
+        return round(data["result"]["uv"], 2)
 
-@st.cache_data(ttl=3600)  # cachea durante 1 hora
+@st.cache_data(ttl=3600)
 def obtener_clima_hoy():
-    """Consulta AEMET y OpenUV, y devuelve el clima de hoy."""
     API_KEY_AEMET = st.secrets["API_KEY_AEMET"]
     API_KEY_OPENUV = st.secrets["API_KEY_OPENUV"]
 
     aemet = AEMET(api_key=API_KEY_AEMET)
     openuv = OpenUV(api_key=API_KEY_OPENUV)
 
-    # 1️⃣ Obtener datos base desde AEMET
     datos_url = aemet.get_prediccion_url("16055")  # ID de Carboneras de Guadazaón
     prediccion_dia = aemet.get_datos_prediccion(datos_url)
     clima_hoy = aemet.extraer_datos_relevantes(prediccion_dia)
 
-    # 2️⃣ Sustituir UV por valor actual desde OpenUV
     uv_actual = openuv.get_current_uv(lat=39.8997, lon=-1.8123)
     clima_hoy["UV"] = uv_actual
 
     return clima_hoy
 
-# from logger_gsheets import log_event  # Logs desactivados por ahora
+# from logger_gsheets import log_event  
 
-# -------------------------
-# CONFIGURACIÓN INICIAL
-# -------------------------
+
 st.set_page_config(page_title="Carboneras de Guadazaón", layout="wide")
 
-# Estilos CSS
 st.markdown("""
     <style>
-        /* Color de fondo */
         .stApp {
-            background-color: #eaf5ea; /* Verde pastel */
+            background-color: #eaf5ea; 
         }
         .main-title {
             text-align: center;
@@ -148,17 +132,12 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# -------------------------
-# FUNCIONES AUXILIARES
-# -------------------------
-POPUP_MAX_W = 1100   # ancho máx. en escritorio
+if "mostrar_todos" not in st.session_state:
+    st.session_state.mostrar_todos = False
+
+POPUP_MAX_W = 1100  
 
 def _popup_html_responsive(lugar):
-    """
-    Móvil: título + foto arriba + texto scroll debajo.
-    Escritorio: dos columnas (texto izquierda, foto derecha).
-    Altura limitada (82vh) para que la X de Leaflet se vea siempre.
-    """
     import html as _html
     nombre = _html.escape(lugar.get("nombre", ""))
     descripcion = _html.escape(lugar.get("descripcion", ""))
@@ -227,7 +206,7 @@ def mostrar_mapa_recomendaciones(lugares_recomendados, LUGARES_INFO):
             continue
 
         html_content = _popup_html_responsive(lugar)
-        html_obj = Html(html_content, script=True)  # <- así lo tenías
+        html_obj = Html(html_content, script=True)  
         popup = folium.Popup(html_obj, max_width=2000, keep_in_view=True)
 
         folium.Marker(
@@ -309,9 +288,6 @@ def formulario_usuario():
     
     return datos_usuario
 
-# -------------------------
-# CUERPO PRINCIPAL
-# -------------------------
 col1, col2, col3 = st.columns([1, 3, 1])
 with col2:
     st.markdown(f"""
@@ -536,11 +512,6 @@ LUGARES_INFO = {
 
 
 def filtrar_por_clima(recomendaciones, clima):
-    """
-    Filtra recomendaciones de lugares de exterior si el clima no es favorable.
-    recomendaciones: dict {lugar: 1/0} (salida del primer modelo)
-    clima: dict con tmax, tmin, lluvia, estado_cielo, UV
-    """
     score_exterior = recomendar(clima)
     filtradas = recomendaciones.copy()
 
@@ -549,6 +520,22 @@ def filtrar_por_clima(recomendaciones, clima):
             if lugar in filtradas:
                 filtradas[lugar] = 0
     return filtradas
+
+mapa_slot = st.empty()
+
+def renderizar_mapa_resultados():
+    with mapa_slot.container():
+        if st.session_state.mostrar_todos:
+            mostrar_mapa_recomendaciones(LUGARES_INFO, LUGARES_INFO)
+        else:
+            lugares_recomendados = st.session_state.get("lugares_recomendados", [])
+            clima_hoy = st.session_state.get("clima_hoy", None)
+            if lugares_recomendados:
+                st.success("Lugares recomendados según tus gustos y el clima actual:" if clima_hoy else "Lugares recomendados según tus gustos:")
+                mostrar_mapa_recomendaciones(lugares_recomendados, LUGARES_INFO)
+            else:
+                st.warning("No se encontraron lugares recomendados para ti. Por ello, te mostramos todos.")
+                mostrar_mapa_recomendaciones(LUGARES_INFO, LUGARES_INFO)
 
 
 with st.form("form_recomendador", clear_on_submit=False):
@@ -605,15 +592,18 @@ if submitted:
     st.session_state.mostrar_resultados = True
 
 if st.session_state.get("mostrar_resultados", False):
-    lugares_recomendados = st.session_state.get("lugares_recomendados", [])
-    clima_hoy = st.session_state.get("clima_hoy", None)
+    renderizar_mapa_resultados()
 
-    if lugares_recomendados:
-        st.success("Lugares recomendados según tus gustos y el clima actual:" if clima_hoy else "Lugares recomendados según tus gustos:")
-        mostrar_mapa_recomendaciones(lugares_recomendados, LUGARES_INFO)
-    else:
-        st.warning("No se encontraron lugares recomendados para ti. Por ello, te mostramos todos.")
-        mostrar_mapa_recomendaciones(LUGARES_INFO, LUGARES_INFO)
+    col_a, col_b = st.columns([1, 3])
+    with col_a:
+        if st.session_state.mostrar_todos:
+            if st.button("Volver a ver solo recomendados", key="btn_volver_recomendados"):
+                st.session_state.mostrar_todos = False
+                st.rerun()
+        else:
+            if st.button("Mostrar todos los puntos de interés", key="btn_mostrar_todos"):
+                st.session_state.mostrar_todos = True
+                st.rerun()
 
     feedback = st.slider("¿Qué valoración darías a estas recomendaciones?", min_value=1, max_value=5, value=3)
     st.write("Tu valoración:", "⭐" * feedback)
