@@ -42,20 +42,26 @@ except Exception:
         st.session_state.user_id = str(uuid.uuid4())
         st.session_state.is_new_user = True
 
-def _get_utm_source():
+# --- UTM: lectura robusta + debug opcional ---
+def get_query_value(key: str):
+    if hasattr(st, "query_params"):
+        try:
+            val = st.query_params.get(key)
+            return val if val not in ("", None) else None
+        except Exception:
+            pass
     try:
-        return st.query_params.get("utm_source") or None
-    except Exception:
-        params = st.experimental_get_query_params()
-        vals = params.get("utm_source")
+        params = st.experimental_get_query_params()  # dict[str, list[str]]
+        vals = params.get(key, [])
         if isinstance(vals, list) and vals:
-            return vals[0]
-        return None
-
+            return vals[0] or None
+    except Exception:
+        pass
+    return None
 
 if "utm_source" not in st.session_state:
-    utm_source = _get_utm_source()
-    print(utm_source)
+    utm_source = get_query_value("utm_source")
+    st.caption(f"DEBUG -> utm_source={utm_source}")
     if utm_source:
         log_event("user_first_entry", {
             "user_id": st.session_state.user_id,
@@ -745,6 +751,7 @@ if st.session_state.get("mostrar_resultados", False):
                     })
     else:
         st.info("Ya has enviado tu valoración. ¡Gracias!")
+
 
 
 
