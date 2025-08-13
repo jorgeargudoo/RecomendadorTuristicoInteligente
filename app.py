@@ -298,12 +298,17 @@ def formulario_usuario():
 
 col1, col2, col3 = st.columns([1, 3, 1])
 with col2:
-    st.markdown(f"""
-        <div class="title-container">
-            <div class="main-title">Carboneras de Guadazaón</div>
+    st.markdown("""
+        <div style="display: flex; align-items: center; justify-content: center; gap: 16px;">
+            <h1 style="margin: 0;">Carboneras de Guadazaón</h1>
+            <img src="https://raw.githubusercontent.com/jorgeargudoo/RecomendadorTuristicoInteligente/main/imagenes/escudo.png"
+                 alt="Escudo" style="height: 70px; border-radius: 8px;">
         </div>
-    """, unsafe_allow_html=True)
-    st.markdown('<div class="subtitle">DONDE REPOSA EL SUEÑO DEL NUEVO MUNDO</div>', unsafe_allow_html=True)
+        <p style="text-align: center; font-style: italic; color: #4d5d4d; margin-top: 4px;">
+            DONDE REPOSA EL SUEÑO DEL NUEVO MUNDO
+        </p>
+        """, unsafe_allow_html=True)
+
 
 @st.cache_resource
 def _build_fuzzy_system():
@@ -633,5 +638,6 @@ if st.session_state.get("mostrar_resultados", False):
     if st.button("Volver a empezar", key="volver_a_empezar"):
         st.session_state.clear()
         st.experimental_rerun()
+
 
 
