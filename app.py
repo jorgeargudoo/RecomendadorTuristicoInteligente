@@ -141,7 +141,11 @@ st.markdown("""
 
 if "mostrar_todos" not in st.session_state:
     st.session_state.mostrar_todos = False
-
+if "valoracion_enviada" not in st.session_state:
+    st.session_state.valoracion_enviada = False
+if "feedback" not in st.session_state:
+    st.session_state.feedback = 3
+    
 POPUP_MAX_W = 1100  
 
 def _popup_html_responsive(lugar):
@@ -627,20 +631,21 @@ if st.session_state.get("mostrar_resultados", False):
         st.session_state.mostrar_todos = not mostrar_todos
         st.rerun()
 
-    feedback = st.slider("¿Qué valoración darías a estas recomendaciones?", min_value=1, max_value=5, value=3)
-    st.write("Tu valoración:", "⭐" * feedback)
-        
-    if "valoracion_enviada" not in st.session_state:
-        st.session_state.valoracion_enviada = False
+    feedback = st.slider(
+        "¿Qué valoración darías a estas recomendaciones?",
+        min_value=1, max_value=5, value=st.session_state.feedback,
+        key="feedback_slider",
+        disabled=st.session_state.valoracion_enviada
+    )
+    
+    st.session_state.feedback = feedback
+    
+    
+    st.write("Tu valoración:", "⭐" * int(st.session_state.feedback))
     
     if not st.session_state.valoracion_enviada:
         if st.button("Enviar valoración", key="enviar_valoracion"):
             st.session_state.valoracion_enviada = True
-            st.success(f"¡Gracias por tu valoración de {feedback} estrellas!")
+            st.success(f"¡Gracias por tu valoración de {st.session_state.feedback} estrellas!")
     else:
         st.info("Ya has enviado tu valoración. ¡Gracias!")
-
-
-
-
-
