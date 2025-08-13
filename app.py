@@ -12,7 +12,6 @@ import os
 from folium.plugins import MarkerCluster
 import html
 from folium import Popup
-from folium.plugins import MarkerCluster
 from folium import Html
 
 RUTA_MODELO = "modelo_turismo.pkl"
@@ -187,7 +186,7 @@ def _popup_html_responsive(lugar):
       </div>
     </div>
     """
-def mostrar_mapa_recomendaciones(lugares_recomendados, LUGARES_INFO):
+def mostrar_mapa_recomendaciones(lugares_recomendados, LUGARES_INFO, map_key="mapa_resultados"):
     m = folium.Map(location=[39.8997, -1.8123], zoom_start=12, tiles="OpenStreetMap")
     cluster = MarkerCluster().add_to(m)
 
@@ -206,7 +205,7 @@ def mostrar_mapa_recomendaciones(lugares_recomendados, LUGARES_INFO):
             continue
 
         html_content = _popup_html_responsive(lugar)
-        html_obj = Html(html_content, script=True)  
+        html_obj = Html(html_content, script=True)
         popup = folium.Popup(html_obj, max_width=2000, keep_in_view=True)
 
         folium.Marker(
@@ -217,9 +216,10 @@ def mostrar_mapa_recomendaciones(lugares_recomendados, LUGARES_INFO):
         ).add_to(cluster)
 
     try:
-        st_folium(m, height=520, use_container_width=True)
+        st_folium(m, height=520, use_container_width=True, key=map_key)
     except TypeError:
-        st_folium(m, height=520)
+        st_folium(m, height=520, key=map_key)
+
 
 
 def formulario_usuario():
@@ -521,23 +521,6 @@ def filtrar_por_clima(recomendaciones, clima):
                 filtradas[lugar] = 0
     return filtradas
 
-mapa_slot = st.empty()
-
-def renderizar_mapa_resultados():
-    with mapa_slot.container():
-        if st.session_state.mostrar_todos:
-            st.markdown("### Puntos de Interés")
-            mostrar_mapa_recomendaciones(LUGARES_INFO, LUGARES_INFO)
-        else:
-            st.markdown("### Recomendaciones para ti")
-            lugares_recomendados = st.session_state.get("lugares_recomendados", [])
-            if lugares_recomendados:
-                mostrar_mapa_recomendaciones(lugares_recomendados, LUGARES_INFO)
-            else:
-                st.info("No hay recomendaciones ahora mismo. Te mostramos todos los puntos de interés.")
-                mostrar_mapa_recomendaciones(LUGARES_INFO, LUGARES_INFO)
-
-
 
 with st.form("form_recomendador", clear_on_submit=False):
     st.header("Recomendador turístico")
@@ -593,22 +576,32 @@ if submitted:
     st.session_state.mostrar_resultados = True
 
 if st.session_state.get("mostrar_resultados", False):
-    renderizar_mapa_resultados()
+    mostrar_todos = st.session_state.get("mostrar_todos", False)
+    titulo = "Puntos de Interés" if mostrar_todos else "Recomendaciones para ti"
+    st.markdown(f"### {titulo}")
+
+    if mostrar_todos:
+        mostrar_mapa_recomendaciones(LUGARES_INFO, LUGARES_INFO, map_key="mapa_todos")
+    else:
+        lugares_recomendados = st.session_state.get("lugares_recomendados", [])
+        if lugares_recomendados:
+            mostrar_mapa_recomendaciones(lugares_recomendados, LUGARES_INFO, map_key="mapa_recomendados")
+        else:
+            st.info("No hay recomendaciones ahora mismo. Te mostramos todos los puntos de interés.")
+            mostrar_mapa_recomendaciones(LUGARES_INFO, LUGARES_INFO, map_key="mapa_fallback")
+
     etiqueta = ("Volver a ver tus recomendaciones"
-                if st.session_state.mostrar_todos
-                else "Mostrar todos los puntos de interés")
+                if mostrar_todos else "Mostrar todos los puntos de interés")
     if st.button(etiqueta, key="btn_toggle_mapa"):
-        st.session_state.mostrar_todos = not st.session_state.mostrar_todos
+        st.session_state.mostrar_todos = not mostrar_todos
         st.rerun()
 
     feedback = st.slider("¿Qué valoración darías a estas recomendaciones?", min_value=1, max_value=5, value=3)
     st.write("Tu valoración:", "⭐" * feedback)
 
     if st.button("Enviar valoración", key="enviar_valoracion"):
-        # log_event("feedback", {"satisfaccion": feedback})
         st.success(f"¡Gracias por tu valoración de {feedback} estrellas!")
 
     if st.button("Volver a empezar", key="volver_a_empezar"):
         st.session_state.clear()
         st.experimental_rerun()
-
