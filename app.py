@@ -17,6 +17,8 @@ from logger_gsheets import log_event
 import uuid
 from urllib.parse import urlparse, parse_qs
 
+st.set_page_config(page_title="Carboneras de Guadazaón", layout="wide")
+
 try:
     from streamlit_cookies_manager import EncryptedCookieManager
     cookies = EncryptedCookieManager(
@@ -50,7 +52,7 @@ def get_query_value(key: str):
         except Exception:
             pass
     try:
-        params = st.experimental_get_query_params()  # dict[str, list[str]]
+        params = st.experimental_get_query_params()
         vals = params.get(key, [])
         if isinstance(vals, list) and vals:
             return vals[0] or None
@@ -92,7 +94,7 @@ class AEMET:
         datos = resp.json()
 
         if isinstance(datos, list) and "prediccion" in datos[0]:
-            return datos[0]["prediccion"]["dia"][0]  # Día de hoy
+            return datos[0]["prediccion"]["dia"][0]
         else:
             raise ValueError("Estructura de JSON inesperada en datos de AEMET")
 
@@ -148,8 +150,6 @@ def obtener_clima_hoy():
     clima_hoy["UV"] = uv_actual
 
     return clima_hoy 
-
-st.set_page_config(page_title="Carboneras de Guadazaón", layout="wide")
 
 st.markdown("""
     <style>
@@ -571,10 +571,8 @@ LUGARES_INFO = {
 
 
 def filtrar_por_clima(recomendaciones, clima):
-    score_exterior = recomendar(clima)
     filtradas = recomendaciones.copy()
-
-    if score_exterior < 0.50:  # umbral configurable
+    if score_exterior < 0.50:
         for lugar in LUGARES_EXTERIOR:
             if lugar in filtradas:
                 filtradas[lugar] = 0
@@ -681,10 +679,8 @@ elif not st.session_state.mostrar_resultados:
         try:
             clima_hoy = obtener_clima_hoy()
             log_event("weather_ok", {"user_id": st.session_state.user_id, **clima_hoy})
-
             recomendaciones_filtradas = filtrar_por_clima(recomendaciones_dict, clima_hoy)
             score_exterior = recomendar(clima_hoy)
-
             log_event("filtered_by_weather", {
                 "user_id": st.session_state.user_id,
                 "score_exterior": float(score_exterior),
