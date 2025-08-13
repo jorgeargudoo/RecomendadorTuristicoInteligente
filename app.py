@@ -164,15 +164,6 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-log_event("app_start", {
-    "user_id": st.session_state.user_id,
-    "is_new_user": bool(st.session_state.get("is_new_user", False)),
-    "app_version": "1.0.0",
-    "page_title": "Carboneras de Guadazaón"
-})
-if st.session_state.get("is_new_user", False):
-    log_event("user_new", {"user_id": st.session_state.user_id})
-
 if "mostrar_todos" not in st.session_state:
     st.session_state.mostrar_todos = False
 if "valoracion_enviada" not in st.session_state:
@@ -683,11 +674,6 @@ if submitted:
 if st.session_state.get("mostrar_resultados", False):
     mostrar_todos = st.session_state.get("mostrar_todos", False)
     titulo = "Puntos de Interés" if mostrar_todos else "Recomendaciones para ti"
-    log_event("results_view", {
-        "user_id": st.session_state.user_id,
-        "mode": "all" if mostrar_todos else "recommended",
-        "n_recommended": len(st.session_state.get("lugares_recomendados", []))
-    })
     st.markdown(f"### {titulo}")
 
     if mostrar_todos:
@@ -737,4 +723,5 @@ if st.session_state.get("mostrar_resultados", False):
                     })
     else:
         st.info("Ya has enviado tu valoración. ¡Gracias!")
+
 
