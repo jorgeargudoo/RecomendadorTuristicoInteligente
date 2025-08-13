@@ -52,16 +52,16 @@ def _get_utm_source():
             return vals[0]
         return None
 
-utm_source = _get_utm_source()
 
 if "utm_source" not in st.session_state:
     utm_source = _get_utm_source()
-    st.session_state.utm_source = utm_source
+    print(utm_source)
     if utm_source:
         log_event("user_first_entry", {
             "user_id": st.session_state.user_id,
             "utm_source": utm_source
         })
+    st.session_state.utm_source = utm_source
         
 RUTA_MODELO = "modelo_turismo.pkl"
 
@@ -745,6 +745,7 @@ if st.session_state.get("mostrar_resultados", False):
                     })
     else:
         st.info("Ya has enviado tu valoración. ¡Gracias!")
+
 
 
 
