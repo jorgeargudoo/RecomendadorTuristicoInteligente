@@ -629,13 +629,17 @@ if st.session_state.get("mostrar_resultados", False):
 
     feedback = st.slider("¿Qué valoración darías a estas recomendaciones?", min_value=1, max_value=5, value=3)
     st.write("Tu valoración:", "⭐" * feedback)
+        
+    if "valoracion_enviada" not in st.session_state:
+        st.session_state.valoracion_enviada = False
+    
+    if not st.session_state.valoracion_enviada:
+        if st.button("Enviar valoración", key="enviar_valoracion"):
+            st.session_state.valoracion_enviada = True
+            st.success(f"¡Gracias por tu valoración de {feedback} estrellas!")
+    else:
+        st.info("Ya has enviado tu valoración. ¡Gracias!")
 
-    if st.button("Enviar valoración", key="enviar_valoracion"):
-        st.success(f"¡Gracias por tu valoración de {feedback} estrellas!")
-
-    if st.button("Volver a empezar", key="volver_a_empezar"):
-        st.session_state.clear()
-        st.experimental_rerun()
 
 
 
