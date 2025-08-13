@@ -10,10 +10,10 @@ import requests
 import numpy as np
 import os
 from folium.plugins import MarkerCluster
-from folium import Html
 import html
 from folium import Popup
-from branca.element import IFrame
+from branca.element import Html, IFrame
+
 
 # Ruta relativa al modelo en tu repo
 RUTA_MODELO = "modelo_turismo.pkl"
@@ -222,12 +222,8 @@ def mostrar_mapa_recomendaciones(lugares_recomendados, LUGARES_INFO):
             continue
 
         html_content = _popup_html_responsive(lugar)
-
-        # 1) Intento directo con parse_html=True (normalmente suficiente)
-        try:
-            popup = folium.Popup(html_content, max_width=980, keep_in_view=True, parse_html=True)
-        except Exception:
-            popup = None
+        html_obj = Html(html_content, script=False)   
+        popup = folium.Popup(html_obj, max_width=980, keep_in_view=True)
         
         # 2) Fallback con IFrame si sigue sin interpretarlo como HTML
         if popup is None:
@@ -670,6 +666,7 @@ elif pagina == "Servicios":
     mostrar_servicios()
 elif pagina == "Sobre nosotros":
     mostrar_sobre_nosotros()
+
 
 
 
