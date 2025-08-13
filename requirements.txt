@@ -10,3 +10,4 @@ gspread
 google-auth
 networkx
 streamlit-cookies-manager
+cryptography==41.0.3
