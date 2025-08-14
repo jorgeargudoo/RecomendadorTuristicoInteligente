@@ -578,54 +578,8 @@ def filtrar_por_clima(recomendaciones, clima, score_exterior):
                 filtradas[lugar] = 0
     return filtradas
 
-
-for k, v in {
-    "form_bloqueado": False,
-    "datos_usuario_guardados": None,
-    "mostrar_resultados": False,
-    "lugares_recomendados": [],
-    "mostrar_todos": False,
-    "feedback": 3,
-    "valoracion_enviada": False,
-    "score_exterior": None,
-    "clima_hoy": None,
-}.items():
-    st.session_state.setdefault(k, v)
-
-if not st.session_state.form_bloqueado:
-    st.markdown("""
-        <div class="info-card">
-          <h4>¿Por qué te preguntamos esto?</h4>
-          <p>Unas pocas respuestas nos ayudan a afinar el perfil turístico y darte planes que encajen mejor contigo:</p>
-          <ul>
-            <li><b>Edad y género</b> orientan el tono de las propuestas (tranquilas vs. activas).</li>
-            <li><b>Si vives aquí</b> prioriza rincones menos obvios para locales o esenciales si vienes de fuera.</li>
-            <li><b>Frecuencia</b> (lo que haces y recomiendas) calibra cuánto explorar vs. ir a tiro fijo.</li>
-            <li><b>Tipos de actividades por público</b> nos dicen qué recomendarías a familias, jóvenes y mayores.</li>
-          </ul>
-        </div>
-        """, unsafe_allow_html=True)
-    with st.form("form_recomendador", clear_on_submit=False):
-        st.header("Recomendador turístico")
-        with st.expander("ℹ️ Cómo funciona en 10 segundos"):
-            st.markdown("""
-        - Primero calculamos tus **preferencias** a partir del formulario (modelo multi‑salida).
-        - Luego aplicamos un **filtro meteorológico** con lógica difusa (AEMET + UV en tiempo real) para priorizar exterior/interior.
-        - El mapa te muestra **recomendados** y puedes alternar a **Puntos de Interés** para ver todo.
-        """)
-
-        datos_usuario = formulario_usuario()
-        submitted = st.form_submit_button("Obtener recomendaciones")
-
-    if submitted:
-        st.session_state.datos_usuario_guardados = datos_usuario
-        st.session_state.form_bloqueado = True
-        st.rerun()
-
-elif not st.session_state.mostrar_resultados:
+def procesar_recomendaciones(datos_usuario):
     with st.spinner("💡 Pensando tus recomendaciones..."):
-        datos_usuario = st.session_state.datos_usuario_guardados
-
         columnas_entrenamiento = [
             'edad', 'genero', 'actividad_frecuencia', 'freq_recom',
             'residencia_No', 'residencia_No, pero soy de aquí',
@@ -686,7 +640,6 @@ elif not st.session_state.mostrar_resultados:
                 "clima": clima_hoy,
                 "recommended_after_filter": [k for k, v in recomendaciones_filtradas.items() if v == 1]
             })
-
             st.session_state.clima_hoy = clima_hoy
             st.session_state.score_exterior = score_exterior
             st.info(f"Filtrado climático aplicado. Score exterior: {score_exterior:.2f}")
@@ -700,6 +653,53 @@ elif not st.session_state.mostrar_resultados:
         st.session_state.lugares_recomendados = [lugar for lugar, v in recomendaciones_filtradas.items() if v == 1]
         st.session_state.mostrar_resultados = True
 
+for k, v in {
+    "form_bloqueado": False,
+    "datos_usuario_guardados": None,
+    "mostrar_resultados": False,
+    "lugares_recomendados": [],
+    "mostrar_todos": False,
+    "feedback": 3,
+    "valoracion_enviada": False,
+    "score_exterior": None,
+    "clima_hoy": None,
+}.items():
+    st.session_state.setdefault(k, v)
+
+if not st.session_state.form_bloqueado:
+    st.markdown("""
+        <div class="info-card">
+          <h4>¿Por qué te preguntamos esto?</h4>
+          <p>Unas pocas respuestas nos ayudan a afinar el perfil turístico y darte planes que encajen mejor contigo:</p>
+          <ul>
+            <li><b>Edad y género</b> orientan el tono de las propuestas (tranquilas vs. activas).</li>
+            <li><b>Si vives aquí</b> prioriza rincones menos obvios para locales o esenciales si vienes de fuera.</li>
+            <li><b>Frecuencia</b> (lo que haces y recomiendas) calibra cuánto explorar vs. ir a tiro fijo.</li>
+            <li><b>Tipos de actividades por público</b> nos dicen qué recomendarías a familias, jóvenes y mayores.</li>
+          </ul>
+        </div>
+        """, unsafe_allow_html=True)
+    with st.form("form_recomendador", clear_on_submit=False):
+        st.header("Recomendador turístico")
+        with st.expander("ℹ️ Cómo funciona en 10 segundos"):
+            st.markdown("""
+        - Primero calculamos tus **preferencias** a partir del formulario (modelo multi‑salida).
+        - Luego aplicamos un **filtro meteorológico** con lógica difusa (AEMET + UV en tiempo real) para priorizar exterior/interior.
+        - El mapa te muestra **recomendados** y puedes alternar a **Puntos de Interés** para ver todo.
+        """)
+
+        datos_usuario = formulario_usuario()
+        submitted = st.form_submit_button("Obtener recomendaciones")
+
+    if submitted:
+        st.session_state.datos_usuario_guardados = datos_usuario
+        st.session_state.form_bloqueado = True
+        with st.spinner("💡 Pensando tus recomendaciones..."):
+            procesar_recomendaciones(datos_usuario)
+
+elif not st.session_state.mostrar_resultados and st.session_state.datos_usuario_guardados is not None:
+    with st.spinner("💡 Pensando tus recomendaciones..."):
+        procesar_recomendaciones(st.session_state.datos_usuario_guardados)
 
 if st.session_state.get("mostrar_resultados", False):
     mostrar_todos = st.session_state.get("mostrar_todos", False)
@@ -751,5 +751,6 @@ if st.session_state.get("mostrar_resultados", False):
             })
     else:
         st.info("Ya has enviado tu valoración. ¡Gracias!")
+
 
 
