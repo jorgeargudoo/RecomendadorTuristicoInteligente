@@ -620,6 +620,7 @@ if not st.session_state.form_bloqueado:
     if submitted:
         st.session_state.datos_usuario_guardados = datos_usuario
         st.session_state.form_bloqueado = True
+        st.rerun()
 
 elif not st.session_state.mostrar_resultados:
     with st.spinner("💡 Pensando tus recomendaciones..."):
@@ -750,4 +751,5 @@ if st.session_state.get("mostrar_resultados", False):
             })
     else:
         st.info("Ya has enviado tu valoración. ¡Gracias!")
+
 
