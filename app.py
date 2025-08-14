@@ -579,79 +579,78 @@ def filtrar_por_clima(recomendaciones, clima, score_exterior):
     return filtradas
 
 def procesar_recomendaciones(datos_usuario):
-    with st.spinner("💡 Pensando tus recomendaciones..."):
-        columnas_entrenamiento = [
-            'edad', 'genero', 'actividad_frecuencia', 'freq_recom',
-            'residencia_No', 'residencia_No, pero soy de aquí',
-            'residencia_Solo en verano o en vacaciones', 'residencia_Sí, todo el año',
-            'recom_familias_Naturaleza y paseos', 'recom_familias_Rutas',
-            'recom_familias_Monumentos o historia', 'recom_familias_Sitios tranquilos para descansar',
-            'recom_familias_Eventos o fiestas', 'recom_familias_Bares y restaurantes',
-            'recom_jovenes_Naturaleza y paseos', 'recom_jovenes_Rutas',
-            'recom_jovenes_Monumentos o historia', 'recom_jovenes_Sitios tranquilos para descansar',
-            'recom_jovenes_Eventos o fiestas', 'recom_jovenes_Bares y restaurantes',
-            'recom_mayores_Naturaleza y paseos', 'recom_mayores_Rutas',
-            'recom_mayores_Monumentos o historia', 'recom_mayores_Sitios tranquilos para descansar',
-            'recom_mayores_Eventos o fiestas', 'recom_mayores_Bares y restaurantes'
-        ]
-        df_usuario = pd.DataFrame([datos_usuario])
-        for col in columnas_entrenamiento:
-            if col not in df_usuario.columns:
-                df_usuario[col] = 0
-        df_usuario = df_usuario[columnas_entrenamiento]
+    columnas_entrenamiento = [
+        'edad', 'genero', 'actividad_frecuencia', 'freq_recom',
+        'residencia_No', 'residencia_No, pero soy de aquí',
+        'residencia_Solo en verano o en vacaciones', 'residencia_Sí, todo el año',
+        'recom_familias_Naturaleza y paseos', 'recom_familias_Rutas',
+        'recom_familias_Monumentos o historia', 'recom_familias_Sitios tranquilos para descansar',
+        'recom_familias_Eventos o fiestas', 'recom_familias_Bares y restaurantes',
+        'recom_jovenes_Naturaleza y paseos', 'recom_jovenes_Rutas',
+        'recom_jovenes_Monumentos o historia', 'recom_jovenes_Sitios tranquilos para descansar',
+        'recom_jovenes_Eventos o fiestas', 'recom_jovenes_Bares y restaurantes',
+        'recom_mayores_Naturaleza y paseos', 'recom_mayores_Rutas',
+        'recom_mayores_Monumentos o historia', 'recom_mayores_Sitios tranquilos para descansar',
+        'recom_mayores_Eventos o fiestas', 'recom_mayores_Bares y restaurantes'
+    ]
+    df_usuario = pd.DataFrame([datos_usuario])
+    for col in columnas_entrenamiento:
+        if col not in df_usuario.columns:
+            df_usuario[col] = 0
+    df_usuario = df_usuario[columnas_entrenamiento]
 
-        log_event("form_submitted", {
+    log_event("form_submitted", {
+        "user_id": st.session_state.user_id,
+        "edad": datos_usuario.get("edad"),
+        "genero": datos_usuario.get("genero"),
+        "actividad_frecuencia": datos_usuario.get("actividad_frecuencia"),
+        "freq_recom": datos_usuario.get("freq_recom"),
+        "familias_list": [k.replace("recom_familias_", "") for k, v in datos_usuario.items() if k.startswith("recom_familias_") and v == 1],
+        "jovenes_list": [k.replace("recom_jovenes_", "") for k, v in datos_usuario.items() if k.startswith("recom_jovenes_") and v == 1],
+        "mayores_list": [k.replace("recom_mayores_", "") for k, v in datos_usuario.items() if k.startswith("recom_mayores_") and v == 1]
+    })
+
+    modelo_recomendador = cargar_modelo()
+    predicciones_binarias = modelo_recomendador.predict(df_usuario)[0]
+
+    lugares = [
+        "IglesiaSantoDomingoSilos","PanteonMarquesesMoya","CastilloAliaga","LagunaCaolin",
+        "RiberaRioGuadazaon","CerritoArena","MiradorCruz","FuenteTresCanos",
+        "PuenteCristinasRioCabriel","TorcasPalancaresTierraMuerta","LagunasCanadaHoyo",
+        "ChorrerasRioCabriel","FachadaHarinas","Ruta1","Ruta2","SaltoBalsa","MiradorPicarcho"
+    ]
+    recomendaciones_dict = {lugar: int(pred) for lugar, pred in zip(lugares, predicciones_binarias)}
+
+    log_event("predicted", {
+        "user_id": st.session_state.user_id,
+        "n_outputs": len(predicciones_binarias),
+        "predicted_sum": int(sum(int(x) for x in predicciones_binarias)),
+        "recommended_keys": [k for k, v in recomendaciones_dict.items() if v == 1]
+    })
+
+    try:
+        clima_hoy = obtener_clima_hoy()
+        log_event("weather_ok", {"user_id": st.session_state.user_id, **clima_hoy})
+        score_exterior = recomendar(clima_hoy)
+        recomendaciones_filtradas = filtrar_por_clima(recomendaciones_dict, clima_hoy, score_exterior)
+        log_event("filtered_by_weather", {
             "user_id": st.session_state.user_id,
-            "edad": datos_usuario.get("edad"),
-            "genero": datos_usuario.get("genero"),
-            "actividad_frecuencia": datos_usuario.get("actividad_frecuencia"),
-            "freq_recom": datos_usuario.get("freq_recom"),
-            "familias_list": [k.replace("recom_familias_", "") for k, v in datos_usuario.items() if k.startswith("recom_familias_") and v == 1],
-            "jovenes_list": [k.replace("recom_jovenes_", "") for k, v in datos_usuario.items() if k.startswith("recom_jovenes_") and v == 1],
-            "mayores_list": [k.replace("recom_mayores_", "") for k, v in datos_usuario.items() if k.startswith("recom_mayores_") and v == 1]
+            "score_exterior": float(score_exterior),
+            "clima": clima_hoy,
+            "recommended_after_filter": [k for k, v in recomendaciones_filtradas.items() if v == 1]
         })
+        st.session_state.clima_hoy = clima_hoy
+        st.session_state.score_exterior = score_exterior
+        st.info(f"Filtrado climático aplicado. Score exterior: {score_exterior:.2f}")
+    except Exception as e:
+        recomendaciones_filtradas = recomendaciones_dict
+        st.session_state.clima_hoy = None
+        st.warning("No se pudo obtener el clima actual. Las recomendaciones no han sido filtradas por condiciones meteorológicas.")
+        log_event("weather_error", {"user_id": st.session_state.user_id, "error": str(e)})
+        st.text(f"Error: {str(e)}")
 
-        modelo_recomendador = cargar_modelo()
-        predicciones_binarias = modelo_recomendador.predict(df_usuario)[0]
-
-        lugares = [
-            "IglesiaSantoDomingoSilos","PanteonMarquesesMoya","CastilloAliaga","LagunaCaolin",
-            "RiberaRioGuadazaon","CerritoArena","MiradorCruz","FuenteTresCanos",
-            "PuenteCristinasRioCabriel","TorcasPalancaresTierraMuerta","LagunasCanadaHoyo",
-            "ChorrerasRioCabriel","FachadaHarinas","Ruta1","Ruta2","SaltoBalsa","MiradorPicarcho"
-        ]
-        recomendaciones_dict = {lugar: int(pred) for lugar, pred in zip(lugares, predicciones_binarias)}
-
-        log_event("predicted", {
-            "user_id": st.session_state.user_id,
-            "n_outputs": len(predicciones_binarias),
-            "predicted_sum": int(sum(int(x) for x in predicciones_binarias)),
-            "recommended_keys": [k for k, v in recomendaciones_dict.items() if v == 1]
-        })
-
-        try:
-            clima_hoy = obtener_clima_hoy()
-            log_event("weather_ok", {"user_id": st.session_state.user_id, **clima_hoy})
-            score_exterior = recomendar(clima_hoy)
-            recomendaciones_filtradas = filtrar_por_clima(recomendaciones_dict, clima_hoy, score_exterior)
-            log_event("filtered_by_weather", {
-                "user_id": st.session_state.user_id,
-                "score_exterior": float(score_exterior),
-                "clima": clima_hoy,
-                "recommended_after_filter": [k for k, v in recomendaciones_filtradas.items() if v == 1]
-            })
-            st.session_state.clima_hoy = clima_hoy
-            st.session_state.score_exterior = score_exterior
-            st.info(f"Filtrado climático aplicado. Score exterior: {score_exterior:.2f}")
-        except Exception as e:
-            recomendaciones_filtradas = recomendaciones_dict
-            st.session_state.clima_hoy = None
-            st.warning("No se pudo obtener el clima actual. Las recomendaciones no han sido filtradas por condiciones meteorológicas.")
-            log_event("weather_error", {"user_id": st.session_state.user_id, "error": str(e)})
-            st.text(f"Error: {str(e)}")
-
-        st.session_state.lugares_recomendados = [lugar for lugar, v in recomendaciones_filtradas.items() if v == 1]
-        st.session_state.mostrar_resultados = True
+    st.session_state.lugares_recomendados = [lugar for lugar, v in recomendaciones_filtradas.items() if v == 1]
+    st.session_state.mostrar_resultados = True
 
 for k, v in {
     "form_bloqueado": False,
@@ -751,6 +750,7 @@ if st.session_state.get("mostrar_resultados", False):
             })
     else:
         st.info("Ya has enviado tu valoración. ¡Gracias!")
+
 
 
 
