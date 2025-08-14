@@ -19,26 +19,6 @@ from urllib.parse import urlparse, parse_qs
 
 st.set_page_config(page_title="Carboneras de Guadazaón", layout="wide")
 
-st.markdown("""
-<style>
-.leaflet-container .leaflet-popup-close-button {
-  z-index: 10000 !important;
-  width: 26px; height: 26px; line-height: 26px;
-  font-size: 22px;
-}
-
-.leaflet-popup-content-wrapper {
-  padding-top: 8px !important;
-}
-
-.leaflet-popup-content {
-  max-height: 70vh;
-  overflow: auto;
-  -webkit-overflow-scrolling: touch;
-}
-</style>
-""", unsafe_allow_html=True)
-
 try:
     from streamlit_cookies_manager import EncryptedCookieManager
     cookies = EncryptedCookieManager(
