@@ -598,19 +598,6 @@ def filtrar_por_clima(recomendaciones, clima, score_exterior):
                 filtradas[lugar] = 0
     return filtradas
 
-st.markdown("""
-<div class="info-card">
-  <h4>¿Por qué te preguntamos esto?</h4>
-  <p>Unas pocas respuestas nos ayudan a afinar el perfil turístico y darte planes que encajen mejor contigo:</p>
-  <ul>
-    <li><b>Edad y género</b> orientan el tono de las propuestas (tranquilas vs. activas).</li>
-    <li><b>Si vives aquí</b> prioriza rincones menos obvios para locales o esenciales si vienes de fuera.</li>
-    <li><b>Frecuencia</b> (lo que haces y recomiendas) calibra cuánto explorar vs. ir a tiro fijo.</li>
-    <li><b>Tipos de actividades por público</b> nos dicen qué recomendarías a familias, jóvenes y mayores.</li>
-  </ul>
-</div>
-""", unsafe_allow_html=True)
-
 
 for k, v in {
     "form_bloqueado": False,
@@ -626,6 +613,18 @@ for k, v in {
     st.session_state.setdefault(k, v)
 
 if not st.session_state.form_bloqueado:
+    st.markdown("""
+        <div class="info-card">
+          <h4>¿Por qué te preguntamos esto?</h4>
+          <p>Unas pocas respuestas nos ayudan a afinar el perfil turístico y darte planes que encajen mejor contigo:</p>
+          <ul>
+            <li><b>Edad y género</b> orientan el tono de las propuestas (tranquilas vs. activas).</li>
+            <li><b>Si vives aquí</b> prioriza rincones menos obvios para locales o esenciales si vienes de fuera.</li>
+            <li><b>Frecuencia</b> (lo que haces y recomiendas) calibra cuánto explorar vs. ir a tiro fijo.</li>
+            <li><b>Tipos de actividades por público</b> nos dicen qué recomendarías a familias, jóvenes y mayores.</li>
+          </ul>
+        </div>
+        """, unsafe_allow_html=True)
     with st.form("form_recomendador", clear_on_submit=False):
         st.header("Recomendador turístico")
         with st.expander("ℹ️ Cómo funciona en 10 segundos"):
@@ -772,4 +771,5 @@ if st.session_state.get("mostrar_resultados", False):
             })
     else:
         st.info("Ya has enviado tu valoración. ¡Gracias!")
+
 
