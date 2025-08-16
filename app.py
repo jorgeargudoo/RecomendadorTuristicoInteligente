@@ -1,5 +1,21 @@
-#Esta versión bien pero lenta y se duerme cuando no se toca
+#Esta versión es para que no se duerma
 import streamlit as st
+import os
+
+st.set_page_config(page_title="Carboneras de Guadazaón", layout="wide")
+
+@st.cache_resource
+def load_models():
+    import joblib
+    modelo = joblib.load("model.pkl")
+    return {"modelo": modelo}
+
+q = st.query_params  
+if q.get("warmup") == "1":
+    _ = load_models()    
+    st.write("ok")       
+    st.stop()  
+    
 import pandas as pd
 import folium
 from streamlit_folium import st_folium
@@ -9,7 +25,6 @@ import skfuzzy as fuzz
 from skfuzzy import control as ctrl
 import requests
 import numpy as np
-import os
 from folium.plugins import MarkerCluster
 import html
 from folium import Popup
@@ -751,6 +766,7 @@ if st.session_state.get("mostrar_resultados", False):
             })
     else:
         st.info("Ya has enviado tu valoración. ¡Gracias!")
+
 
 
 
