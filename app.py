@@ -1,3 +1,4 @@
+#Esta versión bien pero lenta y se duerme cuando no se toca
 import streamlit as st
 import pandas as pd
 import folium
@@ -750,6 +751,7 @@ if st.session_state.get("mostrar_resultados", False):
             })
     else:
         st.info("Ya has enviado tu valoración. ¡Gracias!")
+
 
 
 
