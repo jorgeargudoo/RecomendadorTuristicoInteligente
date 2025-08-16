@@ -1,4 +1,4 @@
-#Esta versión es para que no se duerma
+#Esta versión es para que no se duerma y con caché de tiempo mejorada
 import streamlit as st
 import os
 
@@ -32,6 +32,7 @@ from folium import Html
 from logger_gsheets import log_event 
 import uuid
 from urllib.parse import urlparse, parse_qs
+from zoneinfo import ZoneInfo
 
 st.set_page_config(page_title="Carboneras de Guadazaón", layout="wide")
 
@@ -99,17 +100,17 @@ class AEMET:
     def get_prediccion_url(self, id_municipio):
         resp = requests.get(
             f"{self.base_url}/prediccion/especifica/municipio/diaria/{id_municipio}",
-            headers={"api_key": self.api_key}
+            headers={"api_key": self.api_key},
+            timeout=10
         )
         resp.raise_for_status()
         return resp.json().get("datos")
 
     def get_datos_prediccion(self, datos_url):
-        resp = requests.get(datos_url)
+        resp = requests.get(datos_url, timeout=10)
         resp.raise_for_status()
         datos = resp.json()
-
-        if isinstance(datos, list) and "prediccion" in datos[0]:
+        if isinstance(datos, list) and datos and "prediccion" in datos[0]:
             return datos[0]["prediccion"]["dia"][0]
         else:
             raise ValueError("Estructura de JSON inesperada en datos de AEMET")
@@ -117,7 +118,6 @@ class AEMET:
     def extraer_datos_relevantes(self, prediccion_dia):
         try:
             fecha = prediccion_dia.get("fecha", None)
-
             tmax = prediccion_dia.get("temperatura", {}).get("maxima", None)
             tmin = prediccion_dia.get("temperatura", {}).get("minima", None)
 
@@ -132,7 +132,7 @@ class AEMET:
                 "tmax": int(tmax) if tmax is not None else None,
                 "tmin": int(tmin) if tmin is not None else None,
                 "lluvia": int(prob_lluvia),
-                "UV": int(uv) if uv is not None else None
+                "UV": int(uv) if uv is not None else None  
             }
         except Exception as e:
             raise ValueError(f"Error extrayendo datos: {e}")
@@ -145,27 +145,46 @@ class OpenUV:
     def get_current_uv(self, lat, lon):
         headers = {"x-access-token": self.api_key}
         params = {"lat": lat, "lng": lon}
-        resp = requests.get(f"{self.base_url}/uv", headers=headers, params=params)
+        resp = requests.get(f"{self.base_url}/uv", headers=headers, params=params, timeout=8)
         resp.raise_for_status()
         data = resp.json()
         return round(data["result"]["uv"], 2)
+        
+def day_bucket_madrid():
+    now_mad = datetime.now(ZoneInfo("Europe/Madrid"))
+    return now_mad.strftime("%Y-%m-%d")
 
-@st.cache_data(ttl=3600)
+@st.cache_data(show_spinner=False)
+def get_aemet_cached_por_dia(day_bucket: str, id_municipio: str, api_key: str):
+    aemet = AEMET(api_key=api_key)
+    datos_url = aemet.get_prediccion_url(id_municipio)
+    prediccion_dia = aemet.get_datos_prediccion(datos_url)
+    return aemet.extraer_datos_relevantes(prediccion_dia)
+
+@st.cache_data(ttl=900, show_spinner=False) 
+def get_openuv_cached(lat: float, lon: float, api_key: str):
+    openuv = OpenUV(api_key=api_key)
+    return openuv.get_current_uv(lat=lat, lon=lon)
+
 def obtener_clima_hoy():
     API_KEY_AEMET = st.secrets["API_KEY_AEMET"]
     API_KEY_OPENUV = st.secrets["API_KEY_OPENUV"]
 
-    aemet = AEMET(api_key=API_KEY_AEMET)
-    openuv = OpenUV(api_key=API_KEY_OPENUV)
+    aemet_dia = get_aemet_cached_por_dia(
+        day_bucket=day_bucket_madrid(),
+        id_municipio="16055",
+        api_key=API_KEY_AEMET
+    )
 
-    datos_url = aemet.get_prediccion_url("16055")  
-    prediccion_dia = aemet.get_datos_prediccion(datos_url)
-    clima_hoy = aemet.extraer_datos_relevantes(prediccion_dia)
+    try:
+        uv_actual = get_openuv_cached(
+            lat=39.8997, lon=-1.8123, api_key=API_KEY_OPENUV
+        )
+        aemet_dia["UV"] = uv_actual  
+    except Exception:
+        pass
 
-    uv_actual = openuv.get_current_uv(lat=39.8997, lon=-1.8123)
-    clima_hoy["UV"] = uv_actual
-
-    return clima_hoy 
+    return aemet_dia
 
 st.markdown("""
     <style>
@@ -766,6 +785,7 @@ if st.session_state.get("mostrar_resultados", False):
             })
     else:
         st.info("Ya has enviado tu valoración. ¡Gracias!")
+
 
 
 
