@@ -4,10 +4,12 @@ import os
 
 st.set_page_config(page_title="Carboneras de Guadazaón", layout="wide")
 
+RUTA_MODELO = "modelo_turismo.pkl"
+
 @st.cache_resource
 def load_models():
     import joblib
-    modelo = joblib.load("model.pkl")
+    modelo = joblib.load(RUTA_MODELO)
     return {"modelo": modelo}
 
 q = st.query_params  
@@ -86,7 +88,6 @@ if "src" not in st.session_state:
         })
     st.session_state.src = src
         
-RUTA_MODELO = "modelo_turismo.pkl"
 
 @st.cache_resource
 def cargar_modelo():
@@ -785,6 +786,7 @@ if st.session_state.get("mostrar_resultados", False):
             })
     else:
         st.info("Ya has enviado tu valoración. ¡Gracias!")
+
 
 
 
