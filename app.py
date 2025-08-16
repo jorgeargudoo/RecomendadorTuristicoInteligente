@@ -1,4 +1,4 @@
-#Esta versión es para que no se duerma y con caché de tiempo mejorada
+#Aquí se ha ajustado la pantalla
 import streamlit as st
 import os
 
@@ -225,8 +225,27 @@ st.markdown("""
             .info-card li{margin:4px 0;}
     </style>
 """, unsafe_allow_html=True)
+
+st.markdown("""
+<style>
+.leaflet-popup-content-wrapper {
+  padding: 8px 8px !important;
+  border-radius: 12px !important;
+  max-width: 90vw !important;
+}
+.leaflet-popup-content {
+  margin: 0 !important;
+  width: auto !important;   
+  max-height: 65vh !important; /
+  overflow: visible !important;
+}
+.leaflet-popup-close-button {
+  z-index: 9999 !important;
+}
+</style>
+""", unsafe_allow_html=True)
     
-POPUP_MAX_W = 1100  
+POPUP_MAX_W = 720  
 
 def _popup_html_responsive(lugar):
     import html as _html
@@ -244,8 +263,8 @@ def _popup_html_responsive(lugar):
     return f"""
     <style>
       .pop-wrap {{
-        width: min({POPUP_MAX_W}px, 95vw);
-        height: clamp(420px, 82vh, 640px);
+        width: min({POPUP_MAX_W}px, 88vw);
+        height: clamp(340px, 58vh, 560px);
         background:#fff; border-radius:12px;
         box-sizing:border-box; margin:0 auto; padding:14px 16px;
         font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial; color:#222;
@@ -253,18 +272,20 @@ def _popup_html_responsive(lugar):
       }}
       .pop-title {{
         margin:0 0 10px 0; line-height:1.2;
-        font-size:clamp(20px,2.3vw,30px);
+        font-size:clamp(20px,2.2vw,28px);
       }}
       .pop-grid {{
         display:grid; grid-template-columns: 1fr; gap:14px;
         overflow-y:auto; padding-right:4px;
       }}
       .cell-text p {{ margin:0; font-size:16px; line-height:1.55; text-align:justify; }}
+
       @media (min-width: 780px) {{
         .pop-grid {{ grid-template-columns: 1.1fr 0.9fr; gap:18px; }}
         .cell-text p {{ font-size:16px; }}
       }}
       @media (max-width: 779px) {{
+        .pop-wrap {{ width: 86vw; height: 56vh; }}
         .cell-img {{ order: -1; }}
         .cell-text p {{ font-size:15px; line-height:1.6; }}
       }}
@@ -278,6 +299,7 @@ def _popup_html_responsive(lugar):
       </div>
     </div>
     """
+    
 def mostrar_mapa_recomendaciones(lugares_recomendados, LUGARES_INFO, map_key="mapa_resultados"):
     m = folium.Map(location=[39.8997, -1.8123], zoom_start=12, tiles="OpenStreetMap")
     cluster = MarkerCluster().add_to(m)
@@ -298,7 +320,7 @@ def mostrar_mapa_recomendaciones(lugares_recomendados, LUGARES_INFO, map_key="ma
 
         html_content = _popup_html_responsive(lugar)
         html_obj = Html(html_content, script=True)
-        popup = folium.Popup(html_obj, max_width=2000, keep_in_view=True)
+        popup = folium.Popup(html_obj, max_width=POPUP_MAX_W, keep_in_view=True)
 
         folium.Marker(
             location=[lat, lon],
@@ -786,6 +808,7 @@ if st.session_state.get("mostrar_resultados", False):
             })
     else:
         st.info("Ya has enviado tu valoración. ¡Gracias!")
+
 
 
 
