@@ -35,6 +35,7 @@ from logger_gsheets import log_event
 import uuid
 from urllib.parse import urlparse, parse_qs
 from zoneinfo import ZoneInfo
+from typing import Optional
 
 st.set_page_config(page_title="Carboneras de Guadazaón", layout="wide")
 
@@ -274,7 +275,7 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-def etiqueta_fuzzy(score: float | None):
+def etiqueta_fuzzy(score: Optional[float], clima: Optional[dict]):
     if score is None:
         return (
             "Sin filtro climático",
@@ -282,29 +283,66 @@ def etiqueta_fuzzy(score: float | None):
             "🌐",
             "No se pudo obtener el tiempo actual. Te mostramos recomendaciones generales."
         )
+
+    tmax = clima.get("tmax") if clima else None
+    tmin = clima.get("tmin") if clima else None
+    lluvia = clima.get("lluvia") if clima else None
+    uv = clima.get("UV") if clima else None
+
     if score >= 0.66:
         return (
             "Exterior recomendable",
             "good",
             "☀️",
-            "El clima es muy favorable: rutas, miradores y espacios naturales son ideales hoy."
+            "Clima muy favorable: rutas, miradores y espacios naturales son ideales hoy."
         )
+
     if score >= 0.40:
         return (
             "Exterior posible",
             "warn",
             "🌤️",
-            "Puedes hacer planes al aire libre, pero ten en cuenta posibles incomodidades (temperatura, lluvia o UV)."
+            "Puedes hacer planes al aire libre, pero con precaución (temperatura, lluvia o UV)."
         )
+
+    if isinstance(lluvia, (int, float)) and lluvia >= 60:
+        return (
+            "Exterior no recomendable",
+            "bad",
+            "🌧️",
+            "Alta probabilidad de lluvia. Mejor priorizar planes bajo techo."
+        )
+    if isinstance(tmax, (int, float)) and tmax >= 35:
+        return (
+            "Exterior no recomendable",
+            "bad",
+            "🥵",
+            "Hace demasiado calor. Evita la exposición prolongada al sol."
+        )
+    if isinstance(tmin, (int, float)) and tmin <= 2:
+        return (
+            "Exterior no recomendable",
+            "bad",
+            "🥶",
+            "El frío intenso hace poco aconsejables los planes al aire libre."
+        )
+    if isinstance(uv, (int, float)) and uv >= 9:
+        return (
+            "Exterior no recomendable",
+            "bad",
+            "🌞⚠️",
+            "Índice UV muy alto. Evita actividades al sol en horas centrales."
+        )
+
     return (
         "Exterior no recomendable",
         "bad",
-        "🌧️",
+        "🚫",
         "Hoy conviene priorizar patrimonio interior, monumentos y planes bajo techo."
     )
 
-def render_banner_fuzzy(score: float | None, clima: dict | None):
-    texto, clase, icono, explicacion = etiqueta_fuzzy(score)
+def render_banner_fuzzy(score: Optional[float], clima: Optional[dict]):
+    texto, clase, icono, explicacion = etiqueta_fuzzy(score, clima)
     if clima:
         pills = f"""
           <div class="pills">
@@ -315,9 +353,9 @@ def render_banner_fuzzy(score: float | None, clima: dict | None):
           </div>
         """
     else:
-        pills = ""
+        pills = '<div class="pills"><span class="pill">Clima no disponible</span></div>'
 
-st.markdown(f"""
+    st.markdown(f"""
     <div class="reco-banner {clase}">
       <div class="left"><b>{icono} {texto}</b></div>
       {pills}
@@ -326,7 +364,6 @@ st.markdown(f"""
       {explicacion}
     </div>
     """, unsafe_allow_html=True)
-
 
 POPUP_MAX_W = 720  
 
@@ -899,3 +936,4 @@ if st.session_state.get("mostrar_resultados", False):
             })
     else:
         st.info("Ya has enviado tu valoración. ¡Gracias!")
+
