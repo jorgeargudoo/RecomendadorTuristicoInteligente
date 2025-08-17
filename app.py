@@ -18,6 +18,7 @@ if q.get("warmup") == "1":
     st.write("ok")       
     st.stop()  
     
+import streamlit.components.v1 as components 
 import pandas as pd
 import folium
 from streamlit_folium import st_folium
@@ -246,34 +247,6 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-st.markdown("""
-<style>
-.reco-banner{
-  display:flex; align-items:center; justify-content:space-between;
-  gap:8px; padding:10px 14px; border-radius:12px; margin:8px 0 12px;
-  border:1px solid transparent;
-  box-shadow:0 1px 2px rgba(0,0,0,.04);
-  font-size:0.95rem;
-}
-.reco-banner .left b{font-weight:700}
-.reco-banner.good{ background:#eaf7ea; border-color:#cbe8cb; color:#214d21; }
-.reco-banner.warn{ background:#fff7e6; border-color:#ffe2a8; color:#6b4b00; }
-.reco-banner.bad{  background:#ffefef; border-color:#ffc9c9; color:#7a1717; }
-.reco-banner .pills{display:flex; gap:6px; flex-wrap:wrap}
-.reco-banner .pill{
-  display:inline-block; padding:4px 8px; border-radius:999px;
-  background:#fff; border:1px solid rgba(0,0,0,.08); font-size:12px;
-}
-
-.group-title{
-  font-weight:600; font-size:1rem; margin:8px 0 6px 0; color:#2f4f2f;
-}
-
-.group-hint{
-  font-size:0.85rem; color:#556; margin:-6px 0 6px 0;
-}
-</style>
-""", unsafe_allow_html=True)
 
 def etiqueta_fuzzy(score: Optional[float], clima: Optional[dict]):
     if score is None:
@@ -341,29 +314,84 @@ def etiqueta_fuzzy(score: Optional[float], clima: Optional[dict]):
         "Hoy conviene priorizar patrimonio interior, monumentos y planes bajo techo."
     )
 
-def render_banner_fuzzy(score: Optional[float], clima: Optional[dict]):
+def render_banner_fuzzy(score, clima):
     texto, clase, icono, explicacion = etiqueta_fuzzy(score, clima)
-    if clima:
-        pills = f"""
-          <div class="pills">
-            <span class="pill">T. máx: {clima.get('tmax','-')}°C</span>
-            <span class="pill">T. mín: {clima.get('tmin','-')}°C</span>
-            <span class="pill">Lluvia: {clima.get('lluvia','-')}%</span>
-            <span class="pill">UV: {clima.get('UV','-')}</span>
-          </div>
-        """
-    else:
-        pills = '<div class="pills"><span class="pill">Clima no disponible</span></div>'
 
-    st.markdown(f"""
-    <div class="reco-banner {clase}">
-      <div class="left"><b>{icono} {texto}</b></div>
-      {pills}
+    if clima:
+        tmax = clima.get('tmax', '-')
+        tmin = clima.get('tmin', '-')
+        lluvia = clima.get('lluvia', '-')
+        uv = clima.get('UV', '-')
+    else:
+        tmax = tmin = lluvia = uv = '-'
+
+    
+    bg = {
+        "good": "linear-gradient(180deg, #eaf7ea, #e0f0e0)",
+        "warn": "linear-gradient(180deg, #fff7e6, #fff0d6)",
+        "bad":  "linear-gradient(180deg, #ffefef, #ffe3e3)",
+        "":     "#f7f7f7"
+    }.get(clase, "#f7f7f7")
+
+    border = {
+        "good": "#bfe6bf",
+        "warn": "#ffe2a8",
+        "bad":  "#ffc9c9",
+        "":     "#ddd"
+    }.get(clase, "#ddd")
+
+    text_color = {
+        "good": "#1f4d1f",
+        "warn": "#6b4b00",
+        "bad":  "#7a1717",
+        "":     "#222"
+    }.get(clase, "#222")
+
+    html = f"""
+<div style="
+  display:flex; align-items:flex-start; gap:14px;
+  padding:14px 16px; border-radius:16px;
+  background:{bg}; border:1px solid {border};
+  box-shadow:0 1px 2px rgba(0,0,0,.05);
+  margin:8px 0 12px 0;
+">
+  <div style="
+    width:48px; height:48px; min-width:48px;
+    display:flex; align-items:center; justify-content:center;
+    font-size:26px; border-radius:12px;
+    background:rgba(255,255,255,.65); border:1px solid rgba(0,0,0,.06);
+  ">{icono}</div>
+
+  <div style="flex:1; color:{text_color};">
+    <div style="font-weight:700; font-size:18px; line-height:1.2;">{texto}</div>
+    <div style="font-size:13.5px; opacity:.9; margin-top:2px;">{explicacion}</div>
+
+    <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:10px;">
+      <span style="display:inline-flex; align-items:center; gap:6px; padding:6px 10px;
+                    font-size:12.5px; border-radius:999px; background:#fff;
+                    border:1px solid rgba(0,0,0,.08); color:#2b2b2b;">
+        🌡️ T. máx: {tmax}°C
+      </span>
+      <span style="display:inline-flex; align-items:center; gap:6px; padding:6px 10px;
+                    font-size:12.5px; border-radius:999px; background:#fff;
+                    border:1px solid rgba(0,0,0,.08); color:#2b2b2b;">
+        🧊 T. mín: {tmin}°C
+      </span>
+      <span style="display:inline-flex; align-items:center; gap:6px; padding:6px 10px;
+                    font-size:12.5px; border-radius:999px; background:#fff;
+                    border:1px solid rgba(0,0,0,.08); color:#2b2b2b;">
+        ☔ Lluvia: {lluvia}%
+      </span>
+      <span style="display:inline-flex; align-items:center; gap:6px; padding:6px 10px;
+                    font-size:12.5px; border-radius:999px; background:#fff;
+                    border:1px solid rgba(0,0,0,.08); color:#2b2b2b;">
+        🔆 UV: {uv}
+      </span>
     </div>
-    <div style="margin:-6px 0 12px 2px; font-size:0.88rem; color:#444;">
-      {explicacion}
-    </div>
-    """, unsafe_allow_html=True)
+  </div>
+</div>
+"""    
+    components.html(html, height=150) 
 
 POPUP_MAX_W = 720  
 
@@ -936,4 +964,5 @@ if st.session_state.get("mostrar_resultados", False):
             })
     else:
         st.info("Ya has enviado tu valoración. ¡Gracias!")
+
 
