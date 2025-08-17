@@ -1,4 +1,3 @@
-#Aquí se ha dejado algo más arreglado la visualización
 import streamlit as st
 import os
 
@@ -90,7 +89,6 @@ if "src" not in st.session_state:
         })
     st.session_state.src = src
         
-
 @st.cache_resource
 def cargar_modelo():
     return joblib.load(RUTA_MODELO)
@@ -399,8 +397,6 @@ def render_banner_fuzzy(score, clima):
 </style>
 """
     components.html(html, height=220)
-
-
 
 POPUP_MAX_W = 720  
 
@@ -811,6 +807,7 @@ def procesar_recomendaciones(datos_usuario):
         'recom_mayores_Monumentos o historia', 'recom_mayores_Sitios tranquilos para descansar',
         'recom_mayores_Eventos o fiestas', 'recom_mayores_Bares y restaurantes'
     ]
+    
     df_usuario = pd.DataFrame([datos_usuario])
     for col in columnas_entrenamiento:
         if col not in df_usuario.columns:
@@ -881,38 +878,38 @@ for k, v in {
 }.items():
     st.session_state.setdefault(k, v)
 
-if not st.session_state.form_bloqueado:
-    st.markdown("""
-    <div class="info-card">
-      <h4>¿Por qué te preguntamos esto?</h4>
-      <p>Unas pocas respuestas nos ayudan a afinar el perfil turístico y darte planes que encajen mejor contigo:</p>
-      <ul>
-        <li><b>Edad y género</b> orientan el tipo de propuestas (más activas vs. más tranquilas).</li>
-        <li><b>Si vives aquí</b> priorizamos rincones menos obvios para locales o esenciales si vienes de fuera.</li>
-        <li><b>Frecuencia</b> (lo que haces y recomiendas) calibra cuánto explorar vs. ir a tiro fijo.</li>
-        <li><b>Tipos de actividades por público</b> (familias, jóvenes, mayores) nos dicen <i>cómo recomiendas a otros</i>. 
-            <u>Puedes seleccionar más de una actividad para cada grupo</u> y eso vuelve el modelo más afín a tu forma de recomendar.</li>
-      </ul>
-    </div>
-    """, unsafe_allow_html=True)
+st.markdown("""
+<div class="info-card">
+  <h4>¿Por qué te preguntamos esto?</h4>
+  <p>Unas pocas respuestas nos ayudan a afinar el perfil turístico y darte planes que encajen mejor contigo:</p>
+  <ul>
+    <li><b>Edad y género</b> orientan el tipo de propuestas (más activas vs. más tranquilas).</li>
+    <li><b>Si vives aquí</b> priorizamos rincones menos obvios para locales o esenciales si vienes de fuera.</li>
+    <li><b>Frecuencia</b> (lo que haces y recomiendas) calibra cuánto explorar vs. ir a tiro fijo.</li>
+    <li><b>Tipos de actividades por público</b> (familias, jóvenes, mayores) nos dicen <i>cómo recomiendas a otros</i>. 
+        <u>Puedes seleccionar más de una actividad para cada grupo</u> y eso vuelve el modelo más afín a tu forma de recomendar.</li>
+  </ul>
+</div>
+""", unsafe_allow_html=True)
 
-    with st.form("form_recomendador", clear_on_submit=False):
-        st.header("Recomendador turístico")
-        with st.expander("ℹ️ Cómo funciona en 10 segundos"):
-            st.markdown("""
-        - Primero calculamos tus **preferencias** a partir del formulario (modelo multi‑salida).
-        - Luego aplicamos un **filtro meteorológico** con lógica difusa (AEMET + UV en tiempo real) para priorizar exterior/interior.
-        - El mapa te muestra **recomendados** y puedes alternar a **Puntos de Interés** para ver todo.
-        """)
+with st.form("form_recomendador", clear_on_submit=False):
+    st.header("Recomendador turístico")
+    with st.expander("ℹ️ Cómo funciona en 10 segundos"):
+        st.markdown("""
+    - Primero calculamos tus **preferencias** a partir del formulario (modelo multi‑salida).
+    - Luego aplicamos un **filtro meteorológico** con lógica difusa (AEMET + UV en tiempo real) para priorizar exterior/interior.
+    - El mapa te muestra **recomendados** y puedes alternar a **Puntos de Interés** para ver todo.
+    """)
 
-        datos_usuario = formulario_usuario()
+    datos_usuario = formulario_usuario()
+    if not st.session_state.form_bloqueado:
         submitted = st.form_submit_button("Obtener recomendaciones")
 
-    if submitted:
-        st.session_state.datos_usuario_guardados = datos_usuario
-        st.session_state.form_bloqueado = True
-        with st.spinner("💡 Pensando tus recomendaciones..."):
-            procesar_recomendaciones(datos_usuario)
+if submitted and not st.session_state.form_bloqueado:
+    st.session_state.datos_usuario_guardados = datos_usuario
+    st.session_state.form_bloqueado = True
+    with st.spinner("💡 Pensando tus recomendaciones..."):
+        procesar_recomendaciones(datos_usuario)
 
 elif not st.session_state.mostrar_resultados and st.session_state.datos_usuario_guardados is not None:
     with st.spinner("💡 Pensando tus recomendaciones..."):
@@ -973,6 +970,7 @@ if st.session_state.get("mostrar_resultados", False):
             })
     else:
         st.info("Ya has enviado tu valoración. ¡Gracias!")
+
 
 
 
