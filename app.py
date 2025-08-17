@@ -325,6 +325,8 @@ def render_banner_fuzzy(score, clima):
     else:
         tmax = tmin = lluvia = uv = '-'
 
+    percent = int(score * 100) if isinstance(score, (int, float)) else 0
+
     bg = {
         "good": "linear-gradient(180deg, #eaf7ea, #e0f0e0)",
         "warn": "linear-gradient(180deg, #fff7e6, #fff0d6)",
@@ -334,12 +336,20 @@ def render_banner_fuzzy(score, clima):
     border = {"good":"#bfe6bf","warn":"#ffe2a8","bad":"#ffc9c9"}.get(clase, "#ddd")
     text_color = {"good":"#1f4d1f","warn":"#6b4b00","bad":"#7a1717"}.get(clase, "#222")
 
+    bar_color = {"good":"#4caf50","warn":"#ff9800","bad":"#f44336"}.get(clase, "#999")
+
     html = f"""
 <div class="banner">
   <div class="icon">{icono}</div>
   <div class="content">
     <div class="title">{texto}</div>
     <div class="desc">{explicacion}</div>
+
+    <!-- Barra de progreso -->
+    <div style="margin-top:8px; background:#eee; border-radius:8px; height:12px; overflow:hidden;">
+      <div style="width:{percent}%; height:100%; background:{bar_color};"></div>
+    </div>
+    <div style="font-size:12px; opacity:.7; margin-top:2px;">Score: {percent}%</div>
 
     <div class="pills">
       <span class="pill">🌡️ T. máx: {tmax}°C</span>
@@ -352,20 +362,20 @@ def render_banner_fuzzy(score, clima):
 
 <style>
   .banner {{
-    display:flex; gap:14px; align-items:flex-start;
-    padding:14px 16px; border-radius:16px; margin:8px 0 12px 0;
+    display:flex; gap:12px; align-items:flex-start;
+    padding:12px 14px; border-radius:16px; margin:8px 0 12px 0;
     background:{bg}; border:1px solid {border}; color:{text_color};
     box-shadow:0 1px 2px rgba(0,0,0,.05);
   }}
   .icon {{
-    width:48px; height:48px; min-width:48px;
+    width:44px; height:44px; min-width:44px;
     display:flex; align-items:center; justify-content:center;
-    font-size:28px; border-radius:12px;
+    font-size:24px; border-radius:10px;
     background:rgba(255,255,255,.65); border:1px solid rgba(0,0,0,.06);
   }}
   .content {{ flex:1; }}
-  .title {{ font-weight:700; font-size:18px; line-height:1.2; }}
-  .desc  {{ font-size:13.5px; opacity:.9; margin-top:2px; }}
+  .title {{ font-weight:700; font-size:17px; line-height:1.2; }}
+  .desc  {{ font-size:13px; opacity:.9; margin-top:2px; }}
 
   .pills {{
     display:grid; grid-template-columns: repeat(4, max-content);
@@ -379,27 +389,24 @@ def render_banner_fuzzy(score, clima):
   }}
 
   @media (max-width: 480px) {{
-    .icon {{ width:40px; height:40px; min-width:40px; font-size:22px; border-radius:10px; }}
+    .icon {{ width:36px; height:36px; min-width:36px; font-size:20px; }}
     .title {{ font-size:16px; }}
     .desc  {{ font-size:12.5px; }}
+    .banner {{ padding:10px 12px; border-radius:14px; }}
     .pills {{
-      grid-template-columns: repeat(2, 1fr);   
+      grid-template-columns: 1fr;
+      gap:6px;
     }}
     .pill {{
-      justify-content:center;                   
-      width:100%;                               
+      justify-content:center;
+      width:100%;
       font-size:12px; padding:6px 8px;
-      white-space:normal;                       
-      text-align:center;
+      white-space:normal; text-align:center;
     }}
-  }}
-
-  @media (max-width: 360px) {{
-    .pills {{ grid-template-columns: 1fr; }}   
   }}
 </style>
 """
-    components.html(html, height=190)
+    components.html(html, height=280)
 
 
 POPUP_MAX_W = 720  
@@ -973,6 +980,7 @@ if st.session_state.get("mostrar_resultados", False):
             })
     else:
         st.info("Ya has enviado tu valoración. ¡Gracias!")
+
 
 
 
