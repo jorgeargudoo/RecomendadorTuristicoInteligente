@@ -1,5 +1,4 @@
-
-#Aquí se ha dejado algo más arreglado la visualización
+# Definitiva, no tocar nada más, solo textos e imágenes de los sitios.
 import streamlit as st
 import os
 
