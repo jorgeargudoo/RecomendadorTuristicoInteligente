@@ -1,4 +1,4 @@
-#Aquí se ha ajustado la pantalla
+#Aquí se ha dejado algo más arreglado la visualización
 import streamlit as st
 import os
 
@@ -244,7 +244,90 @@ st.markdown("""
 }
 </style>
 """, unsafe_allow_html=True)
-    
+
+st.markdown("""
+<style>
+.reco-banner{
+  display:flex; align-items:center; justify-content:space-between;
+  gap:8px; padding:10px 14px; border-radius:12px; margin:8px 0 12px;
+  border:1px solid transparent;
+  box-shadow:0 1px 2px rgba(0,0,0,.04);
+  font-size:0.95rem;
+}
+.reco-banner .left b{font-weight:700}
+.reco-banner.good{ background:#eaf7ea; border-color:#cbe8cb; color:#214d21; }
+.reco-banner.warn{ background:#fff7e6; border-color:#ffe2a8; color:#6b4b00; }
+.reco-banner.bad{  background:#ffefef; border-color:#ffc9c9; color:#7a1717; }
+.reco-banner .pills{display:flex; gap:6px; flex-wrap:wrap}
+.reco-banner .pill{
+  display:inline-block; padding:4px 8px; border-radius:999px;
+  background:#fff; border:1px solid rgba(0,0,0,.08); font-size:12px;
+}
+
+.group-title{
+  font-weight:600; font-size:1rem; margin:8px 0 6px 0; color:#2f4f2f;
+}
+
+.group-hint{
+  font-size:0.85rem; color:#556; margin:-6px 0 6px 0;
+}
+</style>
+""", unsafe_allow_html=True)
+
+def etiqueta_fuzzy(score: float | None):
+    if score is None:
+        return (
+            "Sin filtro climático",
+            "warn",
+            "🌐",
+            "No se pudo obtener el tiempo actual. Te mostramos recomendaciones generales."
+        )
+    if score >= 0.66:
+        return (
+            "Exterior recomendable",
+            "good",
+            "☀️",
+            "El clima es muy favorable: rutas, miradores y espacios naturales son ideales hoy."
+        )
+    if score >= 0.40:
+        return (
+            "Exterior posible",
+            "warn",
+            "🌤️",
+            "Puedes hacer planes al aire libre, pero ten en cuenta posibles incomodidades (temperatura, lluvia o UV)."
+        )
+    return (
+        "Exterior no recomendable",
+        "bad",
+        "🌧️",
+        "Hoy conviene priorizar patrimonio interior, monumentos y planes bajo techo."
+    )
+
+def render_banner_fuzzy(score: float | None, clima: dict | None):
+    texto, clase, icono, explicacion = etiqueta_fuzzy(score)
+    if clima:
+        pills = f"""
+          <div class="pills">
+            <span class="pill">T. máx: {clima.get('tmax','-')}°C</span>
+            <span class="pill">T. mín: {clima.get('tmin','-')}°C</span>
+            <span class="pill">Lluvia: {clima.get('lluvia','-')}%</span>
+            <span class="pill">UV: {clima.get('UV','-')}</span>
+          </div>
+        """
+    else:
+        pills = ""
+
+st.markdown(f"""
+    <div class="reco-banner {clase}">
+      <div class="left"><b>{icono} {texto}</b></div>
+      {pills}
+    </div>
+    <div style="margin:-6px 0 12px 2px; font-size:0.88rem; color:#444;">
+      {explicacion}
+    </div>
+    """, unsafe_allow_html=True)
+
+
 POPUP_MAX_W = 720  
 
 def _popup_html_responsive(lugar):
@@ -372,14 +455,17 @@ def formulario_usuario():
         "Bares y restaurantes"
     ]
 
-    st.subheader("¿Qué actividades recomendarías a familias?")
-    actividades_familias = st.multiselect("Selecciona actividades para familias", actividades_disponibles, key="familias")
+    st.markdown('<div class="group-title">¿Qué actividades recomendarías a familias?</div>', unsafe_allow_html=True)
+    st.markdown('<div class="group-hint">Puedes seleccionar más de una.</div>', unsafe_allow_html=True)
+    actividades_familias = st.multiselect("", actividades_disponibles, key="familias", placeholder="Selecciona actividades")
     
-    st.subheader("¿Qué actividades recomendarías a jóvenes?")
-    actividades_jovenes = st.multiselect("Selecciona actividades para jóvenes", actividades_disponibles, key="jovenes")
+    st.markdown('<div class="group-title">¿Qué actividades recomendarías a jóvenes?</div>', unsafe_allow_html=True)
+    st.markdown('<div class="group-hint">Puedes seleccionar más de una.</div>', unsafe_allow_html=True)
+    actividades_jovenes = st.multiselect("", actividades_disponibles, key="jovenes", placeholder="Selecciona actividades")
     
-    st.subheader("¿Qué actividades recomendarías a mayores?")
-    actividades_mayores = st.multiselect("Selecciona actividades para mayores", actividades_disponibles, key="mayores")
+    st.markdown('<div class="group-title">¿Qué actividades recomendarías a mayores?</div>', unsafe_allow_html=True)
+    st.markdown('<div class="group-hint">Puedes seleccionar más de una.</div>', unsafe_allow_html=True)
+    actividades_mayores = st.multiselect("", actividades_disponibles, key="mayores", placeholder="Selecciona actividades")
 
     def codificar_actividades(actividades_seleccionadas, grupo):
         return {f"{grupo}_{actividad}": 1 if actividad in actividades_seleccionadas else 0
@@ -699,11 +785,9 @@ def procesar_recomendaciones(datos_usuario):
         })
         st.session_state.clima_hoy = clima_hoy
         st.session_state.score_exterior = score_exterior
-        st.info(f"Filtrado climático aplicado. Score exterior: {score_exterior:.2f}")
     except Exception as e:
         recomendaciones_filtradas = recomendaciones_dict
         st.session_state.clima_hoy = None
-        st.warning("No se pudo obtener el clima actual. Las recomendaciones no han sido filtradas por condiciones meteorológicas.")
         log_event("weather_error", {"user_id": st.session_state.user_id, "error": str(e)})
         st.text(f"Error: {str(e)}")
 
@@ -725,17 +809,19 @@ for k, v in {
 
 if not st.session_state.form_bloqueado:
     st.markdown("""
-        <div class="info-card">
-          <h4>¿Por qué te preguntamos esto?</h4>
-          <p>Unas pocas respuestas nos ayudan a afinar el perfil turístico y darte planes que encajen mejor contigo:</p>
-          <ul>
-            <li><b>Edad y género</b> orientan el tono de las propuestas (tranquilas vs. activas).</li>
-            <li><b>Si vives aquí</b> prioriza rincones menos obvios para locales o esenciales si vienes de fuera.</li>
-            <li><b>Frecuencia</b> (lo que haces y recomiendas) calibra cuánto explorar vs. ir a tiro fijo.</li>
-            <li><b>Tipos de actividades por público</b> nos dicen qué recomendarías a familias, jóvenes y mayores.</li>
-          </ul>
-        </div>
-        """, unsafe_allow_html=True)
+    <div class="info-card">
+      <h4>¿Por qué te preguntamos esto?</h4>
+      <p>Unas pocas respuestas nos ayudan a afinar el perfil turístico y darte planes que encajen mejor contigo:</p>
+      <ul>
+        <li><b>Edad y género</b> orientan el tipo de propuestas (más activas vs. más tranquilas).</li>
+        <li><b>Si vives aquí</b> priorizamos rincones menos obvios para locales o esenciales si vienes de fuera.</li>
+        <li><b>Frecuencia</b> (lo que haces y recomiendas) calibra cuánto explorar vs. ir a tiro fijo.</li>
+        <li><b>Tipos de actividades por público</b> (familias, jóvenes, mayores) nos dicen <i>cómo recomiendas a otros</i>. 
+            <u>Puedes seleccionar más de una actividad para cada grupo</u> y eso vuelve el modelo más afín a tu forma de recomendar.</li>
+      </ul>
+    </div>
+    """, unsafe_allow_html=True)
+
     with st.form("form_recomendador", clear_on_submit=False):
         st.header("Recomendador turístico")
         with st.expander("ℹ️ Cómo funciona en 10 segundos"):
@@ -757,11 +843,16 @@ if not st.session_state.form_bloqueado:
 elif not st.session_state.mostrar_resultados and st.session_state.datos_usuario_guardados is not None:
     with st.spinner("💡 Pensando tus recomendaciones..."):
         procesar_recomendaciones(st.session_state.datos_usuario_guardados)
-
+        
 if st.session_state.get("mostrar_resultados", False):
     mostrar_todos = st.session_state.get("mostrar_todos", False)
     titulo = "Puntos de Interés" if mostrar_todos else "Recomendaciones para ti"
     st.markdown(f"### {titulo}")
+
+    render_banner_fuzzy(
+        st.session_state.get("score_exterior"),
+        st.session_state.get("clima_hoy")
+    )
 
     if mostrar_todos:
         mostrar_mapa_recomendaciones(LUGARES_INFO, LUGARES_INFO, map_key="mapa_todos")
@@ -808,12 +899,3 @@ if st.session_state.get("mostrar_resultados", False):
             })
     else:
         st.info("Ya has enviado tu valoración. ¡Gracias!")
-
-
-
-
-
-
-
-
-
