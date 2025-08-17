@@ -325,73 +325,82 @@ def render_banner_fuzzy(score, clima):
     else:
         tmax = tmin = lluvia = uv = '-'
 
-    
     bg = {
         "good": "linear-gradient(180deg, #eaf7ea, #e0f0e0)",
         "warn": "linear-gradient(180deg, #fff7e6, #fff0d6)",
         "bad":  "linear-gradient(180deg, #ffefef, #ffe3e3)",
-        "":     "#f7f7f7"
     }.get(clase, "#f7f7f7")
 
-    border = {
-        "good": "#bfe6bf",
-        "warn": "#ffe2a8",
-        "bad":  "#ffc9c9",
-        "":     "#ddd"
-    }.get(clase, "#ddd")
-
-    text_color = {
-        "good": "#1f4d1f",
-        "warn": "#6b4b00",
-        "bad":  "#7a1717",
-        "":     "#222"
-    }.get(clase, "#222")
+    border = {"good":"#bfe6bf","warn":"#ffe2a8","bad":"#ffc9c9"}.get(clase, "#ddd")
+    text_color = {"good":"#1f4d1f","warn":"#6b4b00","bad":"#7a1717"}.get(clase, "#222")
 
     html = f"""
-<div style="
-  display:flex; align-items:flex-start; gap:14px;
-  padding:14px 16px; border-radius:16px;
-  background:{bg}; border:1px solid {border};
-  box-shadow:0 1px 2px rgba(0,0,0,.05);
-  margin:8px 0 12px 0;
-">
-  <div style="
-    width:48px; height:48px; min-width:48px;
-    display:flex; align-items:center; justify-content:center;
-    font-size:26px; border-radius:12px;
-    background:rgba(255,255,255,.65); border:1px solid rgba(0,0,0,.06);
-  ">{icono}</div>
+<div class="banner">
+  <div class="icon">{icono}</div>
+  <div class="content">
+    <div class="title">{texto}</div>
+    <div class="desc">{explicacion}</div>
 
-  <div style="flex:1; color:{text_color};">
-    <div style="font-weight:700; font-size:18px; line-height:1.2;">{texto}</div>
-    <div style="font-size:13.5px; opacity:.9; margin-top:2px;">{explicacion}</div>
-
-    <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:10px;">
-      <span style="display:inline-flex; align-items:center; gap:6px; padding:6px 10px;
-                    font-size:12.5px; border-radius:999px; background:#fff;
-                    border:1px solid rgba(0,0,0,.08); color:#2b2b2b;">
-        🌡️ T. máx: {tmax}°C
-      </span>
-      <span style="display:inline-flex; align-items:center; gap:6px; padding:6px 10px;
-                    font-size:12.5px; border-radius:999px; background:#fff;
-                    border:1px solid rgba(0,0,0,.08); color:#2b2b2b;">
-        🧊 T. mín: {tmin}°C
-      </span>
-      <span style="display:inline-flex; align-items:center; gap:6px; padding:6px 10px;
-                    font-size:12.5px; border-radius:999px; background:#fff;
-                    border:1px solid rgba(0,0,0,.08); color:#2b2b2b;">
-        ☔ Lluvia: {lluvia}%
-      </span>
-      <span style="display:inline-flex; align-items:center; gap:6px; padding:6px 10px;
-                    font-size:12.5px; border-radius:999px; background:#fff;
-                    border:1px solid rgba(0,0,0,.08); color:#2b2b2b;">
-        🔆 UV: {uv}
-      </span>
+    <div class="pills">
+      <span class="pill">🌡️ T. máx: {tmax}°C</span>
+      <span class="pill">🧊 T. mín: {tmin}°C</span>
+      <span class="pill">☔ Lluvia: {lluvia}%</span>
+      <span class="pill">🔆 UV: {uv}</span>
     </div>
   </div>
 </div>
-"""    
-    components.html(html, height=150) 
+
+<style>
+  .banner {{
+    display:flex; gap:14px; align-items:flex-start;
+    padding:14px 16px; border-radius:16px; margin:8px 0 12px 0;
+    background:{bg}; border:1px solid {border}; color:{text_color};
+    box-shadow:0 1px 2px rgba(0,0,0,.05);
+  }}
+  .icon {{
+    width:48px; height:48px; min-width:48px;
+    display:flex; align-items:center; justify-content:center;
+    font-size:28px; border-radius:12px;
+    background:rgba(255,255,255,.65); border:1px solid rgba(0,0,0,.06);
+  }}
+  .content {{ flex:1; }}
+  .title {{ font-weight:700; font-size:18px; line-height:1.2; }}
+  .desc  {{ font-size:13.5px; opacity:.9; margin-top:2px; }}
+
+  .pills {{
+    display:grid; grid-template-columns: repeat(4, max-content);
+    gap:8px; margin-top:10px;
+  }}
+  .pill {{
+    display:inline-flex; align-items:center; gap:6px;
+    padding:6px 10px; font-size:12.5px; border-radius:999px;
+    background:#fff; border:1px solid rgba(0,0,0,.08); color:#2b2b2b;
+    white-space:nowrap;
+  }}
+
+  @media (max-width: 480px) {{
+    .icon {{ width:40px; height:40px; min-width:40px; font-size:22px; border-radius:10px; }}
+    .title {{ font-size:16px; }}
+    .desc  {{ font-size:12.5px; }}
+    .pills {{
+      grid-template-columns: repeat(2, 1fr);   
+    }}
+    .pill {{
+      justify-content:center;                   
+      width:100%;                               
+      font-size:12px; padding:6px 8px;
+      white-space:normal;                       
+      text-align:center;
+    }}
+  }}
+
+  @media (max-width: 360px) {{
+    .pills {{ grid-template-columns: 1fr; }}   
+  }}
+</style>
+"""
+    components.html(html, height=190)
+
 
 POPUP_MAX_W = 720  
 
@@ -964,5 +973,6 @@ if st.session_state.get("mostrar_resultados", False):
             })
     else:
         st.info("Ya has enviado tu valoración. ¡Gracias!")
+
 
 
