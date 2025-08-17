@@ -1,3 +1,5 @@
+
+#Aquí se ha dejado algo más arreglado la visualización
 import streamlit as st
 import os
 
@@ -89,6 +91,7 @@ if "src" not in st.session_state:
         })
     st.session_state.src = src
         
+
 @st.cache_resource
 def cargar_modelo():
     return joblib.load(RUTA_MODELO)
@@ -397,6 +400,8 @@ def render_banner_fuzzy(score, clima):
 </style>
 """
     components.html(html, height=220)
+
+
 
 POPUP_MAX_W = 720  
 
@@ -807,7 +812,6 @@ def procesar_recomendaciones(datos_usuario):
         'recom_mayores_Monumentos o historia', 'recom_mayores_Sitios tranquilos para descansar',
         'recom_mayores_Eventos o fiestas', 'recom_mayores_Bares y restaurantes'
     ]
-    
     df_usuario = pd.DataFrame([datos_usuario])
     for col in columnas_entrenamiento:
         if col not in df_usuario.columns:
@@ -902,8 +906,7 @@ with st.form("form_recomendador", clear_on_submit=False):
     """)
 
     datos_usuario = formulario_usuario()
-    if not st.session_state.form_bloqueado:
-        submitted = st.form_submit_button("Obtener recomendaciones")
+    submitted = st.form_submit_button("Obtener recomendaciones")
 
 if submitted and not st.session_state.form_bloqueado:
     st.session_state.datos_usuario_guardados = datos_usuario
@@ -970,9 +973,3 @@ if st.session_state.get("mostrar_resultados", False):
             })
     else:
         st.info("Ya has enviado tu valoración. ¡Gracias!")
-
-
-
-
-
-
