@@ -972,3 +972,5 @@ if st.session_state.get("mostrar_resultados", False):
             })
     else:
         st.info("Ya has enviado tu valoración. ¡Gracias!")
+
+# keepalive 2025-08-25T08:08:24Z
