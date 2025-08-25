@@ -1,4 +1,3 @@
-# Definitiva, no tocar nada más, solo textos e imágenes de los sitios.
 import streamlit as st
 import os
 
@@ -759,7 +758,7 @@ LUGARES_INFO = {
         "lat": 39.95349525977749, 
         "lon": -1.7114109725881712,
         "descripcion": "Una excursión circular de cerca de 5,6 km y 3 horas de duración, que descubre rincones inolvidables de la Serranía Baja de Cuenca. Comienza atravesando pinares de rodeno, hasta alcanzar Los Castellones, con sus escarpadas formaciones rocosas y vistas al valle del Cabriel. El punto culminante lo ofrece el Castillo del Saladar, un antiguo castro celtibérico que guarda restos de murallas y aljibes tallados en la roca: su cumbre, accesible mediante cadenas, regala panorámicas memorables. El broche de oro llega al descender entre paisajes tallados por la erosión: “Las Corveteras”, chimeneas rocosas de formas caprichosas que evocan fantasía geológica. Tonos ocres bajo el sol, ecos de historia y el silencio del monte —esta ruta lo tiene todo.",
-        "imagen_url": ""
+        "imagen_url": "https://raw.githubusercontent.com/jorgeargudoo/RecomendadorTuristicoInteligente/blob/d8602a4caa25ab83b3e113113d722656095c7197/imagenes/rutaLasCorveteras.png"
     }, 
 
     "Ruta2": {
@@ -767,7 +766,7 @@ LUGARES_INFO = {
         "lat": 39.92985933475362, 
         "lon": -1.672240749627503,
         "descripcion": "Un recorrido circular de unos 21 km, con un desnivel acumulado de 550 m, que se desarrolla entre los 951 m y los 1 172 m de altitud. Aunque la dificultad técnica es moderada, la distancia y el desnivel requieren buena condición física. El itinerario dura alrededor de 4 horas, incluido el tiempo para disfrutar los monumentos naturales e históricos que atraviesa. Comienza en el paraje de El Cañizar, accediendo por pista hasta el abrigo de arte rupestre levantino de Selva Pascuala, joya escenográfica e histórica. Prosigue hacia la Torre Barrachina, vestigio defensivo musulmán. El punto culminante es la Torre Balbina, una catedral de roca que remata en un mirador panorámico sobre el mar de pinos rodenos. Una experiencia ideal para quienes buscan viajar a través del tiempo, combinando arte milenario, arquitectura antigua y horizontes serranos en una ruta exigente pero fascinante.",
-        "imagen_url": ""
+        "imagen_url": "https://raw.githubusercontent.com/jorgeargudoo/RecomendadorTuristicoInteligente/blob/d8602a4caa25ab83b3e113113d722656095c7197/imagenes/rutaSelvaPascuala.png"
     }, 
 
     "SaltoBalsa": {
@@ -972,5 +971,6 @@ if st.session_state.get("mostrar_resultados", False):
             })
     else:
         st.info("Ya has enviado tu valoración. ¡Gracias!")
+
 
 # keepalive 2025-08-25T08:08:24Z
