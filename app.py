@@ -789,7 +789,7 @@ LUGARES_INFO = {
 
 def filtrar_por_clima(recomendaciones, clima, score_exterior): 
     filtradas = recomendaciones.copy()
-    if score_exterior < 0.50:
+    if score_exterior < 0.40:
         for lugar in LUGARES_EXTERIOR:
             if lugar in filtradas:
                 filtradas[lugar] = 0
@@ -974,4 +974,5 @@ if st.session_state.get("mostrar_resultados", False):
 
 
 # keepalive 2025-08-25T08:08:24Z
+
 
