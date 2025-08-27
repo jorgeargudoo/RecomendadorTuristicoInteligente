@@ -881,7 +881,7 @@ with st.form("form_recomendador", clear_on_submit=False):
     """)
 
     datos_usuario = formulario_usuario()
-    submitted = st.form_submit_button("Obtener recomendaciones")
+    submitted = st.form_submit_button("Obtener recomendaciones", disabled=st.session_state.form_bloqueado)
 
 if submitted and not st.session_state.form_bloqueado:
     log_event("form_submitted", {
