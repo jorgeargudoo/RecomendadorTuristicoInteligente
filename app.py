@@ -4,18 +4,6 @@ import os
 st.set_page_config(page_title="Carboneras de Guadazaón", layout="wide")
 
 RUTA_MODELO = "modelo_turismo.pkl"
-
-@st.cache_resource
-def load_models():
-    import joblib
-    modelo = joblib.load(RUTA_MODELO)
-    return {"modelo": modelo}
-
-q = st.query_params  
-if q.get("warmup") == "1":
-    _ = load_models()    
-    st.write("ok")       
-    st.stop()  
     
 import streamlit.components.v1 as components 
 import pandas as pd
@@ -816,17 +804,6 @@ def procesar_recomendaciones(datos_usuario):
             df_usuario[col] = 0
     df_usuario = df_usuario[columnas_entrenamiento]
 
-    log_event("form_submitted", {
-        "user_id": st.session_state.user_id,
-        "edad": datos_usuario.get("edad"),
-        "genero": datos_usuario.get("genero"),
-        "actividad_frecuencia": datos_usuario.get("actividad_frecuencia"),
-        "freq_recom": datos_usuario.get("freq_recom"),
-        "familias_list": [k.replace("recom_familias_", "") for k, v in datos_usuario.items() if k.startswith("recom_familias_") and v == 1],
-        "jovenes_list": [k.replace("recom_jovenes_", "") for k, v in datos_usuario.items() if k.startswith("recom_jovenes_") and v == 1],
-        "mayores_list": [k.replace("recom_mayores_", "") for k, v in datos_usuario.items() if k.startswith("recom_mayores_") and v == 1]
-    })
-
     modelo_recomendador = cargar_modelo()
     predicciones_binarias = modelo_recomendador.predict(df_usuario)[0]
 
@@ -907,6 +884,16 @@ with st.form("form_recomendador", clear_on_submit=False):
     submitted = st.form_submit_button("Obtener recomendaciones")
 
 if submitted and not st.session_state.form_bloqueado:
+    log_event("form_submitted", {
+        "user_id": st.session_state.user_id,
+        "edad": datos_usuario.get("edad"),
+        "genero": datos_usuario.get("genero"),
+        "actividad_frecuencia": datos_usuario.get("actividad_frecuencia"),
+        "freq_recom": datos_usuario.get("freq_recom"),
+        "familias_list": [k.replace("recom_familias_", "") for k, v in datos_usuario.items() if k.startswith("recom_familias_") and v == 1],
+        "jovenes_list": [k.replace("recom_jovenes_", "") for k, v in datos_usuario.items() if k.startswith("recom_jovenes_") and v == 1],
+        "mayores_list": [k.replace("recom_mayores_", "") for k, v in datos_usuario.items() if k.startswith("recom_mayores_") and v == 1]
+    })
     st.session_state.datos_usuario_guardados = datos_usuario
     st.session_state.form_bloqueado = True
     with st.spinner("💡 Pensando tus recomendaciones..."):
@@ -971,16 +958,3 @@ if st.session_state.get("mostrar_resultados", False):
             })
     else:
         st.info("Ya has enviado tu valoración. ¡Gracias!")
-
-
-# keepalive 2025-08-25T08:08:24Z
-
-
-
-# keepalive 2025-08-25T20:15:36Z
-
-# keepalive 2025-08-26T08:20:21Z
-
-# keepalive 2025-08-26T20:15:35Z
-
-# keepalive 2025-08-27T08:18:41Z
