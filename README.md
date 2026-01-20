@@ -47,23 +47,9 @@ El proyecto se estructura en los siguientes módulos:
 
 ---
 
-## 4. Estructura del repositorio
+## 4. Descripción de los archivos principales
 
-├── app.py # Aplicación principal (interfaz y lógica)
-├── logger_gsheets.py # Registro de eventos en Google Sheets
-├── modelo_turismo.pkl # Modelo entrenado de recomendación
-├── imagenes/ # Recursos gráficos de la interfaz
-│ ├── CastilloAliaga.png
-│ ├── LagunaCaolin.png
-│ └── ...
-└── README.md
-
-
----
-
-## 5. Descripción de los archivos principales
-
-### 5.1 `app.py`
+### 4.1 `app.py`
 
 Archivo principal que ejecuta la aplicación Streamlit.  
 Incluye:
@@ -79,7 +65,7 @@ Incluye:
 
 ---
 
-### 5.2 `logger_gsheets.py`
+### 4.2 `logger_gsheets.py`
 
 Módulo encargado del **registro de eventos anónimos** en Google Sheets, entre ellos:
 
@@ -92,20 +78,20 @@ Este registro permite analizar el uso del sistema y evaluar su funcionamiento.
 
 ---
 
-### 5.3 `modelo_turismo.pkl`
+### 4.3 `modelo_turismo.pkl`
 
 Archivo serializado que contiene el **modelo de aprendizaje automático entrenado** a partir de datos de encuestas.  
 Se utiliza en la fase de predicción para determinar qué lugares son adecuados para cada perfil.
 
 ---
 
-### 5.4 `imagenes/`
+### 4.4 `imagenes/`
 
 Directorio con las imágenes empleadas en la interfaz para enriquecer la experiencia visual y contextualizar las recomendaciones.
 
 ---
 
-## 6. Tecnologías utilizadas
+## 5. Tecnologías utilizadas
 
 - **Lenguaje**: Python  
 - **Interfaz**: Streamlit  
@@ -117,7 +103,7 @@ Directorio con las imágenes empleadas en la interfaz para enriquecer la experie
 
 ---
 
-## 7. Configuración y reproducibilidad
+## 6. Configuración y reproducibilidad
 
 La aplicación requiere definir variables sensibles mediante `secrets.toml` (Streamlit):
 
@@ -132,3 +118,4 @@ project_id = "..."
 private_key_id = "..."
 private_key = "..."
 client_email = "..."
+
