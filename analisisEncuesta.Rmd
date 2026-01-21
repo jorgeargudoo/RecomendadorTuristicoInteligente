@@ -1,0 +1,541 @@
+---
+title: "Análisis encuesta"
+author: "Jorge Argudo"
+date: "2025-06-26"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Carga de librerías y datos
+
+```{r}
+library(readxl)
+library(ggplot2)
+library(dplyr)
+library(tidyr)
+library(RColorBrewer)
+library(stringr)
+library(patchwork)
+library(FSA)
+
+df <- read_excel("respuestas_cuestionario.xlsx", sheet = "Respuestas de formulario 1")
+theme_custom <- theme_minimal(base_size = 12) +
+  theme(
+    panel.background = element_rect(fill = "white", color = NA),
+    plot.background = element_rect(fill = "white", color = NA),
+    panel.grid.major = element_line(color = "grey90"),
+    panel.grid.minor = element_blank(),
+    axis.text.x = element_text(size = 11),
+    plot.title = element_text(face = "bold", size = 14)
+  )
+theme_set(theme_custom)
+df <- df %>%
+  mutate(residencia = case_when(
+    residencia == "Solo en verano o en vacaciones" ~ "Solo en verano\no vacaciones",
+    residencia == "No, pero soy de aquí" ~ "No,\npero soy de aquí",
+    residencia == "Sí, todo el año" ~ "Sí,\ntodo el año",
+    TRUE ~ residencia
+  ))
+```
+
+## 1. ¿Quién ha respondido y qué perfil tiene?
+
+### Histograma por edades
+```{r}
+ggplot(df, aes(x = edad)) +
+  geom_histogram(binwidth = 1, color = "white", fill = brewer.pal(3, "Set2")[2]) +
+  labs(title = "Distribución de edades (por año)",
+       x = "Edad",
+       y = "Número de personas") +
+  theme(plot.title = element_text(face = "bold"))
+```
+
+Se puede observar que los que más han participado han sido los de 16 años. No obstante, la distribución que de la variable edad es algo confusa, no se puede obtener gran infromación de ella. Es por ello que se decide agrupar por grupos de edad
+
+```{r}
+df <- df %>%
+  mutate(grupo_edad = case_when(
+    edad < 30 ~ "Jóvenes (≤29)",
+    edad < 60 ~ "Adultos (30–59)",
+    TRUE      ~ "Mayores (60+)"
+  ))
+df$grupo_edad <- factor(df$grupo_edad, levels = c("Jóvenes (≤29)", "Adultos (30–59)", "Mayores (60+)"))
+```
+
+### Pirámide demográfica
+```{r}
+df %>%
+  count(grupo_edad, genero) %>%
+  mutate(n = ifelse(genero == "Hombre", -n, n)) %>%
+  ggplot(aes(x = grupo_edad, y = n, fill = genero)) +
+  geom_col(width = 0.7) +
+  scale_y_continuous(labels = abs) +
+  coord_flip() +
+  scale_fill_brewer(palette = "Set2") +
+  labs(title = "Distribución de encuestados por edad y género",
+       x = "Grupo de edad",
+       y = "Número de personas",
+       fill = "Género") +
+  theme(plot.title = element_text(face = "bold"))
+```
+
+El gráfico anterior muestra cómo se distribuye la participación en la encuesta según los diferentes grupos de edad. El segmento más representado ha sido el de personas adultas (30–59 años), seguido por el grupo de jóvenes (≤29 años), mientras que las personas mayores (60 años o más) han constituido la franja con menor participación.
+
+Resulta llamativo que los adultos hayan superado en participación al grupo joven, especialmente teniendo en cuenta que el cuestionario fue difundido principalmente a través de medios digitales, donde cabría esperar una mayor presencia juvenil por su familiaridad con las tecnologías. En cambio, la escasa representación de las personas mayores era previsible, al tratarse de un colectivo que, en general, presenta menor acceso o uso habitual de estos canales.
+
+Si observamos la distribución por género, se aprecia una participación claramente mayoritaria de mujeres en todos los grupos de edad. Esta tendencia es especialmente marcada en el grupo de adultos, donde las mujeres duplican prácticamente la participación masculina.
+
+### Distribución por tipo de residencia
+```{r}
+df %>%
+  count(residencia) %>%
+  mutate(pct = n / sum(n) * 100) %>%
+  ggplot(aes(x = residencia, y = pct, fill = residencia)) +
+  geom_bar(stat = "identity") +
+  scale_fill_brewer(palette = "Set2") +
+  labs(title = "Distribución por tipo de residencia",
+       x = "Residencia",
+       y = "Porcentaje (%)") +
+  theme_bw(base_size = 12) +
+  theme(
+    axis.text.x = element_text(angle = 0, hjust = 0.5),
+    legend.position = "none",
+    plot.title = element_text(face = "bold")
+  )
+```
+
+En cuanto al tipo de residencia de los encuestados, los datos revelan que la mayoría de personas que han respondido viven en el municipio solo en verano o en periodos vacacionales. Este grupo representa cerca de la mitad de la muestra, lo que indica una alta participación de personas vinculadas al pueblo de forma estacional, probablemente descendientes de familias locales o propietarios de segundas residencias.
+
+Por otro lado, aproximadamente un tercio de los participantes reside en el pueblo durante todo el año, lo que asegura también una representación significativa de la población estable. Asimismo, se ha recogido la opinión de personas que, aunque ya no viven allí, son originarias del municipio, así como un pequeño porcentaje que no tiene ninguna vinculación directa con él.
+
+### Distribución de edad de los encuestados según el tipo de residencia
+```{r}
+ggplot(df, aes(x = residencia, y = edad, fill = residencia)) +
+  geom_violin(trim = FALSE, alpha = 0.5) +
+  geom_jitter(width = 0.2, height = 0, alpha = 0.6, color = "black", size = 1.2) +
+  scale_fill_brewer(palette = "Set2") +
+  labs(title = "Distribución de edad según tipo de residencia",
+       x = "Residencia", y = "Edad") +
+  theme(legend.position = "none")
+```
+
+La siguiente visualización muestra la distribución de edad en función del tipo de residencia de los participantes. Se observa que la mayoría de respuestas provienen de personas que residen en el pueblo durante todo el año o que lo visitan en verano o vacaciones.
+
+Los residentes habituales muestran una distribución de edades bastante uniforme, aunque con una ligera concentración en edades jóvenes y medias. Esto indica que el perfil del residente habitual es diverso, pero tiende a incluir personas en edad activa. En cambio, quienes residen solo en verano presentan un perfil más joven y más envejecido al mismo tiempo, lo que sugiere la presencia de segundas residencias familiares.
+
+Por otro lado, los encuestados que no viven allí pero son originarios del pueblo tienden a tener una edad media-alta. Finalmente, las personas sin ningún vínculo directo con el municipio son pocas, por lo que no permiten extraer conclusiones significativas.
+
+Este gráfico proporciona una visión clara del perfil demográfico de la muestra, clave para interpretar sus valoraciones y recomendaciones posteriores.
+
+
+## ¿Qué se recomienda?
+
+### Actividades recomendadas según grupo objetivo
+```{r}
+actividades_validas <- c(
+  "Naturaleza y paseos",
+  "Monumentos o historia",
+  "Bares y restaurantes",
+  "Eventos o fiestas",
+  "Rutas",
+  "Sitios tranquilos para descansar"
+)
+
+familias <- df %>%
+  select(recom_familias) %>%
+  separate_rows(recom_familias, sep = ",\\s*") %>%
+  mutate(grupo = "Familias", actividad = recom_familias) %>%
+  select(grupo, actividad)
+
+jovenes <- df %>%
+  select(recom_jovenes) %>%
+  separate_rows(recom_jovenes, sep = ",\\s*") %>%
+  mutate(grupo = "Jóvenes", actividad = recom_jovenes) %>%
+  select(grupo, actividad)
+
+mayores <- df %>%
+  select(recom_mayores) %>%
+  separate_rows(recom_mayores, sep = ",\\s*") %>%
+  mutate(grupo = "Mayores", actividad = recom_mayores) %>%
+  select(grupo, actividad)
+
+recomendaciones <- bind_rows(familias, jovenes, mayores) %>%
+  filter(actividad %in% actividades_validas)
+
+conteo <- recomendaciones %>%
+  count(actividad, grupo)
+conteo <- conteo %>%
+  mutate(actividad = case_when(
+    actividad == "Bares y restaurantes" ~ "Bares\ny restaurantes",
+    actividad == "Eventos o fiestas" ~ "Eventos\no fiestas",
+    actividad == "Monumentos o historia" ~ "Monumentos\no historia",
+    actividad == "Naturaleza y paseos" ~ "Naturaleza\ny paseos",
+    actividad == "Sitios tranquilos para descansar" ~ "Sitios tranquilos\npara descansar",
+    TRUE ~ actividad
+  ))
+
+ggplot(conteo, aes(x = actividad, y = n, fill = grupo)) +
+  geom_col(position = "dodge") +
+  scale_fill_brewer(palette = "Set2") +
+  labs(title = "Actividades recomendadas según grupo objetivo",
+       x = "Actividad recomendada",
+       y = "Número de menciones",
+       fill = "Grupo objetivo") +
+  theme_minimal() +
+  theme(plot.title = element_text(face = "bold")
+  )
+```
+
+El gráfico anterior muestra el número de veces que se han recomendado diferentes tipos de actividades, diferenciadas según el grupo objetivo: familias, jóvenes o personas mayores. Esta visualización permite identificar preferencias diferenciadas y percepciones específicas sobre qué actividades son más adecuadas para cada perfil de visitante.
+
+En el caso de los jóvenes, destacan las recomendaciones relacionadas con eventos o fiestas y bares y restaurantes, lo que refleja una expectativa de ocio social. Estas actividades son percibidas como las más atractivas para este grupo, en contraste con otras opciones más tranquilas o culturales.
+
+Para las familias, las recomendaciones más frecuentes se orientan hacia naturaleza y paseos, rutas y también eventos o fiestas, lo que sugiere una búsqueda de actividades al aire libre y accesibles para distintos rangos de edad. En cuanto a las personas mayores, se observa una clara inclinación hacia propuestas como sitios tranquilos para descansar, naturaleza y paseos y monumentos o historia.
+
+Este gráfico evidencia cómo los propios residentes adaptan sus sugerencias en función del público al que se dirigen, lo cual resulta clave para el diseño de un sistema de recomendación sensible a la diversidad de visitantes.
+
+### Tipos de actividades recomendadas por cada grupo de edad
+```{r}
+recom_por_edad <- bind_rows(
+  df %>% select(grupo_edad, recom_familias) %>%
+    separate_rows(recom_familias, sep = ",\\s*") %>%
+    rename(actividad = recom_familias),
+  df %>% select(grupo_edad, recom_jovenes) %>%
+    separate_rows(recom_jovenes, sep = ",\\s*") %>%
+    rename(actividad = recom_jovenes),
+  df %>% select(grupo_edad, recom_mayores) %>%
+    separate_rows(recom_mayores, sep = ",\\s*") %>%
+    rename(actividad = recom_mayores)
+) %>%
+  filter(actividad %in% actividades_validas) %>%
+  group_by(grupo_edad, actividad) %>%
+  summarise(n = n(), .groups = "drop") %>%
+  group_by(grupo_edad) %>%
+  mutate(pct = n / sum(n) * 100)
+
+recom_por_edad <- recom_por_edad %>%
+  mutate(actividad = case_when(
+    actividad == "Bares y restaurantes" ~ "Bares\ny restaurantes",
+    actividad == "Eventos o fiestas" ~ "Eventos\no fiestas",
+    actividad == "Monumentos o historia" ~ "Monumentos\no historia",
+    actividad == "Naturaleza y paseos" ~ "Naturaleza\ny paseos",
+    actividad == "Sitios tranquilos para descansar" ~ "Sitios tranquilos\npara descansar",
+    TRUE ~ actividad
+  ))
+
+# Crear el heatmap
+ggplot(recom_por_edad, aes(x = actividad, y = grupo_edad, fill = pct)) +
+  geom_tile(color = "white") +
+  scale_fill_gradient(low = "#E0F4EF", high = "#66C2A5") +
+  labs(title = "Actividades recomendadas según grupo de edad",
+       x = "Actividad", y = "Grupo de edad", fill = "Porcentaje\n(dentro del grupo de edad)") +
+  theme_minimal() +
+  theme(
+    axis.text.x = element_text(angle = 0, hjust = 0.5),
+    plot.title = element_text(face = "bold")
+  )
+
+```
+
+Este gráfico de calor muestra el porcentaje de menciones que ha recibido cada tipo de actividad, desglosado por grupo de edad. A diferencia del gráfico anterior, aquí se representa el peso relativo dentro de cada grupo a la hora de recomendar tipos de actividades.
+
+Se aprecia que la naturaleza y los paseos son una de las actividades más destacadas en los tres grupos de edad, con especial intensidad entre adultos y personas mayores. Esta información sugiere que el entorno natural del municipio es percibido como valioso y recomendable.
+
+Los jóvenes destacan en su afinidad por las fiestas y eventos, lo que resulta coherente con los patrones de ocio habituales en ese rango de edad. Al igual que este grupo recomienda este tipo de actividad, a ellos también se les recomienda los eventos y fiestas, y los bares y restaurantes (se ha observado en el anterior gráfico).
+
+Por otro lado, las personas mayores tienden a recomendar más monumentos o historia, alineándose con un enfoque de ocio más cultural. En cambio, actividades como las rutas o los bares quedan en un segundo plano.
+
+Los adultos, por su parte, ofrecen un patrón equilibrado, con una ligera preferencia por la naturaleza y menciones repartidas entre las demás categorías, lo que puede reflejar su rol intermedio entre generaciones.
+
+En conjunto, este gráfico confirma que los distintos grupos de edad no solo responden de manera diferente al cuestionario, sino que también muestran visiones distintas sobre qué experiencias vale la pena recomendar en el pueblo.
+
+## ¿Cómo se valoran los diferentes lugares?
+
+### Ranking
+```{r}
+val_cols <- df %>% select(starts_with("valoracion_"))
+
+ranking_valoraciones <- val_cols %>%
+  summarise(across(everything(), ~ mean(.x, na.rm = TRUE))) %>%
+  pivot_longer(everything(), names_to = "Lugar", values_to = "Media") %>%
+  mutate(Lugar = str_replace(Lugar, "valoracion_", "")) %>%
+  arrange(desc(Media))
+
+ggplot(ranking_valoraciones, aes(x = reorder(Lugar, Media), y = Media)) +
+  geom_col(fill = "#8da0cb") + 
+  coord_flip() +
+  scale_y_continuous(limits = c(0, 5)) +
+  labs(title = "Valoración media por lugar",
+       x = "Lugar", y = "Valoración media") +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(face = "bold"),
+    axis.text.y = element_text(size = 10)
+  )
+```
+
+El gráfico anterior representa la valoración media obtenida por cada lugar incluido en el cuestionario. Los valores están ordenados de mayor a menor, permitiendo identificar rápidamente qué espacios han sido mejor puntuados por los encuestados.
+
+Entre las ubicaciones con puntuaciones más altas se encuentran principalmente parajes naturales, como Puente Cristinas (Río Cabriel), Chorreras del Río Cabriel, Lagunas de Cañada del Hoyo o Torcas de Palancares y Tierra Muerta, todos con medias superiores a 4 sobre 5.
+
+En contraste, los lugares con menor valoración media corresponden mayoritariamente a elementos patrimoniales o urbanos, como Castillo de Aliaga, Fachada de Harinas, Iglesia de Santo Domingo de Silos o el Panteón de los Marqueses de Moya, cuya puntuación media ronda valores próximos al 3.
+
+Como conclusión directa del análisis, se puede afirmar que los espacios naturales han sido valorados significativamente mejor que los puntos de interés cultural o arquitectónico. Esta tendencia sugiere una preferencia generalizada por entornos naturales frente a elementos históricos.
+
+
+```{r}
+valoracion_cols <- df %>%
+  select(starts_with("valoracion_")) %>%
+  pivot_longer(cols = everything(), names_to = "Lugar", values_to = "Valoracion") %>%
+  mutate(
+    Lugar = str_replace(Lugar, "valoracion_", "")
+  )
+
+polarizacion <- valoracion_cols %>%
+  group_by(Lugar) %>%
+  summarise(desviacion = sd(Valoracion, na.rm = TRUE)) %>%
+  arrange(desc(desviacion)) %>%
+  mutate(Lugar = factor(Lugar, levels = Lugar))
+
+ggplot(polarizacion, aes(x = desviacion, y = Lugar)) +
+  geom_col(fill = "#8da0cb") +
+  labs(title = "Desviación estándar por lugar",
+       x = "Desviación estándar", y = "Lugar") +
+  theme_minimal(base_size = 12) +
+  theme(plot.title = element_text(face = "bold"))
+
+```
+
+El gráfico muestra la desviación estándar de las valoraciones recibidas por cada lugar, lo que permite identificar el grado de consenso o desacuerdo entre los encuestados. Una desviación estándar baja indica que la mayoría de personas han valorado ese lugar de forma similar, mientras que una alta refleja opiniones más dispersas.
+
+Al observar los datos, se aprecia que los lugares mejor valorados —como Puente Cristinas (Río Cabriel), Chorreras del Río Cabriel o Lagunas de Cañada del Hoyo— son también los que presentan una menor variabilidad en las respuestas. Esto sugiere un alto nivel de acuerdo entre los participantes respecto a su atractivo.
+
+En el extremo opuesto, los lugares con mayor desviación estándar —como Castillo de Aliaga, Panteón de los Marqueses de Moya, Fachada de Harinas o Laguna de Caolín— son también los que obtuvieron las valoraciones medias más bajas en el gráfico anterior. Esta combinación indica que estos espacios generan una percepción polarizada: mientras algunos encuestados los consideran interesantes, otros los valoran de forma claramente negativa.
+
+En los siguientes apartados se analiza con más detalle a qué podrían deberse estas discrepancias, explorando factores como la edad, el tipo de residencia o el conocimiento previo de los lugares por parte de los encuestados.
+
+```{r}
+df_filtrado <- df %>%
+  pivot_longer(cols = starts_with("valoracion_"),
+               names_to = "Lugar",
+               names_prefix = "valoracion_",
+               values_to = "Valoracion") %>%
+  filter(Lugar %in% c("CastilloAliaga", "PanteonMarquesesMoya", "FachadaHarinas", "LagunaCaolin"))
+
+df_edad <- df_filtrado %>% 
+  select(Lugar, Valoracion, grupo_edad) %>%
+  rename(grupo = grupo_edad) %>%
+  mutate(variable = "Grupo de edad")
+
+df_genero <- df_filtrado %>% 
+  select(Lugar, Valoracion, genero) %>%
+  rename(grupo = genero) %>%
+  mutate(variable = "Género")
+
+df_residencia <- df_filtrado %>% 
+  select(Lugar, Valoracion, residencia) %>%
+  rename(grupo = residencia) %>%
+  mutate(variable = "Residencia")
+
+g1 <- ggplot(df_genero, aes(x = Lugar, y = Valoracion, fill = grupo)) +
+  geom_boxplot() +
+  scale_fill_brewer(palette = "Pastel2", name = "Género") +
+  labs(y = "Valoración") +
+  theme_minimal(base_size = 12) +
+  theme(
+    legend.position = "right",
+    axis.title.x = element_blank()
+  ) +
+  ggtitle("Valoraciones por género")
+
+g2 <- ggplot(df_edad, aes(x = Lugar, y = Valoracion, fill = grupo)) +
+  geom_boxplot() +
+  scale_fill_brewer(palette = "Pastel2", name = "Grupo de edad") +
+  labs(y = "Valoración") +
+  theme_minimal(base_size = 12) +
+  theme(
+    legend.position = "right",
+    axis.title.x = element_blank()
+  ) +
+  ggtitle("Valoraciones por grupo de edad")
+
+g3 <- ggplot(df_residencia, aes(x = Lugar, y = Valoracion, fill = grupo)) +
+  geom_boxplot() +
+  scale_fill_brewer(palette = "Pastel2", name = "Residencia") +
+  labs(x = "Lugar", y = "Valoración") +
+  theme_minimal(base_size = 12) +
+  theme(
+    legend.position = "right"
+  ) +
+  ggtitle("Valoraciones por tipo de residencia")
+
+final_plot <- g1 / g2 / g3 + plot_layout(guides = "collect") & theme(legend.box = "vertical")
+
+final_plot
+```
+
+Con el objetivo de entender las razones detrás de la alta dispersión en las valoraciones observada en algunos lugares concretos, se ha desglosado la puntuación de los cuatro espacios más polarizantes —Castillo de Aliaga, Fachada de Harinas, Laguna de Caolín y Panteón de los Marqueses de Moya— según tres variables: género, grupo de edad y tipo de residencia.
+
+En cuanto al género, no se aprecian diferencias significativas en la mediana de las valoraciones para ninguno de los cuatro lugares. Aunque existen ligeras variaciones en la dispersión o en los valores extremos, los rangos intercuartílicos se solapan en todos los casos. Por tanto, no se detectan patrones claros que indiquen que el género tenga un efecto determinante en la polarización observada.
+
+Por otro lado, al analizar las valoraciones por grupo de edad, sí se identifican diferencias destacables. En el Castillo de Aliaga, por ejemplo, el grupo de personas mayores (60+) tiende a valorar el lugar de forma más baja en comparación con los jóvenes y adultos. De forma similar, en la Fachada de Harinas, los jóvenes presentan una mayor dispersión y una mediana algo más baja. Estos patrones podrían estar reflejando distintas expectativas o niveles de interés según la edad.
+
+También se observan diferencias en función del tipo de residencia. En el Castillo de Aliaga, quienes no viven en el municipio o solo acuden en verano tienden a valorar el lugar más positivamente que quienes residen todo el año. Este mismo patrón se repite en la Fachada de Harinas, donde los residentes estacionales otorgan valoraciones superiores en comparación con los locales. Estas diferencias podrían estar asociadas al nivel de conocimiento del lugar, a su estado actual o a cómo se percibe su valor desde dentro o fuera del entorno habitual. 
+
+Para analizar si las diferencias observadas visualmente en las valoraciones de ciertos lugares se deben a factores poblacionales, se aplican pruebas estadísticas no paramétricas, ya que al tratarse de una muestra tan pequeña para algunas poblaciones, no es posible asegurar normalidad en los datos. En concreto, se realiza el test de Kruskal–Wallis para comprobar si existen diferencias significativas entre grupos de edad en las valoraciones de la Fachada de Harinas y del Panteón de los Marqueses de Moya. Además, se evalúa si el tipo de residencia influye en la valoración de las cuatro ubicaciones más polarizantes (Castillo de Aliaga, Fachada de Harinas, Laguna de Caolín y el Panteón de los Marqueses de Moya). En los casos en los que el resultado del test es significativo, se aplica un test post-hoc de Dunn con corrección de Bonferroni para identificar entre qué grupos concretos se encuentran las diferencias.
+
+```{r}
+# Cargar librerías necesarias
+library(dplyr)
+library(FSA)  # Para dunnTest()
+
+# --- Test según grupo de edad ---
+
+# Fachada de Harinas
+fachada <- df_filtrado %>% filter(Lugar == "FachadaHarinas")
+kruskal.test(Valoracion ~ grupo_edad, data = fachada)
+dunnTest(Valoracion ~ grupo_edad, data = fachada, method = "bonferroni")
+
+# Panteón de los Marqueses de Moya
+panteon <- df_filtrado %>% filter(Lugar == "PanteonMarquesesMoya")
+kruskal.test(Valoracion ~ grupo_edad, data = panteon)
+dunnTest(Valoracion ~ grupo_edad, data = panteon, method = "bonferroni")
+
+
+# --- Test según tipo de residencia en los 4 lugares polarizantes ---
+
+# Castillo de Aliaga
+castillo <- df_filtrado %>% filter(Lugar == "CastilloAliaga")
+kruskal.test(Valoracion ~ residencia, data = castillo)
+dunnTest(Valoracion ~ residencia, data = castillo, method = "bonferroni")
+
+# Fachada de Harinas
+kruskal.test(Valoracion ~ residencia, data = fachada)
+dunnTest(Valoracion ~ residencia, data = fachada, method = "bonferroni")
+
+# Laguna de Caolín
+caolin <- df_filtrado %>% filter(Lugar == "LagunaCaolin")
+kruskal.test(Valoracion ~ residencia, data = caolin)
+dunnTest(Valoracion ~ residencia, data = caolin, method = "bonferroni")
+
+# Panteón de los Marqueses de Moya
+kruskal.test(Valoracion ~ residencia, data = panteon)
+dunnTest(Valoracion ~ residencia, data = panteon, method = "bonferroni")
+```
+Tabla (en fotos)
+Se detectaron diferencias estadísticamente significativas entre grupos de edad en las valoraciones de la Fachada de Harinas (p = 0.0029) y del Panteón de los Marqueses de Moya (p = 0.0071).
+El test post-hoc de Dunn mostró que, en ambos casos, los jóvenes valoraron significativamente más bajo que los adultos (p-adj. ≈ 0.0049 y 0.0132, respectivamente), y que también existían diferencias relevantes entre jóvenes y mayores.
+
+Estos resultados confirman que la edad influye significativamente en la percepción de estos espacios. Parece que los jóvenes no prefieren estos lugares porque tal vez no tienen tanto interés en historia y cultura como lo pueden tener las personas mayores.
+
+De los cuatro lugares más polarizantes, solo en el Castillo de Aliaga se detectaron diferencias significativas en función del tipo de residencia (p = 0.0204).
+En este caso, el análisis post-hoc reveló que las personas que residen todo el año valoran el lugar de forma significativamente más baja que quienes lo visitan solo en verano (p-adj = 0.0186).
+
+En los otros tres lugares —Fachada de Harinas, Laguna de Caolín y el Panteón de los Marqueses de Moya— no se hallaron diferencias significativas por tipo de residencia (p > 0.26 en todos los casos).
+
+
+En resumen, los resultados obtenidos a través de las pruebas estadísticas no paramétricas confirman que existen diferencias significativas en la percepción de ciertos lugares en función de factores como la edad y, en menor medida, el tipo de residencia. Estas diferencias ayudan a explicar la polarización observada previamente en las valoraciones, y evidencian que no todos los grupos de población experimentan el municipio del mismo modo.
+
+## ¿Cuánto se suele recomendar y cuánto se conoce el pueblo? (Participación y recomendación turísitica)
+
+```{r, fig.width=12, fig.height=5}
+df <- df %>%
+  mutate(
+    freq_recom = as.factor(freq_recom),
+    actividad_frecuencia = as.factor(actividad_frecuencia)
+  )
+# Agrupado por grupo de edad
+df_edad_recom <- df %>%
+  count(grupo_edad, freq_recom) %>%
+  group_by(grupo_edad) %>%
+  mutate(pct = n / sum(n) * 100)
+
+# Agrupado por residencia
+df_residencia_recom <- df %>%
+  count(residencia, freq_recom) %>%
+  group_by(residencia) %>%
+  mutate(pct = n / sum(n) * 100)
+# Gráfico por grupo de edad con escala y espacio
+g1 <- ggplot(df_edad_recom, aes(x = freq_recom, y = pct, group = grupo_edad, color = grupo_edad)) +
+  geom_line(position = position_dodge(width = 0.2), size = 1) +
+  geom_point(position = position_dodge(width = 0.2), size = 2) +
+  labs(title = "Recomendación según grupo de edad", x = "Frecuencia recomendación (1 Nunca, 5 Siempre)", y = "% dentro del grupo", color = "Grupo de edad") +
+  scale_color_brewer(palette = "Set2") +
+  scale_y_continuous(breaks = seq(0, 100, 20), limits = c(0, 100)) +
+  theme_minimal()
+
+# Gráfico por tipo de residencia
+g2 <- ggplot(df_residencia_recom, aes(x = freq_recom, y = pct, group = residencia, color = residencia)) +
+  geom_line(position = position_dodge(width = 0.2), size = 1) +
+  geom_point(position = position_dodge(width = 0.2), size = 2) +
+  labs(title = "Recomendación según tipo de residencia", x = "Frecuencia recomendación (1 Nunca, 5 Siempre)", y = "% dentro del grupo", color = "Residencia") +
+  scale_color_brewer(palette = "Set2") +
+  scale_y_continuous(breaks = seq(0, 100, 20), limits = c(0, 100)) +
+  theme_minimal()
+
+# Mostrar juntos
+g1 + g2
+
+```
+
+
+
+```{r, fig.width=12, fig.height=5}
+# Recodificar y aplicar el orden de factor
+# Convertir a carácter y recodificar asegurando que no haya NA
+# Reemplazar directamente los valores con los nombres completos y ordenados
+df <- df %>%
+  mutate(
+    actividad_frecuencia = recode(
+      actividad_frecuencia,
+      "Solo en fiestas o vacaciones" = "Solo en fiestas\no vacaciones",
+      "De vez en cuando" = "De vez \nen cuando",
+      "Varias veces por semana" = "Varias veces\npor semana",
+      "A diario" = "A diario"
+    ),
+    actividad_frecuencia = factor(
+      actividad_frecuencia,
+      levels = c("Solo en fiestas\no vacaciones", "De vez \nen cuando", "Varias veces\npor semana", "A diario")
+    )
+  )
+
+
+
+# Agrupado por grupo de edad
+df_edad_part <- df %>%
+  count(grupo_edad, actividad_frecuencia) %>%
+  group_by(grupo_edad) %>%
+  mutate(pct = n / sum(n) * 100)
+
+# Agrupado por tipo de residencia
+df_residencia_part <- df %>%
+  count(residencia, actividad_frecuencia) %>%
+  group_by(residencia) %>%
+  mutate(pct = n / sum(n) * 100)
+
+# Gráfico por grupo de edad
+g3 <- ggplot(df_edad_part, aes(x = actividad_frecuencia, y = pct, group = grupo_edad, color = grupo_edad)) +
+  geom_line(size = 1) +
+  geom_point(size = 2) +
+  labs(title = "Realización de actividades según grupo de edad", x = "Frecuencia de realización de actividades", y = "% dentro del grupo", color = "Grupo de edad") +
+  scale_color_brewer(palette = "Set2") +
+  scale_y_continuous(breaks = seq(0, 100, 20), limits = c(0, 100)) +
+  theme_minimal()
+
+# Gráfico por residencia
+g4 <- ggplot(df_residencia_part, aes(x = actividad_frecuencia, y = pct, group = residencia, color = residencia)) +
+  geom_line(size = 1) +
+  geom_point(size = 2) +
+  labs(title = "Realización de actividades según tipo de residencia", x = "Frecuencia de realización de actividades", y = "% dentro del grupo", color = "Residencia") +
+  scale_color_brewer(palette = "Set2") +
+  scale_y_continuous(breaks = seq(0, 100, 20), limits = c(0, 100)) +
+  theme_minimal() 
+
+# Mostrar en grid
+g3 + g4
+
+```
+
